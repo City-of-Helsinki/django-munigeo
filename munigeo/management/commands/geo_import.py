@@ -9,8 +9,7 @@ class Command(BaseCommand):
     help = "Import geo data"
     option_list = BaseCommand.option_list + (
         make_option('--municipality', action='store_true', dest='municipality', help='Import municipalities'),
-        make_option('--district', action='store_true', dest='district', help='Import muni districts'),
-        make_option('--plan', action='store_true', dest='plan', help='Import muni plan'),
+        make_option('--division', action='store_true', dest='division', help='Import administrative divisions'),
         make_option('--address', action='store_true', dest='address', help='Import addresses'),
         make_option('--poi', action='store_true', dest='poi', help='Import POIs'),
         make_option('--all', action='store_true', dest='all', help='Import all entities.'),
@@ -20,20 +19,22 @@ class Command(BaseCommand):
         if len(args) != 1:
             raise CommandError("Enter the name of the geo importer module.")
         module = __import__('munigeo.importer.%s' % args[0], globals(), locals(), ['Importer'])
-        importer = module.Importer()
-        importer.data_path = os.path.join(settings.PROJECT_ROOT, 'data')
+
+        if hasattr(settings, 'PROJECT_ROOT'):
+            root_dir = settings.PROJECT_ROOT
+        else:
+            root_dir = settings.BASE_DIR
+        importer = module.Importer(data_path=os.path.join(root_dir, 'data'))
+
         if options['all'] or options['municipality']:
-            print "Importing municipalities"
+            print("Importing municipalities")
             importer.import_municipalities()
-        if options['all'] or options['district']:
-            print "Importing districts"
-            importer.import_districts()
-        if options['all'] or options['plan']:
-            print "Importing plans"
-            importer.import_plans()
+        if options['all'] or options['division']:
+            print("Importing administrative divisions")
+            importer.import_divisions()
         if options['all'] or options['address']:
-            print "Importing addresses"
+            print("Importing addresses")
             importer.import_addresses()
         if options['all'] or options['poi']:
-            print "Importing POIs"
+            print("Importing POIs")
             importer.import_pois()

@@ -142,9 +142,9 @@ class AddressResource(GeometryModelResource):
     def dehydrate(self, bundle):
         distance = getattr(bundle.obj, 'distance', None)
         if distance is not None:
-            distance = unicode(distance)
+            distance = str(distance)
             bundle.data['distance'] = float(distance.strip(' m'))
-        bundle.data['name'] = unicode(bundle.obj)
+        bundle.data['name'] = str(bundle.obj)
         return bundle
 
     class Meta:
@@ -196,9 +196,9 @@ class POIResource(GeometryModelResource):
     def dehydrate(self, bundle):
         distance = getattr(bundle.obj, 'distance', None)
         if distance is not None:
-            distance = unicode(distance)
+            distance = str(distance)
             bundle.data['distance'] = float(distance.strip(' m'))
-        bundle.data['category_type'] = unicode(bundle.obj.category.type)
+        bundle.data['category_type'] = str(bundle.obj.category.type)
         return bundle
 
     class Meta:

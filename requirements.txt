@@ -2,3 +2,6 @@ Django>=1.4.0
 django-tastypie
 requests
 requests-cache
+django-mptt
+django-linguo
+six
