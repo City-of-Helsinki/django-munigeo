@@ -72,7 +72,8 @@ class Importer(object):
         geom = feat.geom
         geom.transform(PROJECTION_SRID)
         # Store only the land boundaries
-        geom = geom.geos.intersection(self.land_area)
+        #geom = geom.geos.intersection(self.land_area)
+        geom = geom.geos
         if geom.geom_type == 'Polygon':
             geom = MultiPolygon(geom)
         geom_obj.boundary = geom
@@ -82,12 +83,12 @@ class Importer(object):
         fin_bbox = Polygon.from_bbox(FIN_GRID)
         fin_bbox.srid = TM35_SRID
         fin_bbox.transform(4326)
-        print("Loading global land shape")
-        path = os.path.join(self.data_path, 'global', 'ne_10m_land.shp')
-        ds = DataSource(path)
-        land = ds[0][0]
-        self.land_area = fin_bbox.intersection(land.geom.geos)
-        self.land_area.transform(PROJECTION_SRID)
+        #print("Loading global land shape")
+        #path = os.path.join(self.data_path, 'global', 'ne_10m_land.shp')
+        #ds = DataSource(path)
+        #land = ds[0][0]
+        #self.land_area = fin_bbox.intersection(land.geom.geos)
+        #self.land_area.transform(PROJECTION_SRID)
 
         print("Loading municipality boundaries")
         path = os.path.join(self.data_path, 'fi', 'SuomenKuntajako_2013_10k.xml')
