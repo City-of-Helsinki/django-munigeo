@@ -13,6 +13,7 @@ from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon, Point
 
 from munigeo.models import *
 from munigeo.importer.sync import ModelSyncher
+from munigeo import ocd
 
 try:
     from concurrent.futures import ThreadPoolExecutor
@@ -60,6 +61,7 @@ class Importer(object):
             muni = Municipality(origin_id=muni_id)
         muni.translate(language='fi', name=name_fi)
         muni.translate(language='sv', name=name_sv)
+        muni.ocd_id = ocd.make_id(country='fi', kunta=name_fi)
         muni.save()
         syncher.mark(muni)
 
