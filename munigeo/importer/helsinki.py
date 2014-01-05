@@ -12,6 +12,7 @@ from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon, Point
 
 from munigeo.models import *
+from munigeo.importer.sync import ModelSyncher
 
 try:
     from concurrent.futures import ThreadPoolExecutor
@@ -39,40 +40,6 @@ def convert_from_gk25(north, east):
     pnt = Point(east, north, srid=GK25_SRID)
     pnt.transform(PROJECTION_SRID)
     return pnt
-
-class ModelSyncher(object):
-    def __init__(self, queryset, generate_obj_id):
-        d = {}
-        self.generate_obj_id = generate_obj_id
-        # Generate a list of all objects
-        for obj in queryset:
-            d[generate_obj_id(obj)] = obj
-            obj.found = False
-
-        self.obj_dict = d
-
-    def mark(self, obj):
-        if getattr(obj, 'found', False):
-            raise Exception("Object %s already marked" % obj)
-
-        obj.found = True
-        obj_id = self.generate_obj_id(obj)
-        if obj_id not in self.obj_dict:
-            self.obj_dict[obj_id] = obj
-
-    def get(self, obj_id):
-        return self.obj_dict.get(obj_id, None)
-
-    def finish(self):
-        delete_list = []
-        for obj_id, obj in self.obj_dict.items():
-            if not obj.found:
-                print("Deleting object %s" % obj)
-                delete_list.append(obj)
-        if len(delete_list) > 5 and len(delete_list) > len(self.obj_dict) * 0.2:
-            raise Exception("Attempting to delete more than 20%% of total items")
-        for obj in delete_list:
-            obj.delete()
 
 class Importer(object):
     def __init__(self, data_path):
