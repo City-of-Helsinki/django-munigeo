@@ -15,6 +15,10 @@ from django import db
 from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
 
+#
+# DOES NOT WORK -- NEEDS REWRITE
+#
+
 POI_LIST = [
     {
         'category': 'park', 'category_desc': 'Park',
