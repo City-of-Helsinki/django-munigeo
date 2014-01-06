@@ -52,15 +52,23 @@ class HelsinkiImporter(Importer):
         self.data_path = self.options['data_path']
         self.muni_data_path = os.path.join(self.data_path, 'fi', 'helsinki')
 
+    def _find_parent_division(self, parent_info):
+        args = {
+            'type__type': parent_info['type'], 
+            'origin_id': parent_info['id'],
+            'parent__parent': parent_info['parent']
+        }
+        return AdministrativeDivision.objects.get(**args)
+
     @db.transaction.atomic
-    def _import_division(self, parent, type_name, div):
+    def _import_division(self, parent, div):
         print(div['name'])
         if not 'origin_id' in div['fields']:
             raise Exception("Field 'origin_id' not defined in config section '%s'" % div['name'])
         try:
-            type_obj = AdministrativeDivisionType.objects.get(type=type_name)
+            type_obj = AdministrativeDivisionType.objects.get(type=div['type'])
         except AdministrativeDivisionType.DoesNotExist:
-            type_obj = AdministrativeDivisionType(type=type_name)
+            type_obj = AdministrativeDivisionType(type=div['type'])
             type_obj.name = div['name']
             type_obj.save()
 
@@ -101,6 +109,14 @@ class HelsinkiImporter(Importer):
                 for lang, val in lang_dict[attr].items():
                     d = {attr: val}
                     obj.translate(language=lang, **d)
+
+            if 'ocd_id' in div:
+                assert parent and parent.ocd_id
+                args = {'parent': parent.ocd_id}
+                val = attr_dict['ocd_id']
+                args[div['ocd_id']] = val
+                obj.ocd_id = ocd.make_id(**args)
+
             obj.save()
             syncher.mark(obj)
 
@@ -126,8 +142,8 @@ class HelsinkiImporter(Importer):
 
         muni = Municipality.objects.get(origin_id=config['origin_id'])
         self.muni = muni
-        for type_name, div in config['divisions'].items():
-            self._import_division(muni, type_name, div)
+        for div in config['divisions']:
+            self._import_division(muni, div)
 
     def _import_plans(self, fname, in_effect):
         path = os.path.join(self.data_path, 'kaavahakemisto', fname)

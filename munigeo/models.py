@@ -23,6 +23,10 @@ class AdministrativeDivisionType(models.Model):
                             help_text=_("Type name of the division (e.g. muni, school_district)"))
     name = models.CharField(max_length=50,
                             help_text=_("Human-readable name for the division"))
+    ## European Union Nomenclature des Unités Territoriales Statistiques level
+    #nuts_level = models.PositiveSmallIntegerField(null=True, db_index=True)
+    ## European Union Local Administrative Unit level
+    #lau_level = models.PositiveSmallIntegerField(null=True, db_index=True)
 
     def __str__(self):
         return "%s (%s)" % (self.name, self.type)
@@ -35,8 +39,9 @@ class AdministrativeDivision(with_metaclass(AdministrativeDivisionMeta, Multilin
     type = models.ForeignKey(AdministrativeDivisionType, db_index=True)
     name = models.CharField(max_length=100, null=True, db_index=True)
     parent = TreeForeignKey('self', null=True, related_name='children')
+
     origin_id = models.CharField(max_length=50, db_index=True)
-    ocd_id = models.CharField(max_length=50, unique=True, db_index=True, null=True,
+    ocd_id = models.CharField(max_length=200, unique=True, db_index=True, null=True,
                               help_text=_("Open Civic Data identifier"))
 
     # Some divisions might be only valid during some time period.
@@ -44,7 +49,7 @@ class AdministrativeDivision(with_metaclass(AdministrativeDivisionMeta, Multilin
     start = models.DateField(null=True)
     end = models.DateField(null=True)
 
-    last_modified_time = models.DateTimeField(help_text='Time when the information last changed', auto_now_add=True)
+    last_modified_time = models.DateTimeField(help_text='Time when the information was last changed', auto_now_add=True)
 
     objects = MultilingualManager()
     tree_objects = TreeManager()
@@ -72,18 +77,6 @@ class Municipality(AdministrativeDivision):
     def __unicode__(self):
         return self.name
 
-
-class District(models.Model):
-    municipality = models.ForeignKey(Municipality)
-    name = models.CharField(max_length=50)
-    type = models.CharField(max_length=20)
-    borders = models.PolygonField()
-    origin_id = models.CharField(max_length=20)
-
-    objects = models.GeoManager()
-
-    class Meta:
-        unique_together = (('municipality', 'origin_id'))
 
 class Plan(models.Model):
     municipality = models.ForeignKey(Municipality)
