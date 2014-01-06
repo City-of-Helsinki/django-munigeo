@@ -4,37 +4,47 @@ from optparse import make_option
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+from munigeo.importer.base import get_importers
+
 class Command(BaseCommand):
     args = '<module>'
     help = "Import geo data"
-    option_list = BaseCommand.option_list + (
-        make_option('--municipality', action='store_true', dest='municipality', help='Import municipalities'),
-        make_option('--division', action='store_true', dest='division', help='Import administrative divisions'),
-        make_option('--address', action='store_true', dest='address', help='Import addresses'),
-        make_option('--poi', action='store_true', dest='poi', help='Import POIs'),
-        make_option('--all', action='store_true', dest='all', help='Import all entities.'),
-    )
+    option_list = list(BaseCommand.option_list + (
+        make_option('--all', action='store_true', dest='all', help='Import all entities'),
+    ))
+
+    importer_types = ['municipalities', 'divisions', 'addresses', 'pois']
+
+    def __init__(self):
+        super(Command, self).__init__()
+        for imp in self.importer_types:
+            opt = make_option('--%s' % imp, dest=imp, action='store_true', help='import %s' % imp)
+            self.option_list.append(opt)
 
     def handle(self, *args, **options):
+        importers = get_importers()
+        imp_list = ', '.join(sorted(importers.keys()))
         if len(args) != 1:
-            raise CommandError("Enter the name of the geo importer module.")
-        module = __import__('munigeo.importer.%s' % args[0], globals(), locals(), ['Importer'])
+            raise CommandError("Enter the name of the geo importer module. Valid importers: %s" % imp_list)
+        if not args[0] in importers:
+            raise CommandError("Importer %s not found. Valid importers: %s" % imp_list)
+        imp_class = importers[args[0]]
 
         if hasattr(settings, 'PROJECT_ROOT'):
             root_dir = settings.PROJECT_ROOT
         else:
             root_dir = settings.BASE_DIR
-        importer = module.Importer(data_path=os.path.join(root_dir, 'data'))
+        importer = imp_class({'data_path': os.path.join(root_dir, 'data')})
 
-        if options['all'] or options['municipality']:
-            print("Importing municipalities")
-            importer.import_municipalities()
-        if options['all'] or options['division']:
-            print("Importing administrative divisions")
-            importer.import_divisions()
-        if options['all'] or options['address']:
-            print("Importing addresses")
-            importer.import_addresses()
-        if options['all'] or options['poi']:
-            print("Importing POIs")
-            importer.import_pois()
+        for imp_type in self.importer_types:
+            name = "import_%s" % imp_type
+            method = getattr(importer, name, None)
+            if options[imp_type]:
+                if not method:
+                    raise CommandError("Importer %s does not support importing %s" % (name, imp_type))
+            else:
+                if not options['all']:
+                    continue
+
+            if method:
+                method()
