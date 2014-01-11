@@ -4,22 +4,117 @@ import re
 from django.db.models import Q
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
+from django.contrib.gis.gdal import SRSException, SpatialReference, CoordTransform
 from tastypie.http import HttpBadRequest
 from tastypie.resources import ModelResource
 from tastypie.exceptions import InvalidFilterError, ImmediateHttpResponse
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
-from tastypie.contrib.gis.resources import ModelResource as GeometryModelResource
+from tastypie.cache import SimpleCache
 from tastypie import fields
 from munigeo.models import *
 
-class MunicipalityResource(ModelResource):
+
+# Use the GPS coordinate system by default
+DEFAULT_SRID = 4326
+
+def poly_from_bbox(bbox_val):
+    points = bbox_val.split(',')
+    if len(points) != 4:
+        raise InvalidFilterError("bbox must be in format 'left,bottom,right,top'")
+    try:
+        points = [float(p) for p in points]
+    except ValueError:
+        raise InvalidFilterError("bbox values must be floating point or integers")
+    poly = Polygon.from_bbox(points)
+    return poly
+
+def srid_to_srs(srid):
+    if not srid:
+        srid = DEFAULT_SRID
+    try:
+        srid = int(srid)
+    except ValueError:
+        raise InvalidFilterError("'srid' must be an integer")
+    try:
+        srs = SpatialReference(srid)
+    except SRSException:
+        raise InvalidFilterError("SRID %d not found (try 4326 for GPS coordinate system)" % srid)
+    return srs
+
+def build_bbox_filter(srid, bbox_val, field_name):
+    poly = poly_from_bbox(bbox_val)
+    srs = srid_to_srs(srid)
+    poly.set_srid(srs.srid)
+
+    if srid != settings.PROJECTION_SRID:
+        source_srs = SpatialReference(settings.PROJECTION_SRID)
+        ct = CoordTransform(srs, source_srs)
+        poly.transform(ct)
+
+    return {"%s__within" % field_name: poly}
+
+
+LANGUAGES = [x[0] for x in settings.LANGUAGES]
+
+class TranslatableCachedResource(ModelResource):
+    def __init__(self, api_name=None):
+        super(TranslatableCachedResource, self).__init__(api_name)
+        self._meta.cache = SimpleCache(timeout=3600)
+
+    def dehydrate(self, bundle):
+        bundle = super(TranslatableCachedResource, self).dehydrate(bundle)
+        obj = bundle.obj
+        for field_name in obj._meta.translatable_fields:
+            if field_name in bundle.data:
+                del bundle.data[field_name]
+
+            # Remove the pre-existing data in the bundle.
+            for lang in LANGUAGES:
+                key = "%s_%s" % (field_name, lang)
+                if key in bundle.data:
+                    del bundle.data[key]
+
+            d = {}
+            default_lang = LANGUAGES[0]
+            d[default_lang] = getattr(obj, field_name)
+            for lang in LANGUAGES[1:]:
+                key = "%s_%s" % (field_name, lang)
+                val = getattr(bundle.obj, key, None)
+                if val == None:
+                    continue
+                d[lang] = val
+
+            # If no text provided, leave the field as null
+            for key, val in d.items():
+                if val != None:
+                    break
+            else:
+                d = None
+            bundle.data[field_name] = d
+
+        return bundle
+    #_meta.translatable_fields
+
+
+class AdministrativeDivisionTypeResource(TranslatableCachedResource):
+    class Meta:
+        queryset = AdministrativeDivisionType.objects.order_by('pk')
+        filtering = {
+            'type': ALL,
+            'name': ALL
+        }
+
+class AdministrativeDivisionResource(TranslatableCachedResource):
+    parent = fields.ForeignKey('munigeo.api.AdministrativeDivisionResource', 'parent', null=True)
+    type = fields.ForeignKey(AdministrativeDivisionTypeResource, 'type')
+
     def _convert_to_geojson(self, bundle):
-        muni = bundle.obj
+        obj = bundle.obj
         data = {'type': 'Feature'}
         data['properties'] = bundle.data
         data['id'] = bundle.obj.pk
-        borders = muni.municipalityboundary.borders
-        data['geometry'] = json.loads(borders.geojson)
+        geom = obj.geometry.boundary
+        data['geometry'] = json.loads(geom.geojson)
         bundle.data = data
         return bundle
     def alter_detail_data_to_serialize(self, request, bundle):
@@ -34,39 +129,66 @@ class MunicipalityResource(ModelResource):
         data['features'] = [self._convert_to_geojson(bundle) for bundle in bundles['objects']]
         return data
     def apply_filters(self, request, filters):
-        obj_list = super(MunicipalityResource, self).apply_filters(request, filters)
+        obj_list = super(AdministrativeDivisionResource, self).apply_filters(request, filters)
         if request.GET.get('format') == 'geojson':
-            obj_list = obj_list.select_related('municipalityboundary')
+            obj_list = obj_list.select_related('geometry')
         return obj_list
+
+    def query_to_filters(self, query):
+        filters = {}
+        filters['name__icontains'] = query
+        return filters
+    def build_filters(self, filters=None):
+        if 'type' in filters:
+            type_str = filters['type']
+            # If the given type is not digits, assume it's a type name
+            if re.match(type_str, r'$[\d]+^'):
+                del filters['type']
+                filters['type__type'] = type_str
+
+        orm_filters = super(AdministrativeDivisionResource, self).build_filters(filters)
+        if filters and 'input' in filters:
+            orm_filters.update(self.query_to_filters(filters['input']))
+        return orm_filters
+
+
     def dehydrate(self, bundle):
-        alt_names = bundle.obj.municipalityname_set.all()
-        for an in alt_names:
-            bundle.data['name_%s' % an.language] = an.name
-        return bundle
+        if bundle.request.GET.get('geometry', '').lower() in ('true', '1'):
+            srid = bundle.request.GET.get('srid', None)
+            srs = srid_to_srs(srid)
+            geom = bundle.obj.geometry.boundary
+            if srs.srid != geom.srid:
+                ct = CoordTransform(geom.srs, srs)
+                geom.transform(ct)
+            geom_str = geom.geojson
+            bundle.data['boundary'] = json.loads(geom_str)
+        return super(AdministrativeDivisionResource, self).dehydrate(bundle)
+
     def determine_format(self, request):
         if request.GET.get('format') == 'geojson':
             return 'application/json'
-        return super(MunicipalityResource, self).determine_format(request)
-    class Meta:
-        queryset = Municipality.objects.all().order_by('name').select_related('municipalityboundary')
-        resource_name = 'municipality'
-        list_allowed_methods = ['get']
-        detail_allowed_methods = ['get']
+        return super(AdministrativeDivisionResource, self).determine_format(request)
 
-class MunicipalityBoundaryResource(GeometryModelResource):
-    municipality = fields.ToOneField('munigeo.api.MunicipalityResource', 'municipality')
     class Meta:
-        queryset = MunicipalityBoundary.objects.all()
-        resource_name = 'municipality_boundary'
+        queryset = AdministrativeDivision.objects.order_by('ocd_id').select_related('geometry').select_related('type__type')
+        resource_name = 'administrative_division'
         filtering = {
-            'municipality': ALL
+            'type': ALL_WITH_RELATIONS,
+            'ocd_id': ALL,
+            'begin': ALL,
+            'end': ALL,
+            'name': ALL,
+            'parent': ALL_WITH_RELATIONS,
+            'type': ALL_WITH_RELATIONS,
         }
+        excludes = ['lft', 'rght', 'tree_id']
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
 
-class AddressResource(GeometryModelResource):
-    municipality = fields.ToOneField('munigeo.api.MunicipalityResource', 'municipality',
-        help_text="ID of the municipality that this address belongs to")
+
+class AddressResource(ModelResource):
+    #municipality = fields.ToOneField('munigeo.api.MunicipalityResource', 'municipality',
+        #help_text="ID of the municipality that this address belongs to")
 
     def apply_sorting(self, objects, options=None):
         if options and 'lon' in options and 'lat' in options:
@@ -120,7 +242,7 @@ class AddressResource(GeometryModelResource):
         if number:
             filters['number'] = int(number)
         return filters
-        
+
     def build_filters(self, filters=None):
         orm_filters = super(AddressResource, self).build_filters(filters)
         if filters:
@@ -129,7 +251,7 @@ class AddressResource(GeometryModelResource):
             if 'distinct_streets' in filters:
                 orm_filters.update(self.distinct_streets(
                     filters['distinct_streets']))
-        return orm_filters            
+        return orm_filters
 
     def dehydrate_location(self, bundle):
         loc = bundle.data['location']
@@ -170,7 +292,7 @@ class POICategoryResource(ModelResource):
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
 
-class POIResource(GeometryModelResource):
+class POIResource(ModelResource):
     category = fields.ToOneField(POICategoryResource, 'category')
 
     def apply_sorting(self, objects, options=None):
@@ -210,46 +332,10 @@ class POIResource(GeometryModelResource):
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
 
-class DistrictResource(GeometryModelResource):
-    municipality = fields.ToOneField(MunicipalityResource, 'municipality',
-        help_text="ID of the municipality that this district belongs to")
 
-    def query_to_filters(self, query):
-        filters = {}
-        filters['name__icontains'] = query
-        return filters
-
-    def build_filters(self, filters=None):
-        orm_filters = super(DistrictResource, self).build_filters(filters)
-        if filters and 'input' in filters:
-            orm_filters.update(self.query_to_filters(filters['input']))
-        return orm_filters            
-
-    class Meta:
-        queryset = District.objects.all()
-        filtering = {
-            'municipality': ALL,
-            'name': ALL,
-        }
-        list_allowed_methods = ['get']
-        detail_allowed_methods = ['get']
-
-def build_bbox_filter(bbox_val, field_name):
-    points = bbox_val.split(',')
-    if len(points) != 4:
-        raise InvalidFilterError("bbox must be in format 'left,bottom,right,top'")
-    try:
-        points = [float(p) for p in points]
-    except ValueError:
-        raise InvalidFilterError("bbox values must be floating point")
-    poly = Polygon.from_bbox(points)
-    poly.srid = 4326
-    poly.transform(PROJECTION_SRID)
-    return {"%s__intersects" % field_name: poly}
-
-class PlanResource(GeometryModelResource):
-    municipality = fields.ToOneField(MunicipalityResource, 'municipality',
-        help_text="ID of the municipality that this plan belongs to")
+class PlanResource(ModelResource):
+    #municipality = fields.ToOneField(MunicipalityResource, 'municipality',
+        #help_text="ID of the municipality that this plan belongs to")
 
     def build_filters(self, filters=None):
         orm_filters = super(PlanResource, self).build_filters(filters)
@@ -275,6 +361,6 @@ class PlanResource(GeometryModelResource):
         detail_allowed_methods = ['get']
 
 all_resources = [
-    MunicipalityResource, MunicipalityBoundaryResource, AddressResource, POICategoryResource,
-    POIResource, DistrictResource, PlanResource,
+    AdministrativeDivisionResource, AdministrativeDivisionTypeResource,
+    POICategoryResource, POIResource, PlanResource,
 ]
