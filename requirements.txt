@@ -3,5 +3,5 @@ django-tastypie
 requests
 requests-cache
 django-mptt
-django-linguo
+django-modeltranslation
 six

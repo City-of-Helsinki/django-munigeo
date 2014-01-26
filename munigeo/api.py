@@ -12,7 +12,7 @@ from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.cache import SimpleCache
 from tastypie import fields
 from munigeo.models import *
-
+from modeltranslation.translator import translator
 
 # Use the GPS coordinate system by default
 DEFAULT_SRID = 4326
@@ -59,12 +59,13 @@ LANGUAGES = [x[0] for x in settings.LANGUAGES]
 class TranslatableCachedResource(ModelResource):
     def __init__(self, api_name=None):
         super(TranslatableCachedResource, self).__init__(api_name)
-        self._meta.cache = SimpleCache(timeout=3600)
+        self._meta.cache = SimpleCache(timeout=300)
 
     def dehydrate(self, bundle):
         bundle = super(TranslatableCachedResource, self).dehydrate(bundle)
         obj = bundle.obj
-        for field_name in obj._meta.translatable_fields:
+        trans_opts = translator.get_options_for_model(type(obj))
+        for field_name in trans_opts.fields.keys():
             if field_name in bundle.data:
                 del bundle.data[field_name]
 
@@ -162,6 +163,7 @@ class AdministrativeDivisionResource(TranslatableCachedResource):
                 geom.transform(ct)
             geom_str = geom.geojson
             bundle.data['boundary'] = json.loads(geom_str)
+
         return super(AdministrativeDivisionResource, self).dehydrate(bundle)
 
     def determine_format(self, request):

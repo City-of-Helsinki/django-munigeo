@@ -2,8 +2,6 @@ from six import with_metaclass
 from django.utils.encoding import python_2_unicode_compatible
 
 from django.contrib.gis.db import models
-from linguo.models import MultilingualModel, MultilingualModelBase
-from linguo.managers import MultilingualManager
 from django.conf import settings
 from mptt.models import MPTTModel, MPTTModelBase, TreeForeignKey
 from mptt.managers import TreeManager
@@ -31,11 +29,9 @@ class AdministrativeDivisionType(models.Model):
     def __str__(self):
         return "%s (%s)" % (self.name, self.type)
 
-class AdministrativeDivisionMeta(MultilingualModelBase, MPTTModelBase):
-    pass
 
 @python_2_unicode_compatible
-class AdministrativeDivision(with_metaclass(AdministrativeDivisionMeta, MultilingualModel, MPTTModel)):
+class AdministrativeDivision(MPTTModel):
     type = models.ForeignKey(AdministrativeDivisionType, db_index=True)
     name = models.CharField(max_length=100, null=True, db_index=True)
     parent = TreeForeignKey('self', null=True, related_name='children')
@@ -51,7 +47,7 @@ class AdministrativeDivision(with_metaclass(AdministrativeDivisionMeta, Multilin
 
     last_modified_time = models.DateTimeField(help_text='Time when the information was last changed', auto_now_add=True)
 
-    objects = MultilingualManager()
+    objects = models.Manager()
     tree_objects = TreeManager()
 
     def __str__(self):
@@ -59,7 +55,6 @@ class AdministrativeDivision(with_metaclass(AdministrativeDivisionMeta, Multilin
 
     class Meta:
         unique_together = (('origin_id', 'type', 'parent'),)
-        translate = ('name',)
 
 class AdministrativeDivisionGeometry(models.Model):
     division = models.OneToOneField(AdministrativeDivision, related_name='geometry')

@@ -23,7 +23,10 @@ setup(
         'django_tastypie',
         'requests',
         'requests_cache',
-    ],   
+        'django-mptt',
+        'django-modeltranslation',
+        'six'
+    ],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
