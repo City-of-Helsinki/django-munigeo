@@ -40,8 +40,8 @@ class FinlandImporter(Importer):
         muni = syncher.get(muni_id)
         if not muni:
             muni = Municipality(origin_id=muni_id)
-        muni.translate(language='fi', name=name_fi)
-        muni.translate(language='sv', name=name_sv)
+        muni.name_fi = name_fi
+        muni.name_sv = name_sv
         muni.ocd_id = ocd.make_id(country='fi', kunta=name_fi)
         muni.save()
         syncher.mark(muni)
@@ -60,7 +60,7 @@ class FinlandImporter(Importer):
         geom_obj.boundary = geom
         geom_obj.save()
 
-    def setup_land_area(self):
+    def _setup_land_area(self):
         fin_bbox = Polygon.from_bbox(FIN_GRID)
         fin_bbox.srid = TM35_SRID
         fin_bbox.transform(4326)
@@ -72,7 +72,7 @@ class FinlandImporter(Importer):
         self.land_area.transform(PROJECTION_SRID)
 
     def import_municipalities(self):
-        #self.setup_land_area()
+        #self._setup_land_area()
 
         print("Loading municipality boundaries")
         path = os.path.join(self.data_path, 'fi', 'SuomenKuntajako_2013_10k.xml')

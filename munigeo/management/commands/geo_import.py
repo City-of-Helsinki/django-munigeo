@@ -3,6 +3,7 @@ import os
 from optparse import make_option
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+from django.utils.translation import activate, get_language
 
 from munigeo.importer.base import get_importers
 
@@ -36,6 +37,11 @@ class Command(BaseCommand):
             root_dir = settings.BASE_DIR
         importer = imp_class({'data_path': os.path.join(root_dir, 'data')})
 
+        # Activate the default language for the duration of the import
+        # to make sure translated fields are populated correctly.
+        old_lang = get_language()
+        activate(settings.LANGUAGES[0][0])
+
         for imp_type in self.importer_types:
             name = "import_%s" % imp_type
             method = getattr(importer, name, None)
@@ -48,3 +54,5 @@ class Command(BaseCommand):
 
             if method:
                 method()
+
+        activate(old_lang)

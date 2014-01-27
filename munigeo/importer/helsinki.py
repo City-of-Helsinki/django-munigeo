@@ -107,8 +107,8 @@ class HelsinkiImporter(Importer):
                 setattr(obj, attr, attr_dict[attr])
             for attr in lang_dict.keys():
                 for lang, val in lang_dict[attr].items():
-                    d = {attr: val}
-                    obj.translate(language=lang, **d)
+                    key = "%s_%s" % (attr, lang)
+                    setattr(obj, key, val)
 
             if 'ocd_id' in div:
                 assert parent and parent.ocd_id
