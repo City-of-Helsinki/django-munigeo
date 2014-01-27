@@ -23,8 +23,8 @@ setup(
         'django_tastypie',
         'requests',
         'requests_cache',
-        'django-mptt',
-        'django-modeltranslation',
+        'django_mptt',
+        'django_modeltranslation',
         'six'
     ],
     classifiers=[
