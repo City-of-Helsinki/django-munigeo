@@ -25,7 +25,8 @@ setup(
         'requests_cache',
         'django_mptt',
         'django_modeltranslation',
-        'six'
+        'six',
+        'pyyaml'
     ],
     classifiers=[
         'Environment :: Web Environment',
