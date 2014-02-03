@@ -12,7 +12,7 @@ from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.cache import SimpleCache
 from tastypie import fields
 from munigeo.models import *
-from modeltranslation.translator import translator
+from modeltranslation.translator import translator, NotRegistered
 
 # Use the GPS coordinate system by default
 DEFAULT_SRID = 4326
@@ -64,7 +64,11 @@ class TranslatableCachedResource(ModelResource):
     def dehydrate(self, bundle):
         bundle = super(TranslatableCachedResource, self).dehydrate(bundle)
         obj = bundle.obj
-        trans_opts = translator.get_options_for_model(type(obj))
+        try:
+            trans_opts = translator.get_options_for_model(type(obj))
+        except NotRegistered:
+            return bundle
+
         for field_name in trans_opts.fields.keys():
             if field_name in bundle.data:
                 del bundle.data[field_name]
