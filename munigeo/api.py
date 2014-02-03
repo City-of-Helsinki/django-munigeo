@@ -100,6 +100,7 @@ class TranslatableCachedResource(ModelResource):
 class AdministrativeDivisionTypeResource(TranslatableCachedResource):
     class Meta:
         queryset = AdministrativeDivisionType.objects.order_by('pk')
+        resource_name = 'administrative_division_type'
         filtering = {
             'type': ALL,
             'name': ALL
