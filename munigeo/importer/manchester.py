@@ -1,23 +1,22 @@
 # -*- coding: utf-8 -*-
 import os
 import csv
+import unicodecsv
 import requests
 import requests_cache
 import io
-import urllib.request, urllib.parse, urllib.error
 import json
 
-from django.core.management.base import BaseCommand
-from munigeo.models import *
-from utils.http import HttpFetcher
 from django.conf import settings
 from django import db
 from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
 
-#
-# DOES NOT WORK -- NEEDS REWRITE
-#
+from munigeo.models import *
+from munigeo.importer.sync import ModelSyncher
+from munigeo import ocd
+
+from munigeo.importer.base import Importer, register_importer
 
 POI_LIST = [
     {
@@ -43,13 +42,31 @@ SERVICE_CATEGORY_MAP = {
     #87: ("attractions", "Tourist attractions"),
 }
 
+CITADEL_LIST = [
+    {
+        'url': 'http://www.citadelonthemove.eu/Portals/0/PropertyAgent/517/Files/9/CitadeL-Parking_Lots-Manchester.json',
+        'cat_map': {
+            'Parking': {
+                'category': 'parking',
+                'category_desc': 'Parking lot',
+            }
+        }
+    }
+]
+
 def convert_from_wgs84(coords):
     pnt = Point(coords[1], coords[0], srid=4326)
     pnt.transform(PROJECTION_SRID)
     return pnt
 
-class Command(BaseCommand):
-    help = "Manage stats app"
+@register_importer
+class ManchesterImporter(Importer):
+    name = "manchester"
+
+    def __init__(self, *args, **kwargs):
+        super(ManchesterImporter, self).__init__(*args, **kwargs)
+        self.data_path = self.options['data_path']
+        self.muni_data_path = os.path.join(self.data_path, 'uk', 'manchester')
 
     def import_municipalities(self):
         muni, c = Municipality.objects.get_or_create(id=44001, name="Manchester")
@@ -59,10 +76,15 @@ class Command(BaseCommand):
         muni = Municipality.objects.get(id=44001)
         for poi_info in POI_LIST:
             print("\tImporting %s" % poi_info['category'])
-            s = self.http.open_url(poi_info['url'], "manchester")
+            print poi_info['url']
+            resp = requests.get(poi_info['url'])
+            assert resp.status_code == 200
+
             cat, c = POICategory.objects.get_or_create(type=poi_info['category'], defaults={'description': poi_info['category_desc']})
+
+            s = resp.text.encode('utf8').decode('utf8')
             f = io.StringIO(s)
-            reader = csv.reader(f, delimiter=',', quotechar='"')
+            reader = unicodecsv.reader(f, delimiter=',', quotechar='"', encoding='utf8')
             # skip header
             next(reader)
 
@@ -88,7 +110,7 @@ class Command(BaseCommand):
                 poi.save()
 
     def import_pois_from_rest(self):
-        URL_BASE = 'http://www.manchester.gov.uk/site/api/getdirectorylocationsbycategory.php?service=%d&postcode=M2+5DB&count=10000&format=json'
+        URL_BASE = 'http://www.manchester.gov.uk/site/custom_scripts/getServiceDetailsjs.php?service=%d&postcode=M2+5DB&count=10000&format=json'
 
         muni = Municipality.objects.get(id=44001)
         for srv_id in list(SERVICE_CATEGORY_MAP.keys()):
@@ -103,13 +125,13 @@ class Command(BaseCommand):
             s = ret.content.replace("\\'", "'")
             ret_json = json.loads(s)
             count = 0
-            for srv_info in ret_json['items']:
+            for srv_info in ret_json:
                 srv_id = "man-%s" % str(srv_info['uid'])
                 try:
                     poi = POI.objects.get(origin_id=srv_id)
                 except POI.DoesNotExist:
                     poi = POI(origin_id=srv_id)
-                poi.name = urllib.parse.unquote(srv_info['name'].replace('+', ' '))
+                poi.name = srv_info['name']
                 poi.category = cat
                 poi.municipality = muni
                 if 'address' in srv_info:
@@ -125,14 +147,16 @@ class Command(BaseCommand):
                 count = count + 1
             print("\t%d imported" % count)
 
-    def handle(self, **options):
-        http = HttpFetcher()
-        http.set_cache_dir(os.path.join(settings.PROJECT_ROOT, ".cache"))
+    def import_pois_from_citadel(self):
+        muni = Municipality.objects.get(id=44001)
+        for d in CITADEL_LIST:
+            self._import_citadel(muni, d)
+
+    def import_pois(self):
         requests_cache.install_cache('geo_import_man')
-        self.data_path = os.path.join(settings.PROJECT_ROOT, 'data')
-        self.http = http
-        print("Importing municipalities")
-        self.import_municipalities()
-        print("Importing POIs")
-        self.import_pois_from_csv()
+        print("Importing POIs from Citadel")
+        self.import_pois_from_citadel()
+        #print("Importing POIs from CSV")
+        #self.import_pois_from_csv()
+        print("Importing POIs from REST")
         self.import_pois_from_rest()

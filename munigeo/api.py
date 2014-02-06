@@ -193,9 +193,26 @@ class AdministrativeDivisionResource(TranslatableCachedResource):
         detail_allowed_methods = ['get']
 
 
+class MunicipalityResource(AdministrativeDivisionResource):
+    class Meta:
+        queryset = Municipality.objects.all()
+        resource_name = 'municipality'
+        filtering = {
+            'administrative_division': ALL_WITH_RELATIONS,
+            'ocd_id': ALL,
+            'begin': ALL,
+            'end': ALL,
+            'name': ALL,
+            'parent': ALL_WITH_RELATIONS,
+            'type': ALL_WITH_RELATIONS,
+        }
+        excludes = ['lft', 'rght', 'tree_id']
+        list_allowed_methods = ['get']
+        detail_allowed_methods = ['get']
+
 class AddressResource(ModelResource):
-    #municipality = fields.ToOneField('munigeo.api.MunicipalityResource', 'municipality',
-        #help_text="ID of the municipality that this address belongs to")
+    municipality = fields.ToOneField('munigeo.api.MunicipalityResource', 'municipality',
+        help_text="ID of the municipality that this address belongs to")
 
     def apply_sorting(self, objects, options=None):
         if options and 'lon' in options and 'lat' in options:
@@ -289,7 +306,7 @@ class AddressResource(ModelResource):
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
 
-class POICategoryResource(ModelResource):
+class POICategoryResource(TranslatableCachedResource):
     class Meta:
         queryset = POICategory.objects.all()
         filtering = {
@@ -299,7 +316,7 @@ class POICategoryResource(ModelResource):
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
 
-class POIResource(ModelResource):
+class POIResource(TranslatableCachedResource):
     category = fields.ToOneField(POICategoryResource, 'category')
 
     def apply_sorting(self, objects, options=None):
@@ -315,12 +332,14 @@ class POIResource(ModelResource):
         return super(POIResource, self).apply_sorting(objects, options)
 
     def dehydrate_location(self, bundle):
-        loc = bundle.data['location']
-        coords = loc['coordinates']
-        pnt = Point(coords[0], coords[1], srid=PROJECTION_SRID)
-        pnt.transform(4326)
-        loc['coordinates'] = [pnt.x, pnt.y]
-        return loc
+        srid = bundle.request.GET.get('srid', None)
+        srs = srid_to_srs(srid)
+        geom = bundle.obj.location
+        if srs.srid != geom.srid:
+            ct = CoordTransform(geom.srs, srs)
+            geom.transform(ct)
+        geom_str = geom.geojson
+        return json.loads(geom_str)
 
     def dehydrate(self, bundle):
         distance = getattr(bundle.obj, 'distance', None)
@@ -369,5 +388,5 @@ class PlanResource(ModelResource):
 
 all_resources = [
     AdministrativeDivisionResource, AdministrativeDivisionTypeResource,
-    POICategoryResource, POIResource, PlanResource,
+    AddressResource, POICategoryResource, POIResource, MunicipalityResource, PlanResource,
 ]

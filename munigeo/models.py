@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from six import with_metaclass
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -62,6 +64,7 @@ class AdministrativeDivisionGeometry(models.Model):
 
     objects = models.GeoManager()
 
+@python_2_unicode_compatible
 class Municipality(AdministrativeDivision):
     def save(self, *args, **kwargs):
         defaults = {'name': 'Municipality'}
@@ -69,10 +72,11 @@ class Municipality(AdministrativeDivision):
         self.type = type_obj
         return super(Municipality, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
+@python_2_unicode_compatible
 class Plan(models.Model):
     municipality = models.ForeignKey(Municipality)
     geometry = models.MultiPolygonField(srid=PROJECTION_SRID)
@@ -81,9 +85,17 @@ class Plan(models.Model):
 
     objects = models.GeoManager()
 
+    def __str__(self):
+        effect = "in effect"
+        if not self.in_effect:
+            effect = "not " + effect
+        return "Plan %s (%s, %s)" % (self.origin_id, self.municipality, effect)
+
     class Meta:
         unique_together = (('municipality', 'origin_id'),)
 
+
+@python_2_unicode_compatible
 class Address(models.Model):
     street = models.CharField(max_length=50, db_index=True,
         help_text="Name of the street")
@@ -94,12 +106,12 @@ class Address(models.Model):
     letter = models.CharField(max_length=2, blank=True, null=True,
         help_text="Building letter if applicable")
     location = models.PointField(srid=PROJECTION_SRID,
-        help_text="Coordinates of the address in GeoJSON")
+        help_text="Coordinates of the address")
     municipality = models.ForeignKey(Municipality, db_index=True)
 
     objects = models.GeoManager()
 
-    def __unicode__(self):
+    def __str__(self):
         s = "%s %d" % (self.street, self.number)
         if self.letter:
             s += "%s" % self.letter
@@ -110,10 +122,16 @@ class Address(models.Model):
         unique_together = (('municipality', 'street', 'number', 'number_end', 'letter'),)
         ordering = ['municipality', 'street', 'number']
 
+
+@python_2_unicode_compatible
 class POICategory(models.Model):
     type = models.CharField(max_length=50, db_index=True)
     description = models.CharField(max_length=100)
 
+    def __str__(self):
+        return "%s (%s)" % (self.type, self.description)
+
+@python_2_unicode_compatible
 class POI(models.Model):
     name = models.CharField(max_length=200)
     category = models.ForeignKey(POICategory, db_index=True)
@@ -125,3 +143,6 @@ class POI(models.Model):
     origin_id = models.CharField(max_length=40, db_index=True, unique=True)
 
     objects = models.GeoManager()
+
+    def __str__(self):
+        return "%s (%s, %s)" % (self.name, self.category.type, self.municipality)

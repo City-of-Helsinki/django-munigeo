@@ -19,14 +19,15 @@ setup(
     author='Juha Yrjölä',
     author_email='juha.yrjola@iki.fi',
     requires=[
-        'Django (>=1.4.0)',
+        'Django (>=1.6.0)',
         'django_tastypie',
         'requests',
         'requests_cache',
         'django_mptt',
         'django_modeltranslation',
         'six',
-        'pyyaml'
+        'pyyaml',
+        'unicodecsv',
     ],
     classifiers=[
         'Environment :: Web Environment',

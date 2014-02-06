@@ -6,3 +6,4 @@ django-mptt
 django-modeltranslation
 six
 pyyaml
+unicodecsv
