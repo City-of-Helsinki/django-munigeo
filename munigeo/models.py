@@ -4,6 +4,7 @@ from six import with_metaclass
 from django.utils.encoding import python_2_unicode_compatible
 
 from django.contrib.gis.db import models
+from django.db.models.query import QuerySet, Q
 from django.conf import settings
 from mptt.models import MPTTModel, MPTTModelBase, TreeForeignKey
 from mptt.managers import TreeManager
@@ -32,11 +33,40 @@ class AdministrativeDivisionType(models.Model):
         return "%s (%s)" % (self.name, self.type)
 
 
+class AdministrativeDivisionQuerySet(QuerySet):
+    def by_ancestor(self, ancestor):
+        manager = self.model.objects
+        max_level = manager.determine_max_level()
+        qs = Q()
+        # Construct an OR'd queryset for each level of parenthood.
+        for i in range(max_level):
+            key = '__'.join(['parent'] * (i + 1))
+            qs |= Q(**{key: ancestor})
+        return self.filter(qs)
+
+
+class AdministrativeDivisionManager(TreeManager):
+    def get_queryset(self):
+        return AdministrativeDivisionQuerySet(self.model, using=self._db)
+
+    def determine_max_level(self):
+        if hasattr(self, '_max_level'):
+            return self._max_level
+        qs = self.all().order_by('-level')
+        # FIXME: Use signals to catch new level being added
+        if False and qs.count():
+            self._max_level = qs[0].level
+        else:
+            # Harrison-Stetson method
+            self._max_level = 6
+        return self._max_level
+
+
 @python_2_unicode_compatible
 class AdministrativeDivision(MPTTModel):
     type = models.ForeignKey(AdministrativeDivisionType, db_index=True)
     name = models.CharField(max_length=100, null=True, db_index=True)
-    parent = TreeForeignKey('self', null=True, related_name='children')
+    parent = TreeForeignKey('self', db_index=True, null=True, related_name='children')
 
     origin_id = models.CharField(max_length=50, db_index=True)
     ocd_id = models.CharField(max_length=200, unique=True, db_index=True, null=True,
@@ -49,8 +79,7 @@ class AdministrativeDivision(MPTTModel):
 
     last_modified_time = models.DateTimeField(help_text='Time when the information was last changed', auto_now_add=True)
 
-    objects = models.Manager()
-    tree_objects = TreeManager()
+    objects = AdministrativeDivisionManager()
 
     def __str__(self):
         return "%s (%s)" % (self.name, self.type.type)

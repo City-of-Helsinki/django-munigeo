@@ -60,8 +60,86 @@ class HelsinkiImporter(Importer):
         }
         return AdministrativeDivision.objects.get(**args)
 
+    def _import_division(self, muni, div, type_obj, syncher, parent_dict, feat):
+        attr_dict = {}
+        lang_dict = {}
+        for attr, field in div['fields'].items():
+            if isinstance(field, dict):
+                # Languages
+                d = {}
+                for lang, field_name in field.items():
+                    val = feat[field_name].as_string()
+                    # If the name is in all caps, fix capitalization.
+                    if not re.search('[a-z]', val):
+                        val = val.title()
+                    d[lang] = val
+                lang_dict[attr] = d
+            else:
+                val = feat[field].as_string()
+                attr_dict[attr] = val
+
+        origin_id = attr_dict['origin_id']
+        del attr_dict['origin_id']
+
+        if 'parent_id' in attr_dict:
+            full_id = "%s-%s" % (attr_dict['parent_id'], origin_id)
+        else:
+            full_id = origin_id
+        obj = syncher.get(full_id)
+
+        if not obj:
+            obj = AdministrativeDivision(origin_id=origin_id, type=type_obj)
+
+        if 'parent' in div:
+            parent = parent_dict[attr_dict['parent_id']]
+            del attr_dict['parent_id']
+        else:
+            parent = muni
+        obj.parent = parent
+
+        for attr in attr_dict.keys():
+            setattr(obj, attr, attr_dict[attr])
+        for attr in lang_dict.keys():
+            for lang, val in lang_dict[attr].items():
+                key = "%s_%s" % (attr, lang)
+                setattr(obj, key, val)
+
+        if 'ocd_id' in div:
+            assert parent and parent.ocd_id
+            if div.get('parent_in_ocd_id', False):
+                args = {'parent': parent.ocd_id}
+            else:
+                args = {'parent': muni.ocd_id}
+            val = attr_dict['ocd_id']
+            args[div['ocd_id']] = val
+            obj.ocd_id = ocd.make_id(**args)
+            print("\t%s" % obj.ocd_id)
+        obj.save()
+        syncher.mark(obj)
+
+        try:
+            geom_obj = obj.geometry
+        except AdministrativeDivisionGeometry.DoesNotExist:
+            geom_obj = AdministrativeDivisionGeometry(division=obj)
+
+        geom = feat.geom
+        geom.srid = GK25_SRID
+        geom.transform(PROJECTION_SRID)
+        #geom = geom.geos.intersection(parent.geometry.boundary)
+        geom = geom.geos
+        if geom.geom_type == 'Polygon':
+            geom = MultiPolygon(geom)
+        geom_obj.boundary = geom
+        geom_obj.save()
+
     @db.transaction.atomic
-    def _import_division(self, parent, div):
+    def _import_one_division_type(self, muni, div):
+        def make_div_id(obj):
+            if 'parent' in div:
+                return "%s-%s" % (obj.parent.origin_id, obj.origin_id)
+            else:
+                return obj.origin_id
+
         print(div['name'])
         if not 'origin_id' in div['fields']:
             raise Exception("Field 'origin_id' not defined in config section '%s'" % div['name'])
@@ -72,68 +150,26 @@ class HelsinkiImporter(Importer):
             type_obj.name = div['name']
             type_obj.save()
 
-        div_qs = AdministrativeDivision.objects.filter(parent=parent, type=type_obj)
-        syncher = ModelSyncher(div_qs, lambda obj: obj.origin_id)
+        div_qs = AdministrativeDivision.objects.filter(type=type_obj).\
+            by_ancestor(muni).select_related('parent__origin_id')
+        syncher = ModelSyncher(div_qs, make_div_id)
+
+        # Cache the list of possible parents. Assumes parents are imported
+        # first.
+        if 'parent' in div:
+            parent_list = AdministrativeDivision.objects.\
+                filter(type__type=div['parent']).by_ancestor(muni)
+            parent_dict = {o.origin_id: o for o in parent_list}
+        else:
+            parent_dict = None
 
         path = os.path.join(self.division_data_path, div['file'])
         ds = DataSource(path, encoding='iso8859-1')
         lyr = ds[0]
         assert len(ds) == 1
-        for feat in lyr:
-            attr_dict = {}
-            lang_dict = {}
-            for attr, field in div['fields'].items():
-                if isinstance(field, dict):
-                    # Languages
-                    d = {}
-                    for lang, field_name in field.items():
-                        val = feat[field_name].as_string()
-                        # If the name is in all caps, fix capitalization.
-                        if not re.search('[a-z]', val):
-                            val = val.title()
-                        d[lang] = val
-                    lang_dict[attr] = d
-                else:
-                    val = feat[field].as_string()
-                    attr_dict[attr] = val
-
-            origin_id = attr_dict['origin_id']
-            del attr_dict['origin_id']
-
-            obj = syncher.get(origin_id)
-            if not obj:
-                obj = AdministrativeDivision(origin_id=origin_id, parent=parent, type=type_obj)
-            for attr in attr_dict.keys():
-                setattr(obj, attr, attr_dict[attr])
-            for attr in lang_dict.keys():
-                for lang, val in lang_dict[attr].items():
-                    key = "%s_%s" % (attr, lang)
-                    setattr(obj, key, val)
-
-            if 'ocd_id' in div:
-                assert parent and parent.ocd_id
-                args = {'parent': parent.ocd_id}
-                val = attr_dict['ocd_id']
-                args[div['ocd_id']] = val
-                obj.ocd_id = ocd.make_id(**args)
-
-            obj.save()
-            syncher.mark(obj)
-
-            try:
-                geom_obj = obj.geometry
-            except AdministrativeDivisionGeometry.DoesNotExist:
-                geom_obj = AdministrativeDivisionGeometry(division=obj)
-
-            geom = feat.geom
-            geom.srid = GK25_SRID
-            geom.transform(PROJECTION_SRID)
-            #geom = geom.geos.intersection(parent.geometry.boundary)
-            geom = geom.geos
-            if geom.geom_type == 'Polygon':
-                geom = MultiPolygon(geom)
-            geom_obj.boundary = geom
-            geom_obj.save()
+        with AdministrativeDivision.objects.delay_mptt_updates():
+            for feat in lyr:
+                self._import_division(muni, div, type_obj, syncher, parent_dict, feat)
 
     def import_divisions(self):
         path = os.path.join(self.data_path, 'fi', 'helsinki', 'config.yml')
@@ -143,7 +179,7 @@ class HelsinkiImporter(Importer):
         muni = Municipality.objects.get(origin_id=config['origin_id'])
         self.muni = muni
         for div in config['divisions']:
-            self._import_division(muni, div)
+            self._import_one_division_type(muni, div)
 
     def _import_plans(self, fname, in_effect):
         path = os.path.join(self.data_path, 'kaavahakemisto', fname)
