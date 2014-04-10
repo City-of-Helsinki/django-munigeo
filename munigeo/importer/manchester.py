@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import csv
-import unicodecsv
+#import unicodecsv
 import requests
 import requests_cache
 import io
@@ -76,7 +76,7 @@ class ManchesterImporter(Importer):
         muni = Municipality.objects.get(id=44001)
         for poi_info in POI_LIST:
             print("\tImporting %s" % poi_info['category'])
-            print poi_info['url']
+            print(poi_info['url'])
             resp = requests.get(poi_info['url'])
             assert resp.status_code == 200
 

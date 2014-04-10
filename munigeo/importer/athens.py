@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import csv
-import unicodecsv
+#import unicodecsv
 import requests
 import requests_cache
 import io
@@ -51,7 +51,7 @@ CITADEL_LIST = [
                 'category_desc': 'Hotel',
             },
             'convention center': {
-                'category': 'convention-center',
+                'category': 'convention center',
                 'category_desc': 'Convention center',
             },
         }
