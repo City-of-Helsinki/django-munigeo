@@ -31,12 +31,6 @@ class Command(BaseCommand):
             raise CommandError("Importer %s not found. Valid importers: %s" % (args[0], imp_list))
         imp_class = importers[args[0]]
 
-        if hasattr(settings, 'PROJECT_ROOT'):
-            root_dir = settings.PROJECT_ROOT
-        else:
-            root_dir = settings.BASE_DIR
-        importer = imp_class({'data_path': os.path.join(root_dir, 'data')})
-
         # Activate the default language for the duration of the import
         # to make sure translated fields are populated correctly.
         old_lang = get_language()

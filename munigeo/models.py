@@ -95,6 +95,8 @@ class AdministrativeDivisionGeometry(models.Model):
 
 @python_2_unicode_compatible
 class Municipality(AdministrativeDivision):
+    objects = AdministrativeDivisionManager()
+
     def save(self, *args, **kwargs):
         defaults = {'name': 'Municipality'}
         type_obj, c = AdministrativeDivisionType.objects.get_or_create(type='muni', defaults=defaults)

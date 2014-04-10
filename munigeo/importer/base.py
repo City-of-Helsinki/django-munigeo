@@ -4,6 +4,7 @@ import json
 from django.utils.text import slugify
 from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
+from django.conf import settings
 
 from munigeo.models import *
 from munigeo.importer.sync import ModelSyncher
@@ -49,8 +50,24 @@ class Importer(object):
             poi.save()
             print(poi)
 
+    def find_data_file(self, data_file):
+        for path in self.data_paths:
+            full_path = os.path.join(path, data_file)
+            if os.path.exists(full_path):
+                return full_path
+        raise FileNotFoundError("Data file '%s' not found" % data_file)
+
     def __init__(self, options):
         super(Importer, self).__init__()
+        if hasattr(settings, 'PROJECT_ROOT'):
+            root_dir = settings.PROJECT_ROOT
+        else:
+            root_dir = settings.BASE_DIR
+        self.data_paths = [os.path.join(root_dir, 'data')]
+        module_path = os.path.dirname(__file__)
+        app_path = os.path.abspath(os.path.join(module_path, '..'))
+        self.data_paths.append(app_path)
+
         self.options = options
 
 importers = {}

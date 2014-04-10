@@ -24,11 +24,6 @@ except ImportError:
 class FinlandImporter(Importer):
     name = "finland"
 
-    def __init__(self, options):
-        self.data_path = options['data_path']
-        self.options = options
-
-    @db.transaction.atomic
     def _process_muni(self, syncher, feat):
         muni_id = str(feat.get('nationalCode'))
         t = feat.get('text')
@@ -65,7 +60,7 @@ class FinlandImporter(Importer):
         fin_bbox.srid = TM35_SRID
         fin_bbox.transform(4326)
         print("Loading global land shape")
-        path = os.path.join(self.data_path, 'global', 'ne_10m_land.shp')
+        path = self.find_data_file('global/ne_10m_land.shp')
         ds = DataSource(path)
         land = ds[0][0]
         self.land_area = fin_bbox.intersection(land.geom.geos)
@@ -75,7 +70,7 @@ class FinlandImporter(Importer):
         #self._setup_land_area()
 
         print("Loading municipality boundaries")
-        path = os.path.join(self.data_path, 'fi', 'SuomenKuntajako_2013_10k.xml')
+        path = self.find_data_file('fi/SuomenKuntajako_2013_10k.xml')
         ds = DataSource(path)
         lyr = ds[0]
         assert lyr.name == "AdministrativeUnit"
@@ -88,16 +83,21 @@ class FinlandImporter(Importer):
             futures = []
         else:
             executor = None
-        for idx, feat in enumerate(lyr):
-            if feat.get('nationalLevel') != '4thOrder':
-                continue
-            # Process the first in a single-threaded way to catch
-            # possible exceptions early.
-            if executor and idx > 0:
-                futures.append(executor.submit(self._process_muni, syncher, feat))
-            else:
-                self._process_muni(syncher, feat)
-        if executor:
-            for f in futures:
-                res = f.result()
-            executor.shutdown()
+
+        with db.transaction.atomic():
+            with AdministrativeDivision.objects.disable_mptt_updates():
+                for idx, feat in enumerate(lyr):
+                    if feat.get('nationalLevel') != '4thOrder':
+                        continue
+                    # Process the first in a single-threaded way to catch
+                    # possible exceptions early.
+                    if executor and idx > 0:
+                        futures.append(executor.submit(self._process_muni, syncher, feat))
+                    else:
+                        self._process_muni(syncher, feat)
+                if executor:
+                    for f in futures:
+                        res = f.result()
+                    executor.shutdown()
+
+            AdministrativeDivision.objects.rebuild()
