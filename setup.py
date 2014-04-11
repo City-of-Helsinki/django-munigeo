@@ -19,8 +19,8 @@ setup(
     author='Juha Yrjölä',
     author_email='juha.yrjola@iki.fi',
     requires=[
-        'Django (>=1.6.0)',
-        'django_tastypie',
+        'Django',
+        'djangorestframework',
         'requests',
         'requests_cache',
         'django_mptt',
