@@ -18,6 +18,8 @@ try:
     from concurrent.futures import ThreadPoolExecutor
 except ImportError:
     ThreadPoolExecutor = None
+# Disable threaded mode for now
+ThreadPoolExecutor = None
 
 
 @register_importer

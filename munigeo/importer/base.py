@@ -79,6 +79,7 @@ def register_importer(klass):
 def get_importers():
     if importers:
         return importers
+    module_path = __name__.rpartition('.')[0]
     # Importing the packages will cause their register_importer() methods
     # being called.
     for fname in os.listdir(os.path.dirname(__file__)):
@@ -87,6 +88,6 @@ def get_importers():
             continue
         if module in ('__init__', 'base'):
             continue
-        full_path = "%s.%s" % (__package__, module)
+        full_path = "%s.%s" % (module_path, module)
         ret = __import__(full_path, locals(), globals())
     return importers

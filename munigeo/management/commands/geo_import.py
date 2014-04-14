@@ -30,6 +30,7 @@ class Command(BaseCommand):
         if not args[0] in importers:
             raise CommandError("Importer %s not found. Valid importers: %s" % (args[0], imp_list))
         imp_class = importers[args[0]]
+        importer = imp_class(options)
 
         # Activate the default language for the duration of the import
         # to make sure translated fields are populated correctly.
