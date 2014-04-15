@@ -18,7 +18,7 @@ setup(
     long_description=README,
     author='Juha Yrjölä',
     author_email='juha.yrjola@iki.fi',
-    requires=[
+    install_requires=[
         'Django',
         'djangorestframework',
         'requests',
@@ -27,7 +27,6 @@ setup(
         'django_modeltranslation',
         'six',
         'pyyaml',
-        'unicodecsv',
     ],
     classifiers=[
         'Environment :: Web Environment',
