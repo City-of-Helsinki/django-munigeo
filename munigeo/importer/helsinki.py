@@ -49,8 +49,7 @@ class HelsinkiImporter(Importer):
 
     def __init__(self, *args, **kwargs):
         super(HelsinkiImporter, self).__init__(*args, **kwargs)
-        self.data_path = self.options['data_path']
-        self.muni_data_path = os.path.join(self.data_path, 'fi', 'helsinki')
+        self.muni_data_path = 'fi/helsinki'
 
     def _find_parent_division(self, parent_info):
         args = {
@@ -163,7 +162,7 @@ class HelsinkiImporter(Importer):
         else:
             parent_dict = None
 
-        path = os.path.join(self.division_data_path, div['file'])
+        path = self.find_data_file(os.path.join(self.division_data_path, div['file']))
         ds = DataSource(path, encoding='iso8859-1')
         lyr = ds[0]
         assert len(ds) == 1
@@ -172,7 +171,7 @@ class HelsinkiImporter(Importer):
                 self._import_division(muni, div, type_obj, syncher, parent_dict, feat)
 
     def import_divisions(self):
-        path = os.path.join(self.data_path, 'fi', 'helsinki', 'config.yml')
+        path = self.find_data_file(os.path.join(self.muni_data_path, 'config.yml'))
         config = yaml.safe_load(open(path, 'r'))
         self.division_data_path = os.path.join(self.muni_data_path, config['paths']['division'])
 
