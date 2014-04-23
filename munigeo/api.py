@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.contrib.gis.measure import D
 from django.contrib.gis.db import models
-from rest_framework import serializers, pagination, relations, viewsets
+from rest_framework import serializers, pagination, relations, viewsets, generics
 from rest_framework.exceptions import ParseError
 from django.contrib.gis.gdal import SRSException, CoordTransform, SpatialReference
 from django.contrib.gis.geos import Point, Polygon
@@ -145,14 +145,14 @@ class GeoModelSerializer(serializers.ModelSerializer):
             ret[field_name] = json.loads(s)
         return ret
 
-class GeoModelViewSet(viewsets.ReadOnlyModelViewSet):
+class GeoModelAPIView(generics.GenericAPIView):
     def initial(self, request, *args, **kwargs):
-        super(GeoModelViewSet, self).initial(request, *args, **kwargs)
+        super(GeoModelAPIView, self).initial(request, *args, **kwargs)
         srid = request.QUERY_PARAMS.get('srid', None)
         self.srs = srid_to_srs(srid)
 
     def get_serializer_context(self):
-        ret = super(GeoModelViewSet, self).get_serializer_context()
+        ret = super(GeoModelAPIView, self).get_serializer_context()
         ret['srs'] = self.srs
         return ret
 
@@ -189,7 +189,7 @@ class AdministrativeDivisionSerializer(GeoModelSerializer, TranslatedModelSerial
     class Meta:
         model = AdministrativeDivision
 
-class AdministrativeDivisionViewSet(GeoModelViewSet, viewsets.ReadOnlyModelViewSet):
+class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
     queryset = AdministrativeDivision.objects.all()
     serializer_class = AdministrativeDivisionSerializer
 
