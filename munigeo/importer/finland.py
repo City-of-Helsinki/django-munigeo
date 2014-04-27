@@ -34,19 +34,20 @@ class FinlandImporter(Importer):
         name_sv = m.groups()[1]
         print(name_fi)
 
-        muni = syncher.get(muni_id)
-        if not muni:
-            muni = Municipality(origin_id=muni_id)
-        muni.name_fi = name_fi
-        muni.name_sv = name_sv
-        muni.ocd_id = ocd.make_id(country='fi', kunta=name_fi)
-        muni.save()
-        syncher.mark(muni)
+        munidiv = syncher.get(muni_id)
+        if not munidiv:
+            munidiv = AdministrativeDivision(origin_id=muni_id)
+        munidiv.name_fi = name_fi
+        munidiv.name_sv = name_sv
+        munidiv.ocd_id = ocd.make_id(country='fi', kunta=name_fi)
+        munidiv.type = self.muni_type
+        munidiv.save()
+        syncher.mark(munidiv)
 
         try:
-            geom_obj = muni.geometry
+            geom_obj = munidiv.geometry
         except AdministrativeDivisionGeometry.DoesNotExist:
-            geom_obj = AdministrativeDivisionGeometry(division=muni)
+            geom_obj = AdministrativeDivisionGeometry(division=munidiv)
         geom = feat.geom
         geom.transform(PROJECTION_SRID)
         # Store only the land boundaries
@@ -56,6 +57,14 @@ class FinlandImporter(Importer):
             geom = MultiPolygon(geom)
         geom_obj.boundary = geom
         geom_obj.save()
+
+        try:
+            muni = Municipality.objects.get(division=munidiv)
+        except Municipality.DoesNotExist:
+            muni = Municipality(division=munidiv)
+        muni.name_fi = name_fi
+        muni.name_sv = name_sv
+        muni.save()
 
     def _setup_land_area(self):
         fin_bbox = Polygon.from_bbox(FIN_GRID)
@@ -77,7 +86,11 @@ class FinlandImporter(Importer):
         lyr = ds[0]
         assert lyr.name == "AdministrativeUnit"
 
-        syncher = ModelSyncher(Municipality.objects.all(), lambda obj: obj.origin_id)
+        defaults = {'name': 'Municipality'}
+        muni_type, _ = AdministrativeDivisionType.objects.get_or_create(type='muni', defaults=defaults)
+        self.muni_type = muni_type
+
+        syncher = ModelSyncher(AdministrativeDivisionType.objects.filter(type=muni_type), lambda obj: obj.origin_id)
 
         # If running under Python 3, parallelize the heavy lifting.
         if ThreadPoolExecutor:

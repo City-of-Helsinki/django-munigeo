@@ -93,8 +93,9 @@ class HelsinkiImporter(Importer):
             parent = parent_dict[attr_dict['parent_id']]
             del attr_dict['parent_id']
         else:
-            parent = muni
+            parent = muni.division
         obj.parent = parent
+        obj.municipality = muni
 
         for attr in attr_dict.keys():
             setattr(obj, attr, attr_dict[attr])
@@ -108,7 +109,7 @@ class HelsinkiImporter(Importer):
             if div.get('parent_in_ocd_id', False):
                 args = {'parent': parent.ocd_id}
             else:
-                args = {'parent': muni.ocd_id}
+                args = {'parent': muni.division.ocd_id}
             val = attr_dict['ocd_id']
             args[div['ocd_id']] = val
             obj.ocd_id = ocd.make_id(**args)
@@ -150,15 +151,18 @@ class HelsinkiImporter(Importer):
             type_obj.save()
 
         div_qs = AdministrativeDivision.objects.filter(type=type_obj).\
-            by_ancestor(muni).select_related('parent__origin_id')
+            by_ancestor(muni.division).select_related('parent__origin_id')
         syncher = ModelSyncher(div_qs, make_div_id)
 
         # Cache the list of possible parents. Assumes parents are imported
         # first.
         if 'parent' in div:
             parent_list = AdministrativeDivision.objects.\
-                filter(type__type=div['parent']).by_ancestor(muni)
-            parent_dict = {o.origin_id: o for o in parent_list}
+                filter(type__type=div['parent']).by_ancestor(muni.division)
+            parent_dict = {}
+            for o in parent_list:
+                assert o.origin_id not in parent_dict
+                parent_dict[o.origin_id] = o
         else:
             parent_dict = None
 
@@ -175,7 +179,7 @@ class HelsinkiImporter(Importer):
         config = yaml.safe_load(open(path, 'r'))
         self.division_data_path = os.path.join(self.muni_data_path, config['paths']['division'])
 
-        muni = Municipality.objects.get(origin_id=config['origin_id'])
+        muni = Municipality.objects.get(division__origin_id=config['origin_id'])
         self.muni = muni
         for div in config['divisions']:
             self._import_one_division_type(muni, div)

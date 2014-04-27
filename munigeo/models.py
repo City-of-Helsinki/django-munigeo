@@ -72,12 +72,14 @@ class AdministrativeDivision(MPTTModel):
     ocd_id = models.CharField(max_length=200, unique=True, db_index=True, null=True,
                               help_text=_("Open Civic Data identifier"))
 
+    municipality = models.ForeignKey('munigeo.Municipality', null=True)
+
     # Some divisions might be only valid during some time period.
     # (E.g. yearly school districts in Helsinki)
     start = models.DateField(null=True)
     end = models.DateField(null=True)
 
-    last_modified_time = models.DateTimeField(help_text='Time when the information was last changed', auto_now_add=True)
+    modified_at = models.DateTimeField(help_text='Time when the information was last changed', auto_now=True)
 
     objects = AdministrativeDivisionManager()
 
@@ -87,21 +89,21 @@ class AdministrativeDivision(MPTTModel):
     class Meta:
         unique_together = (('origin_id', 'type', 'parent'),)
 
+
 class AdministrativeDivisionGeometry(models.Model):
     division = models.OneToOneField(AdministrativeDivision, related_name='geometry')
     boundary = models.MultiPolygonField(srid=PROJECTION_SRID)
 
     objects = models.GeoManager()
 
-@python_2_unicode_compatible
-class Municipality(AdministrativeDivision):
-    objects = AdministrativeDivisionManager()
 
-    def save(self, *args, **kwargs):
-        defaults = {'name': 'Municipality'}
-        type_obj, c = AdministrativeDivisionType.objects.get_or_create(type='muni', defaults=defaults)
-        self.type = type_obj
-        return super(Municipality, self).save(*args, **kwargs)
+@python_2_unicode_compatible
+class Municipality(models.Model):
+    name = models.CharField(max_length=100, null=True, db_index=True)
+    division = models.ForeignKey(AdministrativeDivision, null=True,
+                                 db_index=True, unique=True, related_name='muni')
+
+    objects = models.Manager()
 
     def __str__(self):
         return self.name
@@ -161,6 +163,7 @@ class POICategory(models.Model):
 
     def __str__(self):
         return "%s (%s)" % (self.type, self.description)
+
 
 @python_2_unicode_compatible
 class POI(models.Model):
