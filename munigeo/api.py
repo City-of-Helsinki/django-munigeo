@@ -51,6 +51,17 @@ def build_bbox_filter(srs, bbox_val, field_name):
 
     return {"%s__within" % field_name: poly}
 
+def make_muni_ocd_id(name, rest=None):
+    country = getattr(settings, 'DEFAULT_COUNTRY', None)
+    muni = getattr(settings, 'DEFAULT_OCD_MUNICIPALITY', None)
+    if country and muni:
+        s = 'ocd-division/country:%s/%s:%s' % (settings.DEFAULT_COUNTRY, settings.DEFAULT_OCD_MUNICIPALITY, name)
+    else:
+        s = name
+    if rest:
+        s += '/' + rest
+    return s
+
 
 class TranslatedModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
@@ -207,6 +218,28 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
 
         if 'input' in filters:
             queryset = queryset.filter(name__icontains=filters['input'].strip())
+
+        if 'ocd_id' in filters:
+            # Divisions can be specified with form:
+            # division=helsinki/kaupunginosa:kallio,vantaa/äänestysalue:5
+            d_list = filters['ocd_id'].lower().split(',')
+            ocd_id_list = []
+            for division_path in d_list:
+                if division_path.startswith('ocd-division'):
+                    muni_ocd_id = division_path
+                else:
+                    ocd_id_base = r'[\w0-9~_.-]+'
+                    match_re = r'(%s)/([\w_-]+):(%s)' % (ocd_id_base, ocd_id_base)
+                    m = re.match(match_re, division_path, re.U)
+                    if not m:
+                        raise ParseError("'ocd_id' must be of form 'muni/type:id'")
+
+                    arr = division_path.split('/')
+                    muni_ocd_id = make_muni_ocd_id(arr.pop(0), '/'.join(arr))
+                ocd_id_list.append(muni_ocd_id)
+
+            queryset = queryset.filter(ocd_id__in=ocd_id_list)
+
 
         return queryset
 
