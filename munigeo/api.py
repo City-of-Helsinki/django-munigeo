@@ -11,6 +11,7 @@ from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.geos import Point, Polygon
 from munigeo.models import AdministrativeDivisionType, AdministrativeDivision,\
     Municipality, POICategory, POI, Plan
+from modeltranslation import models as mt_models # workaround for init problem
 from modeltranslation.translator import translator, NotRegistered
 
 # Use the GPS coordinate system by default
