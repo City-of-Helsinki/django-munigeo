@@ -245,3 +245,8 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
         return queryset
 
 register_view(AdministrativeDivisionViewSet, 'administrative_division')
+
+
+class MunicipalitySerializer(TranslatedModelSerializer):
+    class Meta:
+        model = Municipality
