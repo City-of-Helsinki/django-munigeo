@@ -231,72 +231,109 @@ class HelsinkiImporter(Importer):
             else:
                 print("Plan %s deleted" % obj.name)
 
+    @db.transaction.atomic
     def import_addresses(self):
-        f = open(os.path.join(self.data_path, 'pks_osoite.csv'))
-        reader = csv.reader(f, delimiter=',')
-        next(reader)
-        muni_list = Municipality.objects.all()
+        path = self.find_data_file('pks_osoite.csv')
+        f = open(path, encoding='iso8859-1')
+        reader = csv.DictReader(f, delimiter=',')
+
+        muni_names = ('Helsinki', 'Espoo', 'Vantaa', 'Kauniainen')
+        muni_list = Municipality.objects.filter(name_fi__in=muni_names)
         muni_dict = {}
+
+        def make_addr_id(num, num_end, letter):
+            if num_end == None:
+                num_end = ''
+            if letter == None:
+                letter = ''
+            return '%s-%s-%s' % (num, num_end, letter)
+
         for muni in muni_list:
-            muni_dict[muni.name] = muni
-            muni.num_addr = Address.objects.filter(municipality=muni).count()
+            muni_dict[muni.name_fi] = muni
+
+            streets = Street.objects.filter(municipality=muni)
+            muni.streets_by_name = {}
+            muni.streets_by_id = {}
+            for s in streets:
+                muni.streets_by_name[s.name_fi] = s
+                muni.streets_by_id[s.id] = s
+                s.addrs = {}
+
+            addr_list = Address.objects.filter(street__municipality=muni)
+            for a in addr_list:
+                street = muni.streets_by_id[a.street_id]
+                street.addrs[make_addr_id(a.number, a.number_end, a.letter)] = a
+
         bulk_addr_list = []
+        bulk_street_list = []
         count = 0
         for idx, row in enumerate(reader):
-            street = row[0].strip()
-            if not row[1]:
+            count += 1
+            if count % 1000 == 0:
+                print("%d processed" % count)
+
+            street_name = row['katunimi'].strip()
+            street_name_sv = row['gatan'].strip()
+
+            if int(row['tyyppi']) != 1: # only addresses
                 continue
-            num = int(row[1])
-            num2 = row[2]
+            num = row['osoitenumero'].strip()
+            if not num:
+                print(row)
+                continue
+            else:
+                num = int(num)
+                if num == 0:
+                    print(row)
+                    continue
+
+            num2 = row['osoitenumero2']
             if not num2:
                 num2 = None
-            letter = row[3]
-            coord_n = int(row[8])
-            coord_e = int(row[9])
-            muni_name = row[10]
-            if not row[-1]:
-                # If the type is missing, assume type 1
-                print(row)
-                row_type = 1
             else:
-                row_type = int(row[-1])
-            if row_type != 1:
-                continue
-            id_s = "%s %d" % (street, num)
-            if id_s == 'Eliel Saarisen tie 4':
-                muni_name = 'Helsinki'
+                num2 = int(num2)
+
+            letter = row['kiinteiston_jakokirjain'].strip()
+            coord_n = int(row['N'])
+            coord_e = int(row['E'])
+            muni_name = row['kaupunki']
+
             muni = muni_dict[muni_name]
-            args = dict(municipality=muni, street=street, number=num, number_end=num2, letter=letter)
-            # Optimization: if the muni doesn't have any addresses yet,
-            # use bulk creation.
-            addr = None
-            if muni.num_addr != 0:
-                try:
-                    addr = Address.objects.get(**args)
-                except Address.DoesNotExist:
-                    pass
-            if not addr:
-                addr = Address(**args)
+            street = muni.streets_by_name.get(street_name, None)
+            if not street:
+                street = Street(name_fi=street_name, name=street_name, municipality=muni)
+                street.name_sv = street_name_sv
 
-            pnt = convert_from_gk25(coord_n, coord_e)
-            #print "%s: %s %d%s N%d E%d (%f,%f)" % (muni_name, street, num, letter, coord_n, coord_e, pnt.y, pnt.x)
-            addr.location = pnt
-            if not addr.pk:
-                bulk_addr_list.append(addr)
+                #bulk_street_list.append(street)
+                street.save()
+                muni.streets_by_name[street_name] = street
+                street.addrs = {}
             else:
-                addr.save()
-                count += 1
+                if street.name_sv != street.name_sv:
+                    self.logger.warning("Street %s Swedish name changed" % street)
 
-            if len(bulk_addr_list) >= 1000 or (count > 0 and count % 1000 == 0):
-                if bulk_addr_list:
-                    Address.objects.bulk_create(bulk_addr_list)
-                    count += len(bulk_addr_list)
-                    bulk_addr_list = []
-                print("%d addresses processed (%d skipped)" % (count, idx + 1 - count))
+            addr_id = make_addr_id(num, num2, letter)
+            addr = street.addrs.get(addr_id, None)
+            if not addr:
+                addr = Address(street=street, number=num, number_end=num2, letter=letter)
+                pnt = convert_from_gk25(coord_n, coord_e)
+                addr.location = pnt
+                bulk_addr_list.append(addr)
+                street.addrs[addr_id] = addr
+
+            #print "%s: %s %d%s N%d E%d (%f,%f)" % (muni_name, street, num, letter, coord_n, coord_e, pnt.y, pnt.x)
+
+            if len(bulk_addr_list) >= 10000:
+                print("Saving %d new addresses" % len(bulk_addr_list))
+
+                Address.objects.bulk_create(bulk_addr_list)
+                bulk_addr_list = []
+
                 # Reset DB query store to free up memory
                 db.reset_queries()
 
         if bulk_addr_list:
+            print("Saving %d new addresses" % len(bulk_addr_list))
             Address.objects.bulk_create(bulk_addr_list)
             bulk_addr_list = []
 

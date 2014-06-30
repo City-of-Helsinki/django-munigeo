@@ -129,31 +129,42 @@ class Plan(models.Model):
 
 
 @python_2_unicode_compatible
+class Street(models.Model):
+    name = models.CharField(max_length=100, db_index=True)
+    municipality = models.ForeignKey(Municipality, db_index=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        unique_together = (('municipality', 'name'),)
+
+@python_2_unicode_compatible
 class Address(models.Model):
-    street = models.CharField(max_length=50, db_index=True,
-        help_text="Name of the street")
+    street = models.ForeignKey(Street, db_index=True)
     number = models.PositiveIntegerField(
         help_text="Building number")
     number_end = models.PositiveIntegerField(blank=True, null=True,
         help_text="Building number end (if range specified)")
-    letter = models.CharField(max_length=2, blank=True, null=True,
+    letter = models.CharField(max_length=2, blank=True,
         help_text="Building letter if applicable")
     location = models.PointField(srid=PROJECTION_SRID,
         help_text="Coordinates of the address")
-    municipality = models.ForeignKey(Municipality, db_index=True)
 
     objects = models.GeoManager()
 
     def __str__(self):
-        s = "%s %d" % (self.street, self.number)
+        s = '%s %d' % (self.street, self.number)
+        if self.number_end:
+            s += '-%d' % self.number_end
         if self.letter:
-            s += "%s" % self.letter
-        s += ", %s" % self.municipality
+            s += '%s' % self.letter
+        s += ', %s' % self.street.municipality
         return s
 
     class Meta:
-        unique_together = (('municipality', 'street', 'number', 'number_end', 'letter'),)
-        ordering = ['municipality', 'street', 'number']
+        unique_together = (('street', 'number', 'number_end', 'letter'),)
+        ordering = ['street', 'number']
 
 
 @python_2_unicode_compatible
