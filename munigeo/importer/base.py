@@ -1,6 +1,7 @@
 import os
 import requests
 import json
+import logging
 from django.utils.text import slugify
 from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
@@ -58,7 +59,8 @@ class Importer(object):
         raise FileNotFoundError("Data file '%s' not found" % data_file)
 
     def __init__(self, options):
-        super(Importer, self).__init__()
+        self.logger = logging.getLogger("%s_importer" % self.name)
+
         if hasattr(settings, 'PROJECT_ROOT'):
             root_dir = settings.PROJECT_ROOT
         else:

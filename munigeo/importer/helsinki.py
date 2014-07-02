@@ -14,6 +14,7 @@ from django.utils import translation
 
 from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon, Point
+from django.contrib.gis.geos.base import gdal
 
 from munigeo.models import *
 from munigeo.importer.sync import ModelSyncher
@@ -36,11 +37,25 @@ SERVICE_CATEGORY_MAP = {
     25664: ("park", "Park"),
 }
 
-GK25_SRID = 3879
+
+GK25_SRS = SpatialReference(3879)
+
+coord_transform = None
+if GK25_SRS.srid != PROJECTION_SRID:
+    target_srs = SpatialReference(PROJECTION_SRID)
+    coord_transform = CoordTransform(GK25_SRS, target_srs)
 
 def convert_from_gk25(north, east):
+    ps = "POINT (%f %f)" % (east, north)
+    g = gdal.OGRGeometry(ps, GK25_SRS)
+    if coord_transform:
+        g.transform(coord_transform)
+    return g
+
     pnt = Point(east, north, srid=GK25_SRID)
-    pnt.transform(PROJECTION_SRID)
+    if PROJECTION_SRID == GK25_SRID:
+        return pnt
+    pnt.transform(coord_transform)
     return pnt
 
 @register_importer
@@ -251,6 +266,7 @@ class HelsinkiImporter(Importer):
         for muni in muni_list:
             muni_dict[muni.name_fi] = muni
 
+            self.logger.info('Loading existing data for %s' % muni)
             streets = Street.objects.filter(municipality=muni)
             muni.streets_by_name = {}
             muni.streets_by_id = {}
@@ -258,9 +274,11 @@ class HelsinkiImporter(Importer):
                 muni.streets_by_name[s.name_fi] = s
                 muni.streets_by_id[s.id] = s
                 s.addrs = {}
+                s._found = False
 
             addr_list = Address.objects.filter(street__municipality=muni)
             for a in addr_list:
+                a._found = False
                 street = muni.streets_by_id[a.street_id]
                 street.addrs[make_addr_id(a.number, a.number_end, a.letter)] = a
 
@@ -279,20 +297,14 @@ class HelsinkiImporter(Importer):
                 continue
             num = row['osoitenumero'].strip()
             if not num:
-                print(row)
+                #print(row)
                 continue
             else:
-                num = int(num)
-                if num == 0:
-                    print(row)
+                if num == '0':
+                    #print(row)
                     continue
 
-            num2 = row['osoitenumero2']
-            if not num2:
-                num2 = None
-            else:
-                num2 = int(num2)
-
+            num2 = row['osoitenumero2'].strip()
             letter = row['kiinteiston_jakokirjain'].strip()
             coord_n = int(row['N'])
             coord_e = int(row['E'])
@@ -309,17 +321,31 @@ class HelsinkiImporter(Importer):
                 muni.streets_by_name[street_name] = street
                 street.addrs = {}
             else:
-                if street.name_sv != street.name_sv:
-                    self.logger.warning("Street %s Swedish name changed" % street)
+                if street.name_sv != street_name_sv:
+                    self.logger.warning("%s: %s -> %s" % (street, street.name_sv, street_name_sv))
+                    street.name_sv = street_name_sv
+                    street.save()
+            street._found = True
 
             addr_id = make_addr_id(num, num2, letter)
             addr = street.addrs.get(addr_id, None)
+            location = convert_from_gk25(coord_n, coord_e)
             if not addr:
                 addr = Address(street=street, number=num, number_end=num2, letter=letter)
-                pnt = convert_from_gk25(coord_n, coord_e)
-                addr.location = pnt
+                addr.location = location.wkb
                 bulk_addr_list.append(addr)
                 street.addrs[addr_id] = addr
+            else:
+                if addr._found:
+                    self.logger.warning("%s: Skipping duplicate" % addr)
+                    continue
+                # if the location has changed for more than 10cm, save the new one.
+                assert addr.location.srid == location.srid, "SRID changed"
+                #if addr.location.distance(location) >= 0.10:
+                #    self.logger.info("%s: Location changed" % addr)
+                #    addr.location = location
+                #    addr.save()
+            addr._found = True
 
             #print "%s: %s %d%s N%d E%d (%f,%f)" % (muni_name, street, num, letter, coord_n, coord_e, pnt.y, pnt.x)
 
@@ -336,6 +362,17 @@ class HelsinkiImporter(Importer):
             print("Saving %d new addresses" % len(bulk_addr_list))
             Address.objects.bulk_create(bulk_addr_list)
             bulk_addr_list = []
+
+        for muni in muni_list:
+            for s in muni.streets_by_name.values():
+                if not s._found:
+                    print("Street %s removed" % s)
+                    s.delete()
+                    continue
+                for a in s.addrs.values():
+                    if not a._found:
+                        print("%s removed" % a)
+                        a.delete()
 
     def import_pois(self):
         URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v2/unit/?service=%d'
