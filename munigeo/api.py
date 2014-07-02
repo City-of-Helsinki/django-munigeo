@@ -8,9 +8,9 @@ from rest_framework import serializers, pagination, relations, viewsets, generic
 from rest_framework.exceptions import ParseError
 from django.contrib.gis.gdal import SRSException, CoordTransform, SpatialReference
 from django.contrib.gis.geos import Point, Polygon
-from django.contrib.gis.geos import Point, Polygon
+from django.contrib.gis.geos.base import gdal
 from munigeo.models import AdministrativeDivisionType, AdministrativeDivision,\
-    Municipality, POICategory, POI, Plan
+    Municipality, POICategory, POI, Plan, Street, Address
 from modeltranslation import models as mt_models # workaround for init problem
 from modeltranslation.translator import translator, NotRegistered
 
@@ -121,6 +121,47 @@ class MPTTModelSerializer(serializers.ModelSerializer):
                 del self.fields[field_name]
 
 
+# Maintain a cache of different coordinate transformations for performance
+# reasons.
+srs_cache = {}
+coord_transforms = {}
+
+def geom_to_json(geom, target_srs):
+    srs = srs_cache.get(geom.srid, None)
+    if not srs:
+        srs = geom.srs
+        srs_cache[geom.srid] = srs
+
+    if target_srs:
+        ct_id = '%s-%s' % (geom.srid, target_srs.srid)
+        ct = coord_transforms.get(ct_id, None)
+        if not ct:
+            ct = CoordTransform(srs, target_srs)
+            coord_transforms[ct_id] = ct
+    else:
+        ct = None
+
+    if ct:
+        wkb = geom.wkb
+        geom = gdal.OGRGeometry(wkb, srs)
+        geom.transform(ct)
+        geom_name = geom.geom_name.lower()
+    else:
+        geom_name = geom.geom_type.lower()
+
+    # Accelerated path for points
+    if geom_name == 'point':
+        if target_srs.projected:
+            digits = 2
+        else:
+            digits = 7
+        coords = [round(n, digits) for n in [geom.x, geom.y]]
+        return {'type': 'Point', 'coordinates': coords}
+
+    s = geom.geojson
+    return json.loads(s)
+
+
 class GeoModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super(GeoModelSerializer, self).__init__(*args, **kwargs)
@@ -136,10 +177,9 @@ class GeoModelSerializer(serializers.ModelSerializer):
             self.geo_fields.append(field_name)
             del self.fields[field_name]
 
-        # SRS is deduced in ViewSet and passed from there
-        self.srs = self.context.get('srs', None)
-
     def to_native(self, obj):
+        # SRS is deduced in ViewSet and passed from there
+        srs = self.context.get('srs', None)
         ret = super(GeoModelSerializer, self).to_native(obj)
         if obj is None:
             return ret
@@ -148,13 +188,7 @@ class GeoModelSerializer(serializers.ModelSerializer):
             if val == None:
                 ret[field_name] = None
                 continue
-            if self.srs:
-                if self.srs.srid != val.srid:
-                    ct = CoordTransform(val.srs, self.srs)
-                    val.transform(ct)
-
-            s = val.geojson
-            ret[field_name] = json.loads(s)
+            ret[field_name] = geom_to_json(val, srs)
         return ret
 
 class GeoModelAPIView(generics.GenericAPIView):
@@ -245,6 +279,65 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
         return queryset
 
 register_view(AdministrativeDivisionViewSet, 'administrative_division')
+
+
+class AddressSerializer(GeoModelSerializer):
+    def to_native(self, obj):
+        ret = super(AddressSerializer, self).to_native(obj)
+        if not ret['number_end']:
+            ret['number_end'] = None
+        if not ret['letter']:
+            ret['letter'] = None
+        return ret
+
+    class Meta:
+        model = Address
+        exclude = ('id', 'street')
+
+
+class StreetSerializer(TranslatedModelSerializer):
+    addresses = AddressSerializer(many=True)
+
+    class Meta:
+        model = Street
+
+LANG_CODES = [x[0] for x in settings.LANGUAGES]
+
+class StreetViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
+    queryset = Street.objects.all()
+    serializer_class = StreetSerializer
+
+    def get_queryset(self):
+        queryset = super(StreetViewSet, self).get_queryset()
+        default_lang = LANG_CODES[0]
+        self.lang_code = self.request.QUERY_PARAMS.get('language', default_lang)
+        if self.lang_code not in LANG_CODES[0]:
+            raise ParseError("Invalid language supplied. Supported languages: %s" %
+                             ','.join([x[0] for x in settings.LANGUAGES]))
+
+        filters = self.request.QUERY_PARAMS
+
+        if 'municipality' in filters:
+            val = filters['municipality'].lower()
+            if val.startswith('ocd-division'):
+                ocd_id = val
+            else:
+                ocd_id = make_muni_ocd_id(val)
+            try:
+                muni = Municipality.objects.get(ocd_id=ocd_id)
+            except Municipality.DoesNotExist:
+                raise ParseError("municipality with ID '%s' not found" % ocd_id)
+
+            queryset = queryset.filter(location__within=muni.geometry.boundary)
+
+        if 'input' in filters:
+            args = {}
+            args['name_%s__istartswith' % self.lang_code] = filters['input'].strip()
+            queryset = queryset.filter(**args)
+
+        return queryset
+
+register_view(StreetViewSet, 'street')
 
 
 class MunicipalitySerializer(TranslatedModelSerializer):

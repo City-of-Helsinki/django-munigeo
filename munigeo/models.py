@@ -99,6 +99,7 @@ class AdministrativeDivisionGeometry(models.Model):
 
 @python_2_unicode_compatible
 class Municipality(models.Model):
+    id = models.CharField(max_length=100, primary_key=True)
     name = models.CharField(max_length=100, null=True, db_index=True)
     division = models.ForeignKey(AdministrativeDivision, null=True,
                                  db_index=True, unique=True, related_name='muni')
@@ -141,10 +142,10 @@ class Street(models.Model):
 
 @python_2_unicode_compatible
 class Address(models.Model):
-    street = models.ForeignKey(Street, db_index=True)
-    number = models.PositiveIntegerField(
+    street = models.ForeignKey(Street, db_index=True, related_name='addresses')
+    number = models.CharField(max_length=6, blank=True,
         help_text="Building number")
-    number_end = models.PositiveIntegerField(blank=True, null=True,
+    number_end = models.CharField(max_length=6, blank=True,
         help_text="Building number end (if range specified)")
     letter = models.CharField(max_length=2, blank=True,
         help_text="Building letter if applicable")
@@ -154,9 +155,9 @@ class Address(models.Model):
     objects = models.GeoManager()
 
     def __str__(self):
-        s = '%s %d' % (self.street, self.number)
+        s = '%s %s' % (self.street, self.number)
         if self.number_end:
-            s += '-%d' % self.number_end
+            s += '-%s' % self.number_end
         if self.letter:
             s += '%s' % self.letter
         s += ', %s' % self.street.municipality
