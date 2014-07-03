@@ -295,9 +295,21 @@ class AddressSerializer(GeoModelSerializer):
         exclude = ('id', 'street')
 
 
-class StreetSerializer(TranslatedModelSerializer):
-    addresses = AddressSerializer(many=True)
+class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
 
+    def get_queryset(self):
+        queryset = super(AddressViewSet, self).get_queryset()
+        street = self.request.QUERY_PARAMS.get('street', None)
+        if street is not None:
+            queryset = queryset.filter(street=street)
+        return queryset
+
+register_view(AddressViewSet, 'address')
+
+
+class StreetSerializer(TranslatedModelSerializer):
     class Meta:
         model = Street
 
