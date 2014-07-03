@@ -64,6 +64,7 @@ class FinlandImporter(Importer):
             muni = Municipality(division=munidiv)
         muni.name_fi = name_fi
         muni.name_sv = name_sv
+        muni.id = munidiv.ocd_id.split('/')[-1].split(':')[-1]
         muni.save()
 
     def _setup_land_area(self):
