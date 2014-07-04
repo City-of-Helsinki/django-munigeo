@@ -91,7 +91,7 @@ class FinlandImporter(Importer):
         muni_type, _ = AdministrativeDivisionType.objects.get_or_create(type='muni', defaults=defaults)
         self.muni_type = muni_type
 
-        syncher = ModelSyncher(AdministrativeDivisionType.objects.filter(type=muni_type), lambda obj: obj.origin_id)
+        syncher = ModelSyncher(AdministrativeDivision.objects.filter(type=muni_type), lambda obj: obj.origin_id)
 
         # If running under Python 3, parallelize the heavy lifting.
         if ThreadPoolExecutor:
