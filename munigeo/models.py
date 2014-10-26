@@ -115,7 +115,7 @@ class Plan(models.Model):
     municipality = models.ForeignKey(Municipality)
     geometry = models.MultiPolygonField(srid=PROJECTION_SRID)
     origin_id = models.CharField(max_length=20)
-    in_effect = models.BooleanField()
+    in_effect = models.BooleanField(default=False)
 
     objects = models.GeoManager()
 
