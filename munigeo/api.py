@@ -10,13 +10,14 @@ from django.contrib.gis.gdal import SRSException, CoordTransform, SpatialReferen
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.geos.base import gdal
 from munigeo.models import AdministrativeDivisionType, AdministrativeDivision,\
-    Municipality, POICategory, POI, Plan, Street, Address
+    AdministrativeDivisionGeometry, Municipality, POICategory, POI, Plan, Street, Address
 from modeltranslation import models as mt_models # workaround for init problem
 from modeltranslation.translator import translator, NotRegistered
 
 # Use the GPS coordinate system by default
 DEFAULT_SRID = 4326
-
+DATABASE_SRID = getattr(settings, 'PROJECTION_SRID', 4326)
+DEFAULT_SRS = SpatialReference(DEFAULT_SRID)
 
 all_views = []
 def register_view(klass, name):
@@ -179,7 +180,7 @@ class GeoModelSerializer(serializers.ModelSerializer):
 
     def to_native(self, obj):
         # SRS is deduced in ViewSet and passed from there
-        srs = self.context.get('srs', None)
+        self.srs = self.context.get('srs', None)
         ret = super(GeoModelSerializer, self).to_native(obj)
         if obj is None:
             return ret
@@ -188,7 +189,7 @@ class GeoModelSerializer(serializers.ModelSerializer):
             if val == None:
                 ret[field_name] = None
                 continue
-            ret[field_name] = geom_to_json(val, srs)
+            ret[field_name] = geom_to_json(val, self.srs)
         return ret
 
 class GeoModelAPIView(generics.GenericAPIView):
@@ -225,11 +226,8 @@ class AdministrativeDivisionSerializer(GeoModelSerializer, TranslatedModelSerial
         qparams = self.context['request'].QUERY_PARAMS
         if qparams.get('geometry', '').lower() in ('true', '1'):
             geom = obj.geometry.boundary
-            if self.srs.srid != geom.srid:
-                ct = CoordTransform(geom.srs, self.srs)
-                geom.transform(ct)
-            geom_str = geom.geojson
-            ret['boundary'] = json.loads(geom_str)
+            ret['boundary'] = geom_to_json(geom, self.srs)
+        ret['type'] = obj.type.type
         return ret
 
     class Meta:
@@ -244,12 +242,31 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
         filters = self.request.QUERY_PARAMS
 
         if 'type' in filters:
-            type_str = filters['type'].strip()
-            # If the given type is not digits, assume it's a type name
-            if not re.match(r'^[\d]+$', type_str):
-                queryset = queryset.filter(type__type=type_str)
+            types = filters['type'].strip().split(',')
+            is_name = False
+            for t in types:
+                # If the given type is not digits, assume it's a type name
+                if not re.match(r'^[\d]+$', t):
+                    is_name = True
+                    break
+            if is_name:
+                queryset = queryset.filter(type__type__in=types)
             else:
-                queryset = queryset.filter(type=type_str)
+                queryset = queryset.filter(type__in=types)
+
+        if 'lat' in filters and 'lon' in filters:
+            try:
+                lat = float(filters['lat'])
+                lon = float(filters['lon'])
+            except ValueError:
+                raise ParseError("'lat' and 'lon' need to be floating point numbers")
+            point = Point(lon, lat, srid=DEFAULT_SRID)
+            if DEFAULT_SRID != DATABASE_SRID:
+                ct = CoordTransform(SpatialReference(DEFAULT_SRID),
+                                    SpatialReference(DATABASE_SRID))
+                point.transform(ct)
+            geometries = AdministrativeDivisionGeometry.objects.filter(boundary__contains=point)
+            queryset = queryset.filter(geometry__in=geometries).distinct()
 
         if 'input' in filters:
             queryset = queryset.filter(name__icontains=filters['input'].strip())
@@ -275,6 +292,9 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
 
             queryset = queryset.filter(ocd_id__in=ocd_id_list)
 
+        if 'geometry' in filters:
+            queryset = queryset.select_related('geometry')
+        queryset = queryset.select_related('type')
 
         return queryset
 

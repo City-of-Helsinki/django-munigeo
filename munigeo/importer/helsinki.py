@@ -102,9 +102,6 @@ class HelsinkiImporter(Importer):
             full_id = origin_id
         obj = syncher.get(full_id)
 
-        if not obj:
-            obj = AdministrativeDivision(origin_id=origin_id, type=type_obj)
-
         if 'parent' in div:
             parent = parent_dict[attr_dict['parent_id']]
             del attr_dict['parent_id']
@@ -139,8 +136,11 @@ class HelsinkiImporter(Importer):
             geom_obj = AdministrativeDivisionGeometry(division=obj)
 
         geom = feat.geom
-        geom.srid = GK25_SRID
-        geom.transform(PROJECTION_SRID)
+        if not geom.srid:
+            geom.srid = GK25_SRID
+        if geom.srid != PROJECTION_SRID:
+            ct = CoordTransform(SpatialReference(geom.srid), SpatialReference(PROJECTION_SRID))
+            geom.transform(ct)
         #geom = geom.geos.intersection(parent.geometry.boundary)
         geom = geom.geos
         if geom.geom_type == 'Polygon':
@@ -191,7 +191,8 @@ class HelsinkiImporter(Importer):
                 sep = '&'
             else:
                 sep = '?'
-            ds = DataSource(wfs_url + sep + 'typeName=' + div['wfs_layer'])
+            url = wfs_url + sep + 'typeName=' + div['wfs_layer'] + '&' + "srsName=EPSG:%d" % PROJECTION_SRID
+            ds = DataSource(url)
         lyr = ds[0]
         assert len(ds) == 1
         with AdministrativeDivision.objects.delay_mptt_updates():
