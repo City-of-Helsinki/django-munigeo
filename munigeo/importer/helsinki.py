@@ -101,6 +101,8 @@ class HelsinkiImporter(Importer):
         else:
             full_id = origin_id
         obj = syncher.get(full_id)
+        if not obj:
+            obj = AdministrativeDivision(origin_id=origin_id, type=type_obj)
 
         if 'parent' in div:
             parent = parent_dict[attr_dict['parent_id']]
