@@ -38,7 +38,8 @@ SERVICE_CATEGORY_MAP = {
 }
 
 
-GK25_SRS = SpatialReference(3879)
+GK25_SRID = 3879
+GK25_SRS = SpatialReference(GK25_SRID)
 
 coord_transform = None
 if GK25_SRS.srid != PROJECTION_SRID:
@@ -181,8 +182,16 @@ class HelsinkiImporter(Importer):
         else:
             parent_dict = None
 
-        path = self.find_data_file(os.path.join(self.division_data_path, div['file']))
-        ds = DataSource(path, encoding='iso8859-1')
+        if 'file' in div:
+            path = self.find_data_file(os.path.join(self.division_data_path, div['file']))
+            ds = DataSource(path, encoding='iso8859-1')
+        else:
+            wfs_url = 'WFS:' + div['wfs_url']
+            if '?' in wfs_url:
+                sep = '&'
+            else:
+                sep = '?'
+            ds = DataSource(wfs_url + sep + 'typeName=' + div['wfs_layer'])
         lyr = ds[0]
         assert len(ds) == 1
         with AdministrativeDivision.objects.delay_mptt_updates():
