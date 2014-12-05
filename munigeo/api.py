@@ -180,7 +180,7 @@ class GeoModelSerializer(serializers.ModelSerializer):
 
     def to_native(self, obj):
         # SRS is deduced in ViewSet and passed from there
-        self.srs = self.context.get('srs', None)
+        self.srs = self.context.get('srs', DEFAULT_SRS)
         ret = super(GeoModelSerializer, self).to_native(obj)
         if obj is None:
             return ret
