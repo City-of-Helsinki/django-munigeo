@@ -20,9 +20,9 @@ else:
 
 @python_2_unicode_compatible
 class AdministrativeDivisionType(models.Model):
-    type = models.CharField(max_length=30, unique=True, db_index=True,
+    type = models.CharField(max_length=60, unique=True, db_index=True,
                             help_text=_("Type name of the division (e.g. muni, school_district)"))
-    name = models.CharField(max_length=50,
+    name = models.CharField(max_length=100,
                             help_text=_("Human-readable name for the division"))
     ## European Union Nomenclature des Unités Territoriales Statistiques level
     #nuts_level = models.PositiveSmallIntegerField(null=True, db_index=True)
