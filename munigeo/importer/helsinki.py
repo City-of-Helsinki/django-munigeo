@@ -107,8 +107,14 @@ class HelsinkiImporter(Importer):
         if 'parent' in div:
             parent = parent_dict[attr_dict['parent_id']]
             del attr_dict['parent_id']
+        elif 'parent_ocd_id' in div:
+            try:
+                parent = AdministrativeDivision.objects.get(ocd_id=div['parent_ocd_id'])
+            except AdministrativeDivision.DoesNotExist:
+                parent = None
         else:
             parent = muni.division
+
         obj.parent = parent
         obj.municipality = muni
 
@@ -120,11 +126,14 @@ class HelsinkiImporter(Importer):
                 setattr(obj, key, val)
 
         if 'ocd_id' in div:
-            assert parent and parent.ocd_id
-            if div.get('parent_in_ocd_id', False):
-                args = {'parent': parent.ocd_id}
+            assert (parent and parent.ocd_id) or 'parent_ocd_id' in div
+            if parent:
+                if div.get('parent_in_ocd_id', False):
+                    args = {'parent': parent.ocd_id}
+                else:
+                    args = {'parent': muni.division.ocd_id}
             else:
-                args = {'parent': muni.division.ocd_id}
+                args = {'parent': div['parent_ocd_id']}
             val = attr_dict['ocd_id']
             args[div['ocd_id']] = val
             obj.ocd_id = ocd.make_id(**args)

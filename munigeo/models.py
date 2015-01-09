@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from six import with_metaclass
 from django.utils.encoding import python_2_unicode_compatible
 
 from django.contrib.gis.db import models
 from django.db.models.query import QuerySet, Q
 from django.conf import settings
-from mptt.models import MPTTModel, MPTTModelBase, TreeForeignKey
+from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
 
 from django.utils.translation import ugettext as _
@@ -17,6 +16,7 @@ if hasattr(settings, 'PROJECTION_SRID'):
     PROJECTION_SRID = settings.PROJECTION_SRID
 else:
     PROJECTION_SRID = 3857
+
 
 @python_2_unicode_compatible
 class AdministrativeDivisionType(models.Model):
@@ -34,6 +34,7 @@ class AdministrativeDivisionType(models.Model):
 
 
 class AdministrativeDivisionQuerySet(QuerySet):
+
     def by_ancestor(self, ancestor):
         manager = self.model.objects
         max_level = manager.determine_max_level()
@@ -46,6 +47,7 @@ class AdministrativeDivisionQuerySet(QuerySet):
 
 
 class AdministrativeDivisionManager(TreeManager):
+
     def get_queryset(self):
         return AdministrativeDivisionQuerySet(self.model, using=self._db)
 
@@ -66,7 +68,8 @@ class AdministrativeDivisionManager(TreeManager):
 class AdministrativeDivision(MPTTModel):
     type = models.ForeignKey(AdministrativeDivisionType, db_index=True)
     name = models.CharField(max_length=100, null=True, db_index=True)
-    parent = TreeForeignKey('self', db_index=True, null=True, related_name='children')
+    parent = TreeForeignKey('self', db_index=True, null=True,
+                            related_name='children')
 
     origin_id = models.CharField(max_length=50, db_index=True)
     ocd_id = models.CharField(max_length=200, unique=True, db_index=True, null=True,
@@ -75,19 +78,24 @@ class AdministrativeDivision(MPTTModel):
     municipality = models.ForeignKey('munigeo.Municipality', null=True)
 
     # Service districts might have a related service point id
-    service_point_id = models.CharField(max_length=50, db_index=True, null=True, blank=True)
+    service_point_id = models.CharField(max_length=50, db_index=True, null=True,
+                                        blank=True)
 
     # Some divisions might be only valid during some time period.
     # (E.g. yearly school districts in Helsinki)
     start = models.DateField(null=True)
     end = models.DateField(null=True)
 
-    modified_at = models.DateTimeField(help_text='Time when the information was last changed', auto_now=True)
+    modified_at = models.DateTimeField(auto_now=True,
+                                       help_text='Time when the information was last changed')
 
     objects = AdministrativeDivisionManager()
 
     def __str__(self):
-        return "%s (%s)" % (self.name, self.type.type)
+        ocd_id = ''
+        if self.ocd_id:
+            ocd_id = '%s / ' % self.ocd_id
+        return "%s (%s%s)" % (self.name, ocd_id, self.type.type)
 
     class Meta:
         unique_together = (('origin_id', 'type', 'parent'),)
@@ -104,8 +112,8 @@ class AdministrativeDivisionGeometry(models.Model):
 class Municipality(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
     name = models.CharField(max_length=100, null=True, db_index=True)
-    division = models.ForeignKey(AdministrativeDivision, null=True,
-                                 db_index=True, unique=True, related_name='muni')
+    division = models.ForeignKey(AdministrativeDivision, null=True, db_index=True,
+                                 unique=True, related_name='muni')
 
     objects = models.Manager()
 
@@ -143,17 +151,18 @@ class Street(models.Model):
     class Meta:
         unique_together = (('municipality', 'name'),)
 
+
 @python_2_unicode_compatible
 class Address(models.Model):
     street = models.ForeignKey(Street, db_index=True, related_name='addresses')
     number = models.CharField(max_length=6, blank=True,
-        help_text="Building number")
+                              help_text="Building number")
     number_end = models.CharField(max_length=6, blank=True,
-        help_text="Building number end (if range specified)")
+                                  help_text="Building number end (if range specified)")
     letter = models.CharField(max_length=2, blank=True,
-        help_text="Building letter if applicable")
+                              help_text="Building letter if applicable")
     location = models.PointField(srid=PROJECTION_SRID,
-        help_text="Coordinates of the address")
+                                 help_text="Coordinates of the address")
 
     objects = models.GeoManager()
 

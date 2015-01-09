@@ -12,7 +12,7 @@ class ModelSyncher(object):
 
     def mark(self, obj):
         if getattr(obj, '_found', False):
-            raise Exception("Object %s already marked" % obj)
+            raise Exception("Object %s (%s) already marked" % (obj, self.generate_obj_id(obj)))
 
         obj._found = True
         obj_id = self.generate_obj_id(obj)
