@@ -68,7 +68,7 @@ def make_muni_ocd_id(name, rest=None):
 class TranslatedModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super(TranslatedModelSerializer, self).__init__(*args, **kwargs)
-        model = self.opts.model
+        model = self.Meta.model
         try:
             trans_opts = translator.get_options_for_model(model)
         except NotRegistered:
@@ -85,13 +85,13 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
                     del self.fields[key]
             del self.fields[field_name]
 
-    def to_native(self, obj):
-        ret = super(TranslatedModelSerializer, self).to_native(obj)
+    def to_representation(self, obj):
+        ret = super(TranslatedModelSerializer, self).to_representation(obj)
         if obj is None:
             return ret
-        return self.translated_fields_to_native(obj, ret)
+        return self.translated_fields_to_representation(obj, ret)
 
-    def translated_fields_to_native(self, obj, ret):
+    def translated_fields_to_representation(self, obj, ret):
         for field_name in self.translated_fields:
             d = {}
             default_lang = settings.LANGUAGES[0][0]
@@ -166,7 +166,7 @@ def geom_to_json(geom, target_srs):
 class GeoModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super(GeoModelSerializer, self).__init__(*args, **kwargs)
-        model = self.opts.model
+        model = self.Meta.model
         self.geo_fields = []
         model_fields = [f.name for f in model._meta.fields]
         for field_name in self.fields:
@@ -178,10 +178,10 @@ class GeoModelSerializer(serializers.ModelSerializer):
             self.geo_fields.append(field_name)
             del self.fields[field_name]
 
-    def to_native(self, obj):
+    def to_representation(self, obj):
         # SRS is deduced in ViewSet and passed from there
         self.srs = self.context.get('srs', DEFAULT_SRS)
-        ret = super(GeoModelSerializer, self).to_native(obj)
+        ret = super(GeoModelSerializer, self).to_representation(obj)
         if obj is None:
             return ret
         for field_name in self.geo_fields:
@@ -219,8 +219,8 @@ register_view(AdministrativeDivisionTypeViewSet, 'administrative_division_type')
 
 class AdministrativeDivisionSerializer(GeoModelSerializer, TranslatedModelSerializer,
                                        MPTTModelSerializer):
-    def to_native(self, obj):
-        ret = super(AdministrativeDivisionSerializer, self).to_native(obj)
+    def to_representation(self, obj):
+        ret = super(AdministrativeDivisionSerializer, self).to_representation(obj)
         if not 'request' in self.context:
             return ret
         qparams = self.context['request'].QUERY_PARAMS
@@ -302,8 +302,8 @@ register_view(AdministrativeDivisionViewSet, 'administrative_division')
 
 
 class AddressSerializer(GeoModelSerializer):
-    def to_native(self, obj):
-        ret = super(AddressSerializer, self).to_native(obj)
+    def to_representation(self, obj):
+        ret = super(AddressSerializer, self).to_representation(obj)
         if not ret['number_end']:
             ret['number_end'] = None
         if not ret['letter']:
