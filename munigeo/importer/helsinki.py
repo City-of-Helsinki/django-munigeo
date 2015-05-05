@@ -115,6 +115,9 @@ class HelsinkiImporter(Importer):
         else:
             parent = muni.division
 
+        if div.get('no_parent_division', False):
+            muni = None
+
         obj.parent = parent
         obj.municipality = muni
 
@@ -177,8 +180,9 @@ class HelsinkiImporter(Importer):
             type_obj.name = div['name']
             type_obj.save()
 
-        div_qs = AdministrativeDivision.objects.filter(type=type_obj).\
-            by_ancestor(muni.division).select_related('parent__origin_id')
+        div_qs = AdministrativeDivision.objects.filter(type=type_obj)
+        if not div.get('no_parent_division', False):
+            div_qs = div_qs.by_ancestor(muni.division).select_related('parent__origin_id')
         syncher = ModelSyncher(div_qs, make_div_id)
 
         # Cache the list of possible parents. Assumes parents are imported
