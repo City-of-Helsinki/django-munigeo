@@ -112,8 +112,8 @@ class AdministrativeDivisionGeometry(models.Model):
 class Municipality(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
     name = models.CharField(max_length=100, null=True, db_index=True)
-    division = models.ForeignKey(AdministrativeDivision, null=True, db_index=True,
-                                 unique=True, related_name='muni')
+    division = models.OneToOneField(AdministrativeDivision, null=True, db_index=True,
+                                    related_name='muni')
 
     objects = models.Manager()
 
