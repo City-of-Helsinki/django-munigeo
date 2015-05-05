@@ -67,7 +67,7 @@ class Importer(object):
             root_dir = settings.BASE_DIR
         self.data_paths = [os.path.join(root_dir, 'data')]
         module_path = os.path.dirname(__file__)
-        app_path = os.path.abspath(os.path.join(module_path, '..'))
+        app_path = os.path.abspath(os.path.join(module_path, '..', 'data'))
         self.data_paths.append(app_path)
 
         self.options = options
