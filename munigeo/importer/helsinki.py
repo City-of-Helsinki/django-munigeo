@@ -273,7 +273,7 @@ class HelsinkiImporter(Importer):
 
     @db.transaction.atomic
     def import_addresses(self):
-        path = self.find_data_file('pks_osoite.csv')
+        path = self.find_data_file(os.path.join(self.muni_data_path, 'pks_osoite.csv'))
         f = open(path, encoding='iso8859-1')
         reader = csv.DictReader(f, delimiter=',')
 
@@ -282,9 +282,9 @@ class HelsinkiImporter(Importer):
         muni_dict = {}
 
         def make_addr_id(num, num_end, letter):
-            if num_end == None:
+            if num_end is None:
                 num_end = ''
-            if letter == None:
+            if letter is None:
                 letter = ''
             return '%s-%s-%s' % (num, num_end, letter)
 
