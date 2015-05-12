@@ -126,31 +126,37 @@ divisions:
     name: "Oppilaaksiottoalue, alakoulu"
     ocd_id: oppilaaksiottoalue_alakoulu
     wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opev_2013_14_oppilaaksiottoalue_alakoulu_suomi'
+    wfs_layer: 'hel:opev_tpr_2014_15_ala_aste_suomi'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
         service_point_id: toimipiste_id
+        name:
+            fi: nimi
 
   - type: lower_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, alakoulu (ruotsi)"
     ocd_id: oppilaaksiottoalue_alakoulu_sv
     wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opev_2013_14_oppilaaksiottoalue_alakoulu_ruotsi'
+    wfs_layer: 'hel:opev_tpr_2014_15_ala_aste_ruotsi'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
         service_point_id: toimipiste_id
+        name:
+            fi: nimi
 
   - type: upper_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, yläkoulu"
     ocd_id: oppilaaksiottoalue_ylakoulu
     wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opev_2013_14_oppilaaksiottoalue_ylakoulu_suomi'
+    wfs_layer: 'hel:opev_tpr_2014_15_yla_aste_suomi'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
         service_point_id: toimipiste_id
+        name:
+            fi: nimi
 
   - type: upper_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, yläkoulu (ruotsi)"
