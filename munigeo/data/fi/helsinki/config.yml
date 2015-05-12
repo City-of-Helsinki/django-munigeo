@@ -144,7 +144,7 @@ divisions:
         ocd_id: tunnus
         service_point_id: toimipiste_id
         name:
-            fi: nimi
+            sv: nimi_se
 
   - type: upper_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, yläkoulu"
@@ -162,11 +162,13 @@ divisions:
     name: "Oppilaaksiottoalue, yläkoulu (ruotsi)"
     ocd_id: oppilaaksiottoalue_ylakoulu_sv
     wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opev_2013_14_oppilaaksiottoalue_ylakoulu_ruotsi'
+    wfs_layer: 'hel:opev_tpr_2014_15_yla_aste_ruotsi'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
         service_point_id: toimipiste_id
+        name:
+            sv: nimi_se
 
   - type: maternity_clinic_district
     name: Neuvola-alue
