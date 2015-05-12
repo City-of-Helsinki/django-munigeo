@@ -97,15 +97,15 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
             default_lang = settings.LANGUAGES[0][0]
             d[default_lang] = getattr(obj, field_name)
             for lang in [x[0] for x in settings.LANGUAGES[1:]]:
-                key = "%s_%s" % (field_name, lang)  
+                key = "%s_%s" % (field_name, lang)
                 val = getattr(obj, key, None)
-                if val == None:
-                    continue 
+                if val is None:
+                    continue
                 d[lang] = val
 
             # If no text provided, leave the field as null
             for key, val in d.items():
-                if val != None:
+                if val is not None:
                     break
             else:
                 d = None
@@ -170,7 +170,7 @@ class GeoModelSerializer(serializers.ModelSerializer):
         self.geo_fields = []
         model_fields = [f.name for f in model._meta.fields]
         for field_name in self.fields:
-            if not field_name in model_fields:
+            if field_name not in model_fields:
                 continue
             field = model._meta.get_field(field_name)
             if not isinstance(field, models.GeometryField):
@@ -186,11 +186,12 @@ class GeoModelSerializer(serializers.ModelSerializer):
             return ret
         for field_name in self.geo_fields:
             val = getattr(obj, field_name)
-            if val == None:
+            if val is None:
                 ret[field_name] = None
                 continue
             ret[field_name] = geom_to_json(val, self.srs)
         return ret
+
 
 class GeoModelAPIView(generics.GenericAPIView):
     def initial(self, request, *args, **kwargs):
@@ -204,17 +205,16 @@ class GeoModelAPIView(generics.GenericAPIView):
         return ret
 
 
-
 class AdministrativeDivisionTypeSerializer(TranslatedModelSerializer):
     class Meta:
         model = AdministrativeDivisionType
+
 
 class AdministrativeDivisionTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = AdministrativeDivisionType.objects.all()
     serializer_class = AdministrativeDivisionTypeSerializer
 
 register_view(AdministrativeDivisionTypeViewSet, 'administrative_division_type')
-
 
 
 class AdministrativeDivisionSerializer(GeoModelSerializer, TranslatedModelSerializer,
@@ -232,6 +232,7 @@ class AdministrativeDivisionSerializer(GeoModelSerializer, TranslatedModelSerial
 
     class Meta:
         model = AdministrativeDivision
+
 
 class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
     queryset = AdministrativeDivision.objects.all()
@@ -302,6 +303,7 @@ register_view(AdministrativeDivisionViewSet, 'administrative_division')
 
 
 class AddressSerializer(GeoModelSerializer):
+    # Reverse geocoding
     def to_representation(self, obj):
         ret = super(AddressSerializer, self).to_representation(obj)
         if not ret['number_end']:
@@ -335,6 +337,7 @@ class StreetSerializer(TranslatedModelSerializer):
 
 LANG_CODES = [x[0] for x in settings.LANGUAGES]
 
+
 class StreetViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
     queryset = Street.objects.all()
     serializer_class = StreetSerializer
@@ -343,9 +346,9 @@ class StreetViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
         queryset = super(StreetViewSet, self).get_queryset()
         default_lang = LANG_CODES[0]
         self.lang_code = self.request.QUERY_PARAMS.get('language', default_lang)
-        if self.lang_code not in LANG_CODES[0]:
+        if self.lang_code not in LANG_CODES:
             raise ParseError("Invalid language supplied. Supported languages: %s" %
-                             ','.join([x[0] for x in settings.LANGUAGES]))
+                             ', '.join([x[0] for x in settings.LANGUAGES]))
 
         filters = self.request.QUERY_PARAMS
 
