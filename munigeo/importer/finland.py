@@ -4,6 +4,9 @@ munigeo importer for Finnish nation-level data
 
 import re
 import os
+import zipfile
+import requests
+import io
 
 from django import db
 from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
@@ -20,6 +23,8 @@ except ImportError:
     ThreadPoolExecutor = None
 # Disable threaded mode for now
 ThreadPoolExecutor = None
+
+MUNI_DATA_URL = 'http://kartat.kapsi.fi/files/kuntajako/kuntajako_1000k/etrs89/gml/TietoaKuntajaosta_2015_1000k.zip'
 
 
 @register_importer
@@ -78,11 +83,43 @@ class FinlandImporter(Importer):
         self.land_area = fin_bbox.intersection(land.geom.geos)
         self.land_area.transform(PROJECTION_SRID)
 
+    def load_muni_data(self):
+        print("Loading Finnish municipalities")
+        resp = requests.get(MUNI_DATA_URL)
+        with io.BytesIO(resp.content) as f:
+            zf = zipfile.ZipFile(f)
+            for name in zf.namelist():
+                if name.endswith('.xml'):
+                    break
+            else:
+                raise Exception('XML file not found in %s' % MUNI_DATA_URL)
+            out_path = os.path.join(self, self.data_paths[0], 'fi')
+            try:
+                os.makedirs(out_path)
+            except OSError:
+                pass
+            zf.extract(name, out_path)
+            return os.path.join(out_path, name)
+
+    def find_muni_data(self):
+        for root_path in self.data_paths:
+            base_path = os.path.join(root_path, 'fi')
+            paths = os.listdir(base_path)
+            for p in paths:
+                if 'Kuntajaosta' in p:
+                    break
+            else:
+                return self.load_muni_data()
+            xml_dir = p
+            base_path = os.path.join(base_path, xml_dir)
+            paths = os.listdir(base_path)
+            return os.path.join(base_path, paths[0])
+
     def import_municipalities(self):
         #self._setup_land_area()
 
         print("Loading municipality boundaries")
-        path = self.find_data_file('fi/SuomenKuntajako_2013_10k.xml')
+        path = self.find_muni_data()
         ds = DataSource(path)
         lyr = ds[0]
         assert lyr.name == "AdministrativeUnit"
