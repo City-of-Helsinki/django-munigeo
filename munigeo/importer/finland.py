@@ -113,7 +113,12 @@ class FinlandImporter(Importer):
             xml_dir = p
             base_path = os.path.join(base_path, xml_dir)
             paths = os.listdir(base_path)
-            return os.path.join(base_path, paths[0])
+            for p in paths:
+                if p.endswith('.xml'):
+                    break
+            else:
+                return self.load_muni_data()
+            return os.path.join(base_path, p)
 
     def import_municipalities(self):
         #self._setup_land_area()
