@@ -382,10 +382,26 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
     serializer_class = AddressSerializer
 
     def get_queryset(self):
+        default_lang = LANG_CODES[0]
+        self.lang_code = self.request.QUERY_PARAMS.get('language', default_lang)
+        if self.lang_code not in LANG_CODES:
+            raise ParseError("Invalid language supplied. Supported languages: %s" %
+                             ', '.join([x[0] for x in settings.LANGUAGES]))
+
         queryset = super(AddressViewSet, self).get_queryset()
         street = self.request.QUERY_PARAMS.get('street', None)
         if street is not None:
-            queryset = queryset.filter(street=street)
+            if street[0].isnumeric():
+                queryset = queryset.filter(street=street)
+            else:
+                args = {}
+                args['street__name_%s__iexact' % self.lang_code] = street.strip()
+                print(args)
+                queryset = queryset.filter(**args)
+
+        number = self.request.QUERY_PARAMS.get('number', None)
+        if number is not None:
+            queryset = queryset.filter(number=number)
 
         point = parse_lat_lon(self.request.QUERY_PARAMS)
         if point:
