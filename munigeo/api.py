@@ -369,7 +369,7 @@ class AddressSerializer(GeoModelSerializer):
             ret['letter'] = None
         if hasattr(obj, 'distance'):
             ret['distance'] = obj.distance.m
-            ret['street'] = StreetSerializer(obj.street).data
+        ret['street'] = StreetSerializer(obj.street).data
         return ret
 
     class Meta:
