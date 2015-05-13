@@ -234,6 +234,28 @@ class AdministrativeDivisionSerializer(GeoModelSerializer, TranslatedModelSerial
         model = AdministrativeDivision
 
 
+def parse_lat_lon(query_params):
+    lat = query_params.get('lat', None)
+    lon = query_params.get('lon', None)
+    if not lat and not lon:
+        return None
+
+    if not lat or not lon:
+        raise ParseError("you must supply both 'lat' and 'lon'")
+    try:
+        lat = float(lat)
+        lon = float(lon)
+    except ValueError:
+        raise ParseError("'lat' and 'lon' must be floating point numbers")
+
+    point = Point(lon, lat, srid=DEFAULT_SRID)
+    if DEFAULT_SRID != DATABASE_SRID:
+        ct = CoordTransform(SpatialReference(DEFAULT_SRID),
+                            SpatialReference(DATABASE_SRID))
+        point.transform(ct)
+    return point
+
+
 class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
     queryset = AdministrativeDivision.objects.all()
     serializer_class = AdministrativeDivisionSerializer
@@ -255,17 +277,8 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
             else:
                 queryset = queryset.filter(type__in=types)
 
-        if 'lat' in filters and 'lon' in filters:
-            try:
-                lat = float(filters['lat'])
-                lon = float(filters['lon'])
-            except ValueError:
-                raise ParseError("'lat' and 'lon' need to be floating point numbers")
-            point = Point(lon, lat, srid=DEFAULT_SRID)
-            if DEFAULT_SRID != DATABASE_SRID:
-                ct = CoordTransform(SpatialReference(DEFAULT_SRID),
-                                    SpatialReference(DATABASE_SRID))
-                point.transform(ct)
+        point = parse_lat_lon(filters)
+        if point:
             geometries = AdministrativeDivisionGeometry.objects.filter(boundary__contains=point)
             queryset = queryset.filter(geometry__in=geometries).distinct()
 
@@ -300,35 +313,6 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
         return queryset
 
 register_view(AdministrativeDivisionViewSet, 'administrative_division')
-
-
-class AddressSerializer(GeoModelSerializer):
-    # Reverse geocoding
-    def to_representation(self, obj):
-        ret = super(AddressSerializer, self).to_representation(obj)
-        if not ret['number_end']:
-            ret['number_end'] = None
-        if not ret['letter']:
-            ret['letter'] = None
-        return ret
-
-    class Meta:
-        model = Address
-        exclude = ('id', 'street')
-
-
-class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
-    queryset = Address.objects.all()
-    serializer_class = AddressSerializer
-
-    def get_queryset(self):
-        queryset = super(AddressViewSet, self).get_queryset()
-        street = self.request.QUERY_PARAMS.get('street', None)
-        if street is not None:
-            queryset = queryset.filter(street=street)
-        return queryset
-
-register_view(AddressViewSet, 'address')
 
 
 class StreetSerializer(TranslatedModelSerializer):
@@ -373,6 +357,43 @@ class StreetViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
         return queryset
 
 register_view(StreetViewSet, 'street')
+
+
+class AddressSerializer(GeoModelSerializer):
+    # Reverse geocoding
+    def to_representation(self, obj):
+        ret = super(AddressSerializer, self).to_representation(obj)
+        if not ret['number_end']:
+            ret['number_end'] = None
+        if not ret['letter']:
+            ret['letter'] = None
+        if hasattr(obj, 'distance'):
+            ret['distance'] = obj.distance.m
+            ret['street'] = StreetSerializer(obj.street).data
+        return ret
+
+    class Meta:
+        model = Address
+        exclude = ('id', 'street')
+
+
+class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+
+    def get_queryset(self):
+        queryset = super(AddressViewSet, self).get_queryset()
+        street = self.request.QUERY_PARAMS.get('street', None)
+        if street is not None:
+            queryset = queryset.filter(street=street)
+
+        point = parse_lat_lon(self.request.QUERY_PARAMS)
+        if point:
+            queryset = queryset.distance(point).order_by('distance')
+
+        return queryset
+
+register_view(AddressViewSet, 'address')
 
 
 class MunicipalitySerializer(TranslatedModelSerializer):
