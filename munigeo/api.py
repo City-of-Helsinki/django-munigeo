@@ -343,11 +343,11 @@ class StreetViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
             else:
                 ocd_id = make_muni_ocd_id(val)
             try:
-                muni = Municipality.objects.get(ocd_id=ocd_id)
+                muni = Municipality.objects.get(division__ocd_id=ocd_id)
             except Municipality.DoesNotExist:
                 raise ParseError("municipality with ID '%s' not found" % ocd_id)
 
-            queryset = queryset.filter(location__within=muni.geometry.boundary)
+            queryset = queryset.filter(municipality=muni)
 
         if 'input' in filters:
             args = {}
