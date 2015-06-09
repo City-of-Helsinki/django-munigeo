@@ -144,6 +144,8 @@ class Plan(models.Model):
 class Street(models.Model):
     name = models.CharField(max_length=100, db_index=True)
     municipality = models.ForeignKey(Municipality, db_index=True)
+    modified_at = models.DateTimeField(auto_now=True,
+                                       help_text='Time when the information was last changed')
 
     def __str__(self):
         return self.name
@@ -165,6 +167,9 @@ class Address(models.Model):
                                  help_text="Coordinates of the address")
 
     objects = models.GeoManager()
+
+    modified_at = models.DateTimeField(auto_now=True,
+                                       help_text='Time when the information was last changed')
 
     def __str__(self):
         s = '%s %s' % (self.street, self.number)
