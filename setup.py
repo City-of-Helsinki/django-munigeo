@@ -20,7 +20,6 @@ setup(
     author_email='juha.yrjola@iki.fi',
     install_requires=[
         'Django',
-        'djangorestframework',
         'requests',
         'requests_cache',
         'django_mptt',
