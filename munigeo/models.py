@@ -1,21 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from django.utils.encoding import python_2_unicode_compatible
-
+from django.utils.translation import ugettext as _
 from django.contrib.gis.db import models
 from django.db.models.query import QuerySet, Q
 from django.conf import settings
 from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
 
-from django.utils.translation import ugettext as _
+from munigeo.utils import get_default_srid
 
-# If SRID not configured in settings, use the global Spherical
-# Mercator projection.
-if hasattr(settings, 'PROJECTION_SRID'):
-    PROJECTION_SRID = settings.PROJECTION_SRID
-else:
-    PROJECTION_SRID = 3857
+PROJECTION_SRID = get_default_srid()
 
 
 @python_2_unicode_compatible

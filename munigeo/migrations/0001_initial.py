@@ -5,6 +5,10 @@ from django.db import models, migrations
 import django.contrib.gis.db.models.fields
 import mptt.fields
 
+from munigeo.utils import get_default_srid
+
+DEFAULT_SRID = get_default_srid()
+
 
 class Migration(migrations.Migration):
 
@@ -19,7 +23,7 @@ class Migration(migrations.Migration):
                 ('number', models.CharField(max_length=6, blank=True, help_text='Building number')),
                 ('number_end', models.CharField(max_length=6, blank=True, help_text='Building number end (if range specified)')),
                 ('letter', models.CharField(max_length=2, blank=True, help_text='Building letter if applicable')),
-                ('location', django.contrib.gis.db.models.fields.PointField(srid=3067, help_text='Coordinates of the address')),
+                ('location', django.contrib.gis.db.models.fields.PointField(srid=DEFAULT_SRID, help_text='Coordinates of the address')),
             ],
             options={
                 'ordering': ['street', 'number'],
@@ -53,7 +57,7 @@ class Migration(migrations.Migration):
             name='AdministrativeDivisionGeometry',
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
-                ('boundary', django.contrib.gis.db.models.fields.MultiPolygonField(srid=3067)),
+                ('boundary', django.contrib.gis.db.models.fields.MultiPolygonField(srid=DEFAULT_SRID)),
                 ('division', models.OneToOneField(to='munigeo.AdministrativeDivision', related_name='geometry')),
             ],
             options={
@@ -89,7 +93,7 @@ class Migration(migrations.Migration):
             name='Plan',
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
-                ('geometry', django.contrib.gis.db.models.fields.MultiPolygonField(srid=3067)),
+                ('geometry', django.contrib.gis.db.models.fields.MultiPolygonField(srid=DEFAULT_SRID)),
                 ('origin_id', models.CharField(max_length=20)),
                 ('in_effect', models.BooleanField(default=False)),
                 ('municipality', models.ForeignKey(to='munigeo.Municipality')),
@@ -104,7 +108,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('name', models.CharField(max_length=200)),
                 ('description', models.TextField(null=True, blank=True)),
-                ('location', django.contrib.gis.db.models.fields.PointField(srid=3067)),
+                ('location', django.contrib.gis.db.models.fields.PointField(srid=DEFAULT_SRID)),
                 ('street_address', models.CharField(null=True, max_length=100, blank=True)),
                 ('zip_code', models.CharField(null=True, max_length=10, blank=True)),
                 ('origin_id', models.CharField(max_length=40, unique=True, db_index=True)),
