@@ -1,3 +1,4 @@
+import collections
 import re
 import json
 from django.db.models import Q
@@ -162,17 +163,25 @@ class GeoModelSerializer(serializers.ModelSerializer):
             del self.fields[field_name]
 
     def to_representation(self, obj):
+        """
+        GeoModelSerializer is a DRF Field; therefore, we also accept
+        already serialized objects and return them as is, just like
+        the DRF Field to_representation.
+        """
         # SRS is deduced in ViewSet and passed from there
         self.srs = self.context.get('srs', DEFAULT_SRS)
         ret = super(GeoModelSerializer, self).to_representation(obj)
         if obj is None:
             return ret
         for field_name in self.geo_fields:
-            val = getattr(obj, field_name)
-            if val is None:
-                ret[field_name] = None
-                continue
-            ret[field_name] = geom_to_json(val, self.srs)
+            if isinstance(obj, collections.Mapping):
+                ret[field_name] = obj
+            else:
+                val = getattr(obj, field_name)
+                if val is None:
+                    ret[field_name] = None
+                    continue
+                ret[field_name] = geom_to_json(val, self.srs)
         return ret
 
 
