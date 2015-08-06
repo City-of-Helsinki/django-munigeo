@@ -196,7 +196,7 @@ class GeoModelSerializer(serializers.ModelSerializer):
 class GeoModelAPIView(generics.GenericAPIView):
     def initial(self, request, *args, **kwargs):
         super(GeoModelAPIView, self).initial(request, *args, **kwargs)
-        srid = request.QUERY_PARAMS.get('srid', None)
+        srid = request.query_params.get('srid', None)
         self.srs = srid_to_srs(srid)
 
     def get_serializer_context(self):
