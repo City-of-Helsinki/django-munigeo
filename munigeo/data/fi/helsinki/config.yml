@@ -86,7 +86,7 @@ divisions:
 
   - type: emergency_care_district
     name: Päivystysalue
-    ocd_id: päivystys-alue
+    ocd_id: päivystysalue
     wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
     wfs_layer: 'hel:terke_paivystysalue'
     fields:
