@@ -84,6 +84,17 @@ divisions:
             fi: tunnus
         service_point_id: toimipiste_id
 
+  - type: emergency_care_district
+    name: Päivystysalue
+    ocd_id: päivystys-alue
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:terke_paivystysalue'
+    fields:
+        origin_id: id
+        ocd_id: tunnus
+        name:
+            fi: tunnus
+
   - type: rescue_district
     name: Suojelulohko
     ocd_id: suojelulohko
