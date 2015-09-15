@@ -223,7 +223,7 @@ class AdministrativeDivisionSerializer(GeoModelSerializer, TranslatedModelSerial
         ret = super(AdministrativeDivisionSerializer, self).to_representation(obj)
         if not 'request' in self.context:
             return ret
-        qparams = self.context['request'].QUERY_PARAMS
+        qparams = self.context['request'].query_params
         if qparams.get('geometry', '').lower() in ('true', '1'):
             geom = obj.geometry.boundary
             ret['boundary'] = geom_to_json(geom, self.srs)
@@ -262,7 +262,7 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
 
     def get_queryset(self):
         queryset = super(AdministrativeDivisionViewSet, self).get_queryset()
-        filters = self.request.QUERY_PARAMS
+        filters = self.request.query_params
 
         if 'type' in filters:
             types = filters['type'].strip().split(',')
@@ -329,12 +329,12 @@ class StreetViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = super(StreetViewSet, self).get_queryset()
         default_lang = LANG_CODES[0]
-        self.lang_code = self.request.QUERY_PARAMS.get('language', default_lang)
+        self.lang_code = self.request.query_params.get('language', default_lang)
         if self.lang_code not in LANG_CODES:
             raise ParseError("Invalid language supplied. Supported languages: %s" %
                              ', '.join([x[0] for x in settings.LANGUAGES]))
 
-        filters = self.request.QUERY_PARAMS
+        filters = self.request.query_params
 
         if 'municipality' in filters:
             val = filters['municipality'].lower()
@@ -383,13 +383,13 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         default_lang = LANG_CODES[0]
-        self.lang_code = self.request.QUERY_PARAMS.get('language', default_lang)
+        self.lang_code = self.request.query_params.get('language', default_lang)
         if self.lang_code not in LANG_CODES:
             raise ParseError("Invalid language supplied. Supported languages: %s" %
                              ', '.join([x[0] for x in settings.LANGUAGES]))
 
         queryset = super(AddressViewSet, self).get_queryset()
-        street = self.request.QUERY_PARAMS.get('street', None)
+        street = self.request.query_params.get('street', None)
         if street is not None:
             if street[0].isnumeric():
                 queryset = queryset.filter(street=street)
@@ -399,11 +399,11 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
                 print(args)
                 queryset = queryset.filter(**args)
 
-        number = self.request.QUERY_PARAMS.get('number', None)
+        number = self.request.query_params.get('number', None)
         if number is not None:
             queryset = queryset.filter(number=number)
 
-        point = parse_lat_lon(self.request.QUERY_PARAMS)
+        point = parse_lat_lon(self.request.query_params)
         if point:
             queryset = queryset.distance(point).order_by('distance')
 
