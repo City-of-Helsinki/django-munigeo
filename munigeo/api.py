@@ -382,24 +382,39 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
     serializer_class = AddressSerializer
 
     def get_queryset(self):
+        filters = self.request.query_params
+
         default_lang = LANG_CODES[0]
-        self.lang_code = self.request.query_params.get('language', default_lang)
+        self.lang_code = filters.get('language', default_lang)
         if self.lang_code not in LANG_CODES:
             raise ParseError("Invalid language supplied. Supported languages: %s" %
                              ', '.join([x[0] for x in settings.LANGUAGES]))
 
         queryset = super(AddressViewSet, self).get_queryset()
-        street = self.request.query_params.get('street', None)
+
+        street = filters.get('street', None)
         if street is not None:
             if street[0].isnumeric():
                 queryset = queryset.filter(street=street)
             else:
                 args = {}
                 args['street__name_%s__iexact' % self.lang_code] = street.strip()
-                print(args)
                 queryset = queryset.filter(**args)
 
-        number = self.request.query_params.get('number', None)
+        if 'municipality' in filters:
+            val = filters['municipality'].lower()
+            if val.startswith('ocd-division'):
+                ocd_id = val
+            else:
+                ocd_id = make_muni_ocd_id(val)
+            try:
+                muni = Municipality.objects.get(division__ocd_id=ocd_id)
+            except Municipality.DoesNotExist:
+                raise ParseError("municipality with ID '%s' not found" % ocd_id)
+
+            queryset = queryset.filter(street__municipality=muni)
+
+        number = filters.get('number', None)
         if number is not None:
             queryset = queryset.filter(number=number)
 
