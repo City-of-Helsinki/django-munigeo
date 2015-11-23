@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.contrib.gis.measure import D
 from django.contrib.gis.db import models
 from rest_framework import serializers, pagination, relations, viewsets, generics
-from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import ParseError, NotFound
 from django.contrib.gis.gdal import SRSException, CoordTransform, SpatialReference
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.geos.base import gdal
@@ -420,7 +420,7 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
             try:
                 muni = Municipality.objects.get(**args)
             except Municipality.DoesNotExist:
-                raise ParseError("municipality with name '%s' not found" % val)
+                raise NotFound("municipality with name '%s' not found" % val)
             queryset = queryset.filter(street__municipality=muni)
 
         number = filters.get('number', None)
