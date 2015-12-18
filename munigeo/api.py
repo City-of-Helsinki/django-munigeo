@@ -1,16 +1,18 @@
 import re
 import json
 from django.conf import settings
-from django.db.models import Q
-from django.contrib.gis.measure import D
 from django.contrib.gis.db import models
-from rest_framework import serializers, pagination, relations, viewsets, generics
+from rest_framework import serializers, viewsets, generics
 from rest_framework.exceptions import ParseError
 from django.contrib.gis.gdal import SRSException, CoordTransform, SpatialReference
 from django.contrib.gis.geos import Point, Polygon
-from django.contrib.gis.geos.base import gdal
+try:
+    from django.contrib.gis.geos.base import gdal
+except ImportError:
+    # Django 1.9 onwards
+    from django.contrib.gis import gdal
 from munigeo.models import AdministrativeDivisionType, AdministrativeDivision,\
-    AdministrativeDivisionGeometry, Municipality, POICategory, POI, Plan, Street, Address
+    AdministrativeDivisionGeometry, Municipality, Street, Address
 from modeltranslation import models as mt_models # workaround for init problem
 from modeltranslation.translator import translator, NotRegistered
 
