@@ -95,6 +95,18 @@ divisions:
         name:
             fi: tunnus
 
+  - type: rescue_area
+    name: Suojelupiiri
+    ocd_id: suojelupiiri
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:pel_suojelupiiri'
+    fields:
+        origin_id: suojelupiiri_tunnus
+        ocd_id: suojelupiiri_nimi
+        name:
+            fi: suojelupiiri_nimi
+            sv: suojelupiiri_nimi_se
+
   - type: rescue_district
     name: Suojelulohko
     ocd_id: suojelulohko
@@ -106,6 +118,18 @@ divisions:
         name:
             fi: suojelulohko_nimi
             sv: suojelulohko_nimi_se
+
+  - type: rescue_sub_district
+    name: Suojelulalaohko
+    ocd_id: suojelualalohko
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:pel_suojelualalohko'
+    fields:
+        origin_id: suojelualalohko_tunnus
+        ocd_id: suojelualalohko_nimi
+        name:
+            fi: suojelualalohko_nimi
+            sv: suojelualalohko_nimi_se
 
   - type: income_support_district
     name: Toimeentulotukialue
