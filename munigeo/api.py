@@ -166,11 +166,13 @@ def geom_to_json(geom, target_srs):
 
 
 class GeoModelSerializer(serializers.ModelSerializer):
+
     def __init__(self, *args, **kwargs):
         super(GeoModelSerializer, self).__init__(*args, **kwargs)
         model = self.Meta.model
         self.geo_fields = []
         model_fields = [f.name for f in model._meta.fields]
+        remove_fields = []
         for field_name in self.fields:
             if field_name not in model_fields:
                 continue
@@ -178,6 +180,8 @@ class GeoModelSerializer(serializers.ModelSerializer):
             if not isinstance(field, models.GeometryField):
                 continue
             self.geo_fields.append(field_name)
+            remove_fields.append(field_name)
+        for field_name in remove_fields:
             del self.fields[field_name]
 
     def to_representation(self, obj):
