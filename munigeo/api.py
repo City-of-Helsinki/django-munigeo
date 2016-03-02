@@ -79,12 +79,16 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
 
         self.translated_fields = trans_opts.fields.keys()
         lang_codes = [x[0] for x in settings.LANGUAGES]
+        remove_fields = []
         # Remove the pre-existing data in the bundle.
         for field_name in self.translated_fields:
             for lang in lang_codes:
                 key = "%s_%s" % (field_name, lang)
                 if key in self.fields:
                     del self.fields[key]
+            del self.fields[field_name]
+            remove_fields.append(field_name)
+        for field_name in remove_fields:
             del self.fields[field_name]
 
     def to_representation(self, obj):
