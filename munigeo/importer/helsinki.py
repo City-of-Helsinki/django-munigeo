@@ -97,13 +97,6 @@ class HelsinkiImporter(Importer):
         origin_id = attr_dict['origin_id']
         del attr_dict['origin_id']
 
-        validity_time_period = None
-        validity_time_period_key = div.get('validity_time_period')
-        if validity_time_period_key:
-            VALIDITY_PERIODS = getattr(settings, 'ADMINISTRATIVE_DIVISION_VALIDITY_TIME_PERIODS')
-            ocd_id_key = div['ocd_id']
-            if VALIDITY_PERIODS:
-                validity_time_period = VALIDITY_PERIODS.get(ocd_id_key, {}).get(validity_time_period_key)
 
         if 'parent_id' in attr_dict:
             full_id = "%s-%s" % (attr_dict['parent_id'], origin_id)
@@ -113,10 +106,10 @@ class HelsinkiImporter(Importer):
         if not obj:
             obj = AdministrativeDivision(origin_id=origin_id, type=type_obj)
 
+        validity_time_period = div.get('validity')
         if validity_time_period:
-            start, end = validity_time_period
-            obj.start = datetime.strptime(start, '%Y-%m-%d').date()
-            obj.end = datetime.strptime(end, '%Y-%m-%d').date()
+            obj.start = datetime.strptime(validity_time_period['start'], '%Y-%m-%d').date()
+            obj.end = datetime.strptime(validity_time_period['end'], '%Y-%m-%d').date()
 
         if 'parent' in div:
             parent = parent_dict[attr_dict['parent_id']]
