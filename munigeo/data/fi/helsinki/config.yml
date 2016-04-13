@@ -157,53 +157,87 @@ divisions:
             fi: nimi
             sv: nimi_ru
 
-  - type: lower_comprehensive_school_district_fi
+  - type: lower_comprehensive_school_district_fi_current
     name: "Oppilaaksiottoalue, alakoulu"
-    ocd_id: oppilaaksiottoalue_alakoulu
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opev_tpr_2015_16_ala_aste_suomi'
+    ocd_id: oppilaaksiottoalue_alakoulu_current
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Opev_ooa_ylaaste_suomi'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
         service_point_id: toimipiste_id
-        name:
-            fi: nimi
 
-  - type: lower_comprehensive_school_district_sv
+  - type: lower_comprehensive_school_district_fi_future
+    name: "Oppilaaksiottoalue, alakoulu"
+    ocd_id: oppilaaksiottoalue_alakoulu_future
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:opev_ooa_alaaste_suomi_tuleva'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        service_point_id: toimipiste_id
+
+  - type: lower_comprehensive_school_district_sv_current
     name: "Oppilaaksiottoalue, alakoulu (ruotsi)"
-    ocd_id: oppilaaksiottoalue_alakoulu_sv
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opev_tpr_2015_16_ala_aste_ruotsi'
+    ocd_id: oppilaaksiottoalue_alakoulu_sv_current
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Opev_ooa_alaaste_ruotsi'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
         service_point_id: toimipiste_id
-        name:
-            sv: nimi_se
 
-  - type: upper_comprehensive_school_district_fi
+  - type: lower_comprehensive_school_district_sv_future
+    name: "Oppilaaksiottoalue, alakoulu (ruotsi)"
+    ocd_id: oppilaaksiottoalue_alakoulu_sv_future
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:opev_ooa_alaaste_ruotsi_tuleva'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        service_point_id: toimipiste_id
+
+  - type: upper_comprehensive_school_district_fi_current
     name: "Oppilaaksiottoalue, yläkoulu"
-    ocd_id: oppilaaksiottoalue_ylakoulu
+    ocd_id: oppilaaksiottoalue_ylakoulu_current
     wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opev_tpr_2015_16_yla_aste_suomi'
+    wfs_layer: 'avoindata:Opev_ooa_ylaaste_suomi'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
         service_point_id: toimipiste_id
-        name:
-            fi: nimi
 
-  - type: upper_comprehensive_school_district_sv
-    name: "Oppilaaksiottoalue, yläkoulu (ruotsi)"
-    ocd_id: oppilaaksiottoalue_ylakoulu_sv
+  - type: upper_comprehensive_school_district_fi_future
+    name: "Oppilaaksiottoalue, yläkoulu"
+    ocd_id: oppilaaksiottoalue_ylakoulu_future
     wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opevooa_2015_16_yla_aste_ruotsi'
+    wfs_layer: 'avoindata:opev_ooa_ylaaste_suomi_tuleva'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
         service_point_id: toimipiste_id
-        name:
-            sv: nimi_se
+
+
+  - type: upper_comprehensive_school_district_sv_current
+    name: "Oppilaaksiottoalue, yläkoulu (ruotsi)"
+    ocd_id: oppilaaksiottoalue_ylakoulu_sv_current
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'avoindata:Opev_ooa_ylaaste_ruotsi'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        service_point_id: toimipiste_id
+
+  - type: upper_comprehensive_school_district_sv_future
+    name: "Oppilaaksiottoalue, yläkoulu (ruotsi)"
+    ocd_id: oppilaaksiottoalue_ylakoulu_sv_future
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'avoindata:opev_ooa_ylaaste_ruotsi_tuleva'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        service_point_id: toimipiste_id
+
 
   - type: maternity_clinic_district
     name: Neuvola-alue
