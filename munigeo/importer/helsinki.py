@@ -11,6 +11,7 @@ import yaml
 from django.conf import settings
 from django import db
 from django.utils import translation
+from datetime import datetime
 
 from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon, Point
@@ -96,6 +97,7 @@ class HelsinkiImporter(Importer):
         origin_id = attr_dict['origin_id']
         del attr_dict['origin_id']
 
+
         if 'parent_id' in attr_dict:
             full_id = "%s-%s" % (attr_dict['parent_id'], origin_id)
         else:
@@ -103,6 +105,15 @@ class HelsinkiImporter(Importer):
         obj = syncher.get(full_id)
         if not obj:
             obj = AdministrativeDivision(origin_id=origin_id, type=type_obj)
+
+        validity_time_period = div.get('validity')
+        if validity_time_period:
+            obj.start = validity_time_period.get('start')
+            obj.end = validity_time_period.get('end')
+            if obj.start:
+                obj.start = datetime.strptime(obj.start, '%Y-%m-%d').date()
+            if obj.end:
+                obj.end = datetime.strptime(obj.end, '%Y-%m-%d').date()
 
         if 'parent' in div:
             parent = parent_dict[attr_dict['parent_id']]

@@ -159,51 +159,108 @@ divisions:
 
   - type: lower_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, alakoulu"
+    validity:
+        start: '2015-08-01'
+        end: '2016-08-10'
     ocd_id: oppilaaksiottoalue_alakoulu
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opev_tpr_2015_16_ala_aste_suomi'
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:opev_ooa_ylaaste_suomi'
     fields:
-        origin_id: tunnus
-        ocd_id: tunnus
+        origin_id: id
+        ocd_id: id
         service_point_id: toimipiste_id
-        name:
-            fi: nimi
+
+  - type: lower_comprehensive_school_district_fi
+    name: "Oppilaaksiottoalue, alakoulu"
+    validity:
+        start: '2016-08-11'
+        end: '2017-08-01'
+    ocd_id: oppilaaksiottoalue_alakoulu
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:opev_ooa_alaaste_suomi_tuleva'
+    fields:
+        origin_id: id
+        ocd_id: id
+        service_point_id: toimipiste_id
 
   - type: lower_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, alakoulu (ruotsi)"
+    validity:
+        start: '2015-08-01'
+        end: '2016-08-10'
     ocd_id: oppilaaksiottoalue_alakoulu_sv
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opev_tpr_2015_16_ala_aste_ruotsi'
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:opev_ooa_alaaste_ruotsi'
     fields:
-        origin_id: tunnus
-        ocd_id: tunnus
+        origin_id: id
+        ocd_id: id
         service_point_id: toimipiste_id
-        name:
-            sv: nimi_se
+
+  - type: lower_comprehensive_school_district_sv
+    name: "Oppilaaksiottoalue, alakoulu (ruotsi)"
+    validity:
+        start: '2016-08-11'
+        end: '2017-08-01'
+    ocd_id: oppilaaksiottoalue_alakoulu_sv
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:opev_ooa_alaaste_ruotsi_tuleva'
+    fields:
+        origin_id: id
+        ocd_id: id
+        service_point_id: toimipiste_id
 
   - type: upper_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, yläkoulu"
+    validity:
+        start: '2015-08-01'
+        end: '2016-08-10'
     ocd_id: oppilaaksiottoalue_ylakoulu
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opev_tpr_2015_16_yla_aste_suomi'
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:opev_ooa_ylaaste_suomi'
     fields:
-        origin_id: tunnus
-        ocd_id: tunnus
+        origin_id: id
+        ocd_id: id
         service_point_id: toimipiste_id
-        name:
-            fi: nimi
+
+  - type: upper_comprehensive_school_district_fi
+    name: "Oppilaaksiottoalue, yläkoulu"
+    validity:
+        start: '2016-08-11'
+        end: '2017-08-01'
+    ocd_id: oppilaaksiottoalue_ylakoulu
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:opev_ooa_ylaaste_suomi_tuleva'
+    fields:
+        origin_id: id
+        ocd_id: id
+        service_point_id: toimipiste_id
+
 
   - type: upper_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, yläkoulu (ruotsi)"
+    validity:
+        start: '2015-08-01'
+        end: '2016-08-10'
     ocd_id: oppilaaksiottoalue_ylakoulu_sv
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opevooa_2015_16_yla_aste_ruotsi'
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:opev_ooa_ylaaste_ruotsi'
     fields:
-        origin_id: tunnus
-        ocd_id: tunnus
+        origin_id: id
+        ocd_id: id
         service_point_id: toimipiste_id
-        name:
-            sv: nimi_se
+
+  - type: upper_comprehensive_school_district_sv
+    name: "Oppilaaksiottoalue, yläkoulu (ruotsi)"
+    validity:
+        start: '2016-08-11'
+        end: '2017-08-01'
+    ocd_id: oppilaaksiottoalue_ylakoulu_sv
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:opev_ooa_ylaaste_ruotsi_tuleva'
+    fields:
+        origin_id: id
+        ocd_id: id
+        service_point_id: toimipiste_id
 
   - type: maternity_clinic_district
     name: Neuvola-alue
