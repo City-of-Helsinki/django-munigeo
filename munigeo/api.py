@@ -1,5 +1,6 @@
 import re
 import json
+from datetime import datetime
 from django.conf import settings
 from django.contrib.gis.db import models
 from rest_framework import serializers, viewsets, generics
@@ -319,6 +320,11 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
 
         if 'geometry' in filters:
             queryset = queryset.select_related('geometry')
+
+        if 'date' in filters:
+            date = datetime.strptime(filters['date'], '%Y-%m-%d').date()
+            queryset = queryset.filter(start__lte=date).filter(end__gte=date)
+
         queryset = queryset.select_related('type')
 
         return queryset
