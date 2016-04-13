@@ -89,7 +89,8 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
             del self.fields[field_name]
             remove_fields.append(field_name)
         for field_name in remove_fields:
-            del self.fields[field_name]
+            if field_name in self.fields:
+                del self.fields[field_name]
 
     def to_representation(self, obj):
         ret = super(TranslatedModelSerializer, self).to_representation(obj)
