@@ -108,8 +108,12 @@ class HelsinkiImporter(Importer):
 
         validity_time_period = div.get('validity')
         if validity_time_period:
-            obj.start = datetime.strptime(validity_time_period['start'], '%Y-%m-%d').date()
-            obj.end = datetime.strptime(validity_time_period['end'], '%Y-%m-%d').date()
+            obj.start = validity_time_period.get('start')
+            obj.end = validity_time_period.get('end')
+            if obj.start:
+                obj.start = datetime.strptime(obj.start, '%Y-%m-%d').date()
+            if obj.end:
+                obj.end = datetime.strptime(obj.end, '%Y-%m-%d').date()
 
         if 'parent' in div:
             parent = parent_dict[attr_dict['parent_id']]

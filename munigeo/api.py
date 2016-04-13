@@ -1,5 +1,6 @@
 import re
 import json
+from django.db.models import Q
 from datetime import datetime
 from django.conf import settings
 from django.contrib.gis.db import models
@@ -322,8 +323,13 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
             queryset = queryset.select_related('geometry')
 
         if 'date' in filters:
-            date = datetime.strptime(filters['date'], '%Y-%m-%d').date()
-            queryset = queryset.filter(start__lte=date).filter(end__gte=date)
+            try:
+                date = datetime.strptime(filters['date'], '%Y-%m-%d').date()
+            except ValueError:
+                raise ParseError('Invalid date. The required format is YYYY-MM-DD.')
+            queryset = queryset.filter(
+                (Q(start__lte=date) | Q(start__isnull=True)) &
+                (Q(end__gte=date)   | Q(end__isnull=True)))
 
         queryset = queryset.select_related('type')
 
