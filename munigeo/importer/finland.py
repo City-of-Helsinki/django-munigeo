@@ -24,7 +24,7 @@ except ImportError:
 # Disable threaded mode for now
 ThreadPoolExecutor = None
 
-MUNI_DATA_URL = 'http://kartat.kapsi.fi/files/kuntajako/kuntajako_1000k/etrs89/gml/TietoaKuntajaosta_2015_1000k.zip'
+MUNI_DATA_URL = 'http://kartat.kapsi.fi/files/kuntajako/kuntajako_1000k/etrs89/gml/TietoaKuntajaosta_2016_1000k.zip'
 
 
 @register_importer
@@ -104,6 +104,8 @@ class FinlandImporter(Importer):
     def find_muni_data(self):
         for root_path in self.data_paths:
             base_path = os.path.join(root_path, 'fi')
+            if not os.path.exists(base_path):
+                os.makedirs(base_path)
             paths = os.listdir(base_path)
             for p in paths:
                 if 'Kuntajaosta' in p:
