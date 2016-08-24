@@ -8,14 +8,12 @@ import re
 import requests
 import yaml
 
-from django.conf import settings
 from django import db
-from django.utils import translation
 from datetime import datetime
 
 from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon, Point
-from django.contrib.gis.geos.base import gdal
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
+from django.contrib.gis import gdal
 
 from munigeo.models import *
 from munigeo.importer.sync import ModelSyncher
