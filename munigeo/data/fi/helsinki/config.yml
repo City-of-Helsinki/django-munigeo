@@ -274,7 +274,7 @@ divisions:
             fi: tunnus
         service_point_id: toimipiste_id
 
-  - type: seutukartta:Seutu_tilastoalueet
+  - type: statistical_district
     name: Tilastoalue
     ocd_id: tilastoalue
     parent_ocd_id: 'ocd-division/country:fi'
