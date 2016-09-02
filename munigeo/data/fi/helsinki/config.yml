@@ -278,8 +278,8 @@ divisions:
     name: Tilastoalue
     ocd_id: tilastoalue
     parent_ocd_id: 'ocd-division/country:fi'
-    wfs_url: 'http://geoserver.hel.fi/geoserver/seutukartta/ows?service=WFS&CQL_FILTER=kunta%20in%20(%27091%27,%27092%27,%27049%27,%27235%27)'
-    wfs_layer: 'seutukartta:Seutu_tilastoalueet'
+    wfs_url: 'http://kartta.hsy.fi/geoserver/wfs?CQL_FILTER=kunta%20in%20(%27091%27,%27092%27,%27049%27,%27235%27)'
+    wfs_layer: 'taustakartat_ja_aluejaot:seutukartta_pienalueet'
     fields:
         origin_id: kokotun
         ocd_id: kokotun
