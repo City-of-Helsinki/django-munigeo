@@ -10,10 +10,10 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-munigeo',
-    version='0.1',
+    version='0.1.4',
     packages=['munigeo'],
     include_package_data=True,
-    license='AGPLv3',
+    license='MIT',
     description='A Django app for processing municipality-related geospatial data.',
     long_description=README,
     author='Juha Yrjölä',
