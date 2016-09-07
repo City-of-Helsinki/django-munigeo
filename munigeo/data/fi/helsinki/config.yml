@@ -7,70 +7,77 @@ paths:
 divisions:
   - type: major_district
     name: Suurpiiri
-    file: suurpiiri.tab
     ocd_id: suurpiiri
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_layer: 'avoindata:Piirijako_suurpiiri'
     fields:
         name:
-            fi: NIMI
-            sv: NIMI_SE
-        origin_id: TUNNUS
-        ocd_id: NIMI
+            fi: nimi_fi
+            sv: nimi_se
+        origin_id: tunnus
+        ocd_id: nimi_fi
 
   - type: district
     name: Peruspiiri
     parent: major_district
     ocd_id: peruspiiri
-    file: peruspiiri.tab
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_layer: 'avoindata:Piirijako_peruspiiri'
     fields:
         name:
-            fi: NIMI
-            sv: NIMI_SE
-        origin_id: TUNNUS
-        parent_id: SUURPIIRI_TUNNUS
-        ocd_id: NIMI
+            fi: nimi_fi
+            sv: nimi_se
+        origin_id: tunnus
+        ocd_id: nimi_fi
 
   - type: sub_district
     name: Osa-alue
     parent: district
     ocd_id: osa-alue
-    file: osaalue.tab
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_layer: 'avoindata:Piirijako_osaalue'
     fields:
         name:
-            fi: NIMI
-            sv: NIMI_SE
-        origin_id: TUNNUS
-        parent_id: PERUSPIIRI_TUNNUS
-        ocd_id: NIMI
+            fi: nimi_fi
+            sv: nimi_se
+        origin_id: tunnus
+        ocd_id: nimi_fi
 
   - type: small_district
     name: Pienalue
     parent: sub_district
     parent_in_ocd_id: true
     ocd_id: pienalue
-    file: pienalue.tab
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_layer: 'avoindata:Piirijako_pienalue'
     fields:
-        origin_id: PIENALUE_TUNNUS
-        parent_id: OSAALUE_TUNNUS
-        ocd_id: PIENALUE_TUNNUS
+        origin_id: tunnus
+        parent_id: osaalue_tunnus
+        ocd_id: tunnus
 
   - type: neighborhood
     name: Kaupunginosa
     ocd_id: kaupunginosa
-    file: kaupunginosa.tab
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_layer: 'avoindata:Kaupunginosajako'
     fields:
         name:
-            fi: NIMI
-            sv: NIMI_SE
-        origin_id: TUNNUS
-        ocd_id: NIMI
+            fi: nimi_fi
+            sv: nimi_se
+        origin_id: tunnus
+        ocd_id: nimi_fi
 
   - type: voting_district
     name: Äänestysalue
     ocd_id: äänestysalue
-    file: halke_aanestysalue.tab
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_layer: 'avoindata:Halke_aanestysalue'
     fields:
-        origin_id: TUNNUS
-        ocd_id: TUNNUS
+        name:
+            fi: nimi_fi
+        origin_id: tunnus
+        ocd_id: tunnus
+        service_point_id: toimipiste_id
 
   - type: health_station_district
     name: Terveysasema-aluejako

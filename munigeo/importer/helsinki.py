@@ -75,6 +75,23 @@ class HelsinkiImporter(Importer):
         return AdministrativeDivision.objects.get(**args)
 
     def _import_division(self, muni, div, type_obj, syncher, parent_dict, feat):
+        #
+        # Geometry
+        #
+        geom = feat.geom
+        if not geom.srid:
+            geom.srid = GK25_SRID
+        if geom.srid != PROJECTION_SRID:
+            ct = CoordTransform(SpatialReference(geom.srid), SpatialReference(PROJECTION_SRID))
+            geom.transform(ct)
+        # geom = geom.geos.intersection(parent.geometry.boundary)
+        geom = geom.geos
+        if geom.geom_type == 'Polygon':
+            geom = MultiPolygon(geom)
+
+        #
+        # Attributes
+        #
         attr_dict = {}
         lang_dict = {}
         for attr, field in div['fields'].items():
@@ -86,18 +103,43 @@ class HelsinkiImporter(Importer):
                     # If the name is in all caps, fix capitalization.
                     if not re.search('[a-z]', val):
                         val = val.title()
-                    d[lang] = val
+                    d[lang] = val.strip()
                 lang_dict[attr] = d
             else:
                 val = feat[field].as_string()
-                attr_dict[attr] = val
+                attr_dict[attr] = val.strip()
 
         origin_id = attr_dict['origin_id']
         del attr_dict['origin_id']
 
+        if 'parent' in div:
+            if 'parent_id' in attr_dict:
+                parent = parent_dict[attr_dict['parent_id']]
+                del attr_dict['parent_id']
+            else:
+                # If no parent id is available, we determine the parent
+                # heuristically by choosing the one that we overlap with
+                # the most.
+                parents = []
+                for parent in parent_dict.values():
+                    diff_area = (geom - parent.geometry.boundary).area
+                    if diff_area < 100:
+                        parents.append(parent)
+                if not parents:
+                    raise Exception("No parent found for %s" % origin_id)
+                elif len(parents) > 1:
+                    raise Exception("Too many parents for %s" % origin_id)
+                parent = parents[0]
+        elif 'parent_ocd_id' in div:
+            try:
+                parent = AdministrativeDivision.objects.get(ocd_id=div['parent_ocd_id'])
+            except AdministrativeDivision.DoesNotExist:
+                parent = None
+        else:
+            parent = muni.division
 
-        if 'parent_id' in attr_dict:
-            full_id = "%s-%s" % (attr_dict['parent_id'], origin_id)
+        if 'parent' in div and parent:
+            full_id = "%s-%s" % (parent.origin_id, origin_id)
         else:
             full_id = origin_id
         obj = syncher.get(full_id)
@@ -112,17 +154,6 @@ class HelsinkiImporter(Importer):
                 obj.start = datetime.strptime(obj.start, '%Y-%m-%d').date()
             if obj.end:
                 obj.end = datetime.strptime(obj.end, '%Y-%m-%d').date()
-
-        if 'parent' in div:
-            parent = parent_dict[attr_dict['parent_id']]
-            del attr_dict['parent_id']
-        elif 'parent_ocd_id' in div:
-            try:
-                parent = AdministrativeDivision.objects.get(ocd_id=div['parent_ocd_id'])
-            except AdministrativeDivision.DoesNotExist:
-                parent = None
-        else:
-            parent = muni.division
 
         if div.get('no_parent_division', False):
             muni = None
@@ -158,16 +189,6 @@ class HelsinkiImporter(Importer):
         except AdministrativeDivisionGeometry.DoesNotExist:
             geom_obj = AdministrativeDivisionGeometry(division=obj)
 
-        geom = feat.geom
-        if not geom.srid:
-            geom.srid = GK25_SRID
-        if geom.srid != PROJECTION_SRID:
-            ct = CoordTransform(SpatialReference(geom.srid), SpatialReference(PROJECTION_SRID))
-            geom.transform(ct)
-        #geom = geom.geos.intersection(parent.geometry.boundary)
-        geom = geom.geos
-        if geom.geom_type == 'Polygon':
-            geom = MultiPolygon(geom)
         geom_obj.boundary = geom
         geom_obj.save()
 
