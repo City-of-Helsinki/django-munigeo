@@ -322,6 +322,9 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
         if 'geometry' in filters:
             queryset = queryset.select_related('geometry')
 
+        if 'origin_id' in filters:
+            queryset = queryset.filter(origin_id=filters['origin_id'])
+
         if 'date' in filters:
             try:
                 date = datetime.strptime(filters['date'], '%Y-%m-%d').date()
