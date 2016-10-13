@@ -7,29 +7,30 @@ from django.utils.translation import activate, get_language
 
 from munigeo.importer.base import get_importers
 
+
 class Command(BaseCommand):
-    args = '<module>'
     help = "Import geo data"
-    option_list = list(BaseCommand.option_list + (
-        make_option('--all', action='store_true', dest='all', help='Import all entities'),
-    ))
 
     importer_types = ['municipalities', 'divisions', 'addresses', 'pois']
 
+    def add_arguments(self, parser):
+        parser.add_argument('module', type=str)
+        parser.add_argument('--all', action='store_true', dest='all', help='Import all entities')
+        for imp in self.importer_types:
+            parser.add_argument('--%s' % imp, dest=imp, action='store_true', help='import %s' % imp)
+
     def __init__(self):
         super(Command, self).__init__()
-        for imp in self.importer_types:
-            opt = make_option('--%s' % imp, dest=imp, action='store_true', help='import %s' % imp)
-            self.option_list.append(opt)
 
     def handle(self, *args, **options):
         importers = get_importers()
         imp_list = ', '.join(sorted(importers.keys()))
-        if len(args) != 1:
+        imp_name = options.get('module')
+        if not imp_name:
             raise CommandError("Enter the name of the geo importer module. Valid importers: %s" % imp_list)
-        if not args[0] in importers:
+        if imp_name not in importers:
             raise CommandError("Importer %s not found. Valid importers: %s" % (args[0], imp_list))
-        imp_class = importers[args[0]]
+        imp_class = importers[imp_name]
         importer = imp_class(options)
 
         # Activate the default language for the duration of the import
