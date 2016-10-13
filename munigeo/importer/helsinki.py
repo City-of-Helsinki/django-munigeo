@@ -39,6 +39,8 @@ SERVICE_CATEGORY_MAP = {
 
 GK25_SRID = 3879
 GK25_SRS = SpatialReference(GK25_SRID)
+PROJECTION_SRS = SpatialReference(PROJECTION_SRID)
+WEB_MERCATOR_SRS = SpatialReference(3857)
 
 coord_transform = None
 if GK25_SRS.srid != PROJECTION_SRID:
@@ -57,6 +59,17 @@ def convert_from_gk25(north, east):
         return pnt
     pnt.transform(coord_transform)
     return pnt
+
+def poly_diff(p1, p2):
+    # Make sure we calculate the area with a 2d coordinate system
+    if p1.srs.units[1] == 'degree':
+        tf = CoordTransform(p1.srs, WEB_MERCATOR_SRS)
+        p1 = p1.clone()
+        p1.transform(tf)
+        p2 = p2.clone()
+        p2.transform(tf)
+    return (p1 - p2).area
+
 
 @register_importer
 class HelsinkiImporter(Importer):
@@ -87,7 +100,7 @@ class HelsinkiImporter(Importer):
         # geom = geom.geos.intersection(parent.geometry.boundary)
         geom = geom.geos
         if geom.geom_type == 'Polygon':
-            geom = MultiPolygon(geom)
+            geom = MultiPolygon(geom, srid=geom.srid)
 
         #
         # Attributes
@@ -122,7 +135,7 @@ class HelsinkiImporter(Importer):
                 # the most.
                 parents = []
                 for parent in parent_dict.values():
-                    diff_area = (geom - parent.geometry.boundary).area
+                    diff_area = poly_diff(geom, parent.geometry.boundary)
                     if diff_area < 100:
                         parents.append(parent)
                 if not parents:
@@ -212,7 +225,7 @@ class HelsinkiImporter(Importer):
 
         div_qs = AdministrativeDivision.objects.filter(type=type_obj)
         if not div.get('no_parent_division', False):
-            div_qs = div_qs.by_ancestor(muni.division).select_related('parent__origin_id')
+            div_qs = div_qs.by_ancestor(muni.division).select_related('parent')
         syncher = ModelSyncher(div_qs, make_div_id)
 
         # Cache the list of possible parents. Assumes parents are imported
