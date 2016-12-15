@@ -136,7 +136,7 @@ class HelsinkiImporter(Importer):
                 parents = []
                 for parent in parent_dict.values():
                     diff_area = poly_diff(geom, parent.geometry.boundary)
-                    if diff_area < 100:
+                    if diff_area < 300:
                         parents.append(parent)
                 if not parents:
                     raise Exception("No parent found for %s" % origin_id)
