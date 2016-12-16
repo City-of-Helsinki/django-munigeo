@@ -79,6 +79,20 @@ divisions:
         ocd_id: tunnus
         service_point_id: toimipiste_id
 
+  - type: postcode_area
+    name: Postinumeroalue
+    ocd_id: postinumero
+    no_parent_division: yes
+    parent_ocd_id: 'ocd-division/country:fi'
+    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_layer: 'avoindata:Postinumeroalue'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        name:
+            fi: nimi_fi
+            sv: nimi_se
+
   - type: health_station_district
     name: Terveysasema-aluejako
     ocd_id: terveysasema-alue
@@ -149,20 +163,6 @@ divisions:
         name:
             fi: nimi
         service_point_id: toimipiste_id
-
-  - type: postcode_area
-    name: Postinumeroalue
-    ocd_id: postinumero
-    no_parent_division: yes
-    parent_ocd_id: 'ocd-division/country:fi'
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:postinumeroalueet'
-    fields:
-        origin_id: posno
-        ocd_id: posno
-        name:
-            fi: nimi
-            sv: nimi_ru
 
   - type: lower_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, alakoulu"
