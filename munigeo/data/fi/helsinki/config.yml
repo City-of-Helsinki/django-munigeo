@@ -152,18 +152,6 @@ divisions:
             fi: suojelualalohko_nimi
             sv: suojelualalohko_nimi_se
 
-  - type: income_support_district
-    name: Toimeentulotukialue
-    ocd_id: toimeentulotukialue
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:sote_toimeentulotukialue'
-    fields:
-        origin_id: tunnus
-        ocd_id: tunnus
-        name:
-            fi: nimi
-        service_point_id: toimipiste_id
-
   - type: lower_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, alakoulu"
     validity:
