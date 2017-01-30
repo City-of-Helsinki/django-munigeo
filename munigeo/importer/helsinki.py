@@ -316,9 +316,10 @@ class HelsinkiImporter(Importer):
 
     @db.transaction.atomic
     def import_addresses(self):
-        path = self.find_data_file(os.path.join(self.muni_data_path, 'pks_osoite.csv'))
-        f = open(path, encoding='iso8859-1')
-        reader = csv.DictReader(f, delimiter=',')
+        wfs_url = 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=avoindata:PKS_osoiteluettelo&SRSNAME=EPSG:3067'
+        ds = DataSource(wfs_url)
+        lyr = ds[0]
+        assert len(ds) == 1
 
         muni_names = ('Helsinki', 'Espoo', 'Vantaa', 'Kauniainen')
         muni_list = Municipality.objects.filter(name_fi__in=muni_names)
@@ -353,17 +354,18 @@ class HelsinkiImporter(Importer):
         bulk_addr_list = []
         bulk_street_list = []
         count = 0
-        for idx, row in enumerate(reader):
+
+        for feat in lyr:
             count += 1
             if count % 1000 == 0:
                 print("%d processed" % count)
 
-            street_name = row['katunimi'].strip()
-            street_name_sv = row['gatan'].strip()
+            street_name = feat.get('katunimi').strip()
+            street_name_sv = feat.get('gatan').strip()
 
-            if int(row['tyyppi']) != 1: # only addresses
+            if int(feat.get('tyyppi')) != 1: # only addresses
                 continue
-            num = row['osoitenumero'].strip()
+            num = feat.get('osoitenumero')
             if not num:
                 #print(row)
                 continue
@@ -372,11 +374,13 @@ class HelsinkiImporter(Importer):
                     #print(row)
                     continue
 
-            num2 = row['osoitenumero2'].strip()
-            letter = row['kiinteiston_jakokirjain'].strip()
-            coord_n = int(row['N'])
-            coord_e = int(row['E'])
-            muni_name = row['kaupunki']
+            num2 = feat.get('osoitenumero2')
+            if num2 == 0:
+                num2 = ''
+            letter = feat.get('osoitekirjain').strip()
+            coord_n = int(feat.get('n'))
+            coord_e = int(feat.get('e'))
+            muni_name = feat.get('kaupunki')
 
             muni = muni_dict[muni_name]
             street = muni.streets_by_name.get(street_name, None)
