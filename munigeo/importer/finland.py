@@ -93,7 +93,7 @@ class FinlandImporter(Importer):
                     break
             else:
                 raise Exception('XML file not found in %s' % MUNI_DATA_URL)
-            out_path = os.path.join(self, self.data_paths[0], 'fi')
+            out_path = os.path.join(self.data_paths[0], 'fi')
             try:
                 os.makedirs(out_path)
             except OSError:
