@@ -159,7 +159,7 @@ divisions:
         end: '2016-08-10'
     ocd_id: oppilaaksiottoalue_alakoulu
     wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
-    wfs_layer: 'avoindata:opev_ooa_ylaaste_suomi'
+    wfs_layer: 'avoindata:opev_ooa_alaaste_suomi'
     fields:
         origin_id: id
         ocd_id: id
