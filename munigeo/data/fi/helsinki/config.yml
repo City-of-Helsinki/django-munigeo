@@ -272,6 +272,7 @@ divisions:
   - type: statistical_district
     name: Tilastoalue
     ocd_id: tilastoalue
+    no_parent_division: yes
     parent_ocd_id: 'ocd-division/country:fi'
     wfs_url: 'http://kartta.hsy.fi/geoserver/wfs?CQL_FILTER=kunta%20in%20(%27091%27,%27092%27,%27049%27,%27235%27)'
     wfs_layer: 'taustakartat_ja_aluejaot:seutukartta_pienalueet'
