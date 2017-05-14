@@ -219,6 +219,7 @@ class GeoModelAPIView(generics.GenericAPIView):
 class AdministrativeDivisionTypeSerializer(TranslatedModelSerializer):
     class Meta:
         model = AdministrativeDivisionType
+        fields = '__all__'
 
 
 class AdministrativeDivisionTypeViewSet(viewsets.ReadOnlyModelViewSet):
@@ -243,6 +244,7 @@ class AdministrativeDivisionSerializer(GeoModelSerializer, TranslatedModelSerial
 
     class Meta:
         model = AdministrativeDivision
+        fields = '__all__'
 
 
 def parse_lat_lon(query_params):
@@ -342,6 +344,7 @@ register_view(AdministrativeDivisionViewSet, 'administrative_division')
 class StreetSerializer(TranslatedModelSerializer):
     class Meta:
         model = Street
+        fields = '__all__'
 
 LANG_CODES = [x[0] for x in settings.LANGUAGES]
 
@@ -463,3 +466,4 @@ register_view(AddressViewSet, 'address')
 class MunicipalitySerializer(TranslatedModelSerializer):
     class Meta:
         model = Municipality
+        fields = '__all__'
