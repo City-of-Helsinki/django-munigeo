@@ -8,7 +8,7 @@ divisions:
   - type: major_district
     name: Suurpiiri
     ocd_id: suurpiiri
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
     wfs_layer: 'avoindata:Piirijako_suurpiiri'
     fields:
         name:
@@ -21,7 +21,7 @@ divisions:
     name: Peruspiiri
     parent: major_district
     ocd_id: peruspiiri
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
     wfs_layer: 'avoindata:Piirijako_peruspiiri'
     fields:
         name:
@@ -34,7 +34,7 @@ divisions:
     name: Osa-alue
     parent: district
     ocd_id: osa-alue
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
     wfs_layer: 'avoindata:Piirijako_osaalue'
     fields:
         name:
@@ -48,7 +48,7 @@ divisions:
     parent: sub_district
     parent_in_ocd_id: true
     ocd_id: pienalue
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
     wfs_layer: 'avoindata:Piirijako_pienalue'
     fields:
         origin_id: tunnus
@@ -58,7 +58,7 @@ divisions:
   - type: neighborhood
     name: Kaupunginosa
     ocd_id: kaupunginosa
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
     wfs_layer: 'avoindata:Kaupunginosajako'
     fields:
         name:
@@ -70,7 +70,7 @@ divisions:
   - type: voting_district
     name: Äänestysalue
     ocd_id: äänestysalue
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
     wfs_layer: 'avoindata:Halke_aanestysalue'
     fields:
         name:
@@ -84,7 +84,7 @@ divisions:
     ocd_id: postinumero
     no_parent_division: yes
     parent_ocd_id: 'ocd-division/country:fi'
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
     wfs_layer: 'avoindata:Postinumeroalue'
     fields:
         origin_id: tunnus
@@ -158,7 +158,7 @@ divisions:
         start: '2016-08-01'
         end: '2017-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:opev_ooa_alaaste_suomi'
     fields:
         origin_id: id
@@ -171,7 +171,7 @@ divisions:
         start: '2017-08-01'
         end: '2018-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:opev_ooa_alaaste_suomi_tuleva'
     fields:
         origin_id: id
@@ -184,7 +184,7 @@ divisions:
         start: '2016-08-01'
         end: '2017-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu_sv
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:opev_ooa_alaaste_ruotsi'
     fields:
         origin_id: id
@@ -197,7 +197,7 @@ divisions:
         start: '2017-08-01'
         end: '2018-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu_sv
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:opev_ooa_alaaste_ruotsi_tuleva'
     fields:
         origin_id: id
@@ -210,7 +210,7 @@ divisions:
         start: '2016-08-01'
         end: '2017-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:opev_ooa_ylaaste_suomi'
     fields:
         origin_id: id
@@ -223,7 +223,7 @@ divisions:
         start: '2017-08-01'
         end: '2018-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:opev_ooa_ylaaste_suomi_tuleva'
     fields:
         origin_id: id
@@ -237,7 +237,7 @@ divisions:
         start: '2016-08-01'
         end: '2017-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu_sv
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:opev_ooa_ylaaste_ruotsi'
     fields:
         origin_id: id
@@ -250,7 +250,7 @@ divisions:
         start: '2017-08-01'
         end: '2018-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu_sv
-    wfs_url: 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:opev_ooa_ylaaste_ruotsi_tuleva'
     fields:
         origin_id: id
