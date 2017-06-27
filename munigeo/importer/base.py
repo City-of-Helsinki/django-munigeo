@@ -19,7 +19,7 @@ class Importer(object):
     def _import_citadel(self, muni, info):
         muni_slug = slugify(muni.name)
 
-        print("\tImporting from Citadel")
+        self.logger.info("\tImporting from Citadel")
         resp = requests.get(info['url'])
         assert resp.status_code == 200
         s = resp.content.decode('utf8')
@@ -43,13 +43,13 @@ class Importer(object):
                 continue
             coords = [float(x) for x in coords.split(' ')]
             if coords[0] > 180 or coords[0] < -180:
-                print("Skipping invalid coords for %s" % poi.name)
+                self.logger.info("Skipping invalid coords for %s" % poi.name)
                 continue
             poi.category = cat
             poi.municipality = muni
             poi.location = convert_from_wgs84(coords)
             poi.save()
-            print(poi)
+            self.logger.info(poi)
 
     def find_data_file(self, data_file):
         for path in self.data_paths:

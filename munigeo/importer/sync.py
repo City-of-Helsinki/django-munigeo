@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class ModelSyncher(object):
     def __init__(self, queryset, generate_obj_id):
         d = {}
@@ -27,7 +32,7 @@ class ModelSyncher(object):
         delete_list = []
         for obj_id, obj in self.obj_dict.items():
             if not obj._found:
-                print("Deleting object %s" % obj)
+                logger.info("Deleting object %s" % obj)
                 delete_list.append(obj)
         if len(delete_list) > 5 and len(delete_list) > len(self.obj_dict) * 0.4:
             raise Exception("Attempting to delete more than 40% of total items")

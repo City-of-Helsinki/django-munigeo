@@ -3,7 +3,6 @@ munigeo importer for Helsinki data
 """
 
 import os
-import csv
 import re
 import requests
 import yaml
@@ -193,7 +192,7 @@ class HelsinkiImporter(Importer):
             val = attr_dict['ocd_id']
             args[div['ocd_id']] = val
             obj.ocd_id = ocd.make_id(**args)
-            print("\t%s" % obj.ocd_id)
+            self.logger.info("\t%s" % obj.ocd_id)
         obj.save()
         syncher.mark(obj)
 
@@ -213,7 +212,7 @@ class HelsinkiImporter(Importer):
             else:
                 return obj.origin_id
 
-        print(div['name'])
+        self.logger.info(div['name'])
         if not 'origin_id' in div['fields']:
             raise Exception("Field 'origin_id' not defined in config section '%s'" % div['name'])
         try:
@@ -292,12 +291,12 @@ class HelsinkiImporter(Importer):
             obj.in_effect = in_effect
             obj.found = True
             if (idx % 500) == 0:
-                print("%d imported" % idx)
+                self.logger.info("%d imported" % idx)
         if in_effect:
             type_str = "in effect"
         else:
             type_str = "development"
-        print("%d %s plans imported" % (idx, type_str))
+        self.logger.info("%d %s plans imported" % (idx, type_str))
 
     def import_plans(self):
         self.plan_map = {}
@@ -307,12 +306,12 @@ class HelsinkiImporter(Importer):
             obj.found = False
         self._import_plans('Lv_rajaus.TAB', True)
         self._import_plans('Kaava_vir_rajaus.TAB', False)
-        print("Saving")
+        self.logger.info("Saving")
         for key, obj in self.plan_map.items():
             if obj.found:
                 obj.save()
             else:
-                print("Plan %s deleted" % obj.name)
+                self.logger.info("Plan %s deleted" % obj.name)
 
     @db.transaction.atomic
     def import_addresses(self):
@@ -358,7 +357,7 @@ class HelsinkiImporter(Importer):
         for feat in lyr:
             count += 1
             if count % 1000 == 0:
-                print("%d processed" % count)
+                self.logger.info("%d processed" % count)
 
             street_name = feat.get('katunimi').strip()
             street_name_sv = feat.get('gatan').strip()
@@ -367,11 +366,11 @@ class HelsinkiImporter(Importer):
                 continue
             num = feat.get('osoitenumero')
             if not num:
-                #print(row)
+                #self.logger.info(row)
                 continue
             else:
                 if num == '0':
-                    #print(row)
+                    #self.logger.info(row)
                     continue
 
             num2 = feat.get('osoitenumero2')
@@ -419,10 +418,10 @@ class HelsinkiImporter(Importer):
                 #    addr.save()
             addr._found = True
 
-            #print "%s: %s %d%s N%d E%d (%f,%f)" % (muni_name, street, num, letter, coord_n, coord_e, pnt.y, pnt.x)
+            # self.logger.info("%s: %s %d%s N%d E%d (%f,%f)" % (muni_name, street, num, letter, coord_n, coord_e, pnt.y, pnt.x))
 
             if len(bulk_addr_list) >= 10000:
-                print("Saving %d new addresses" % len(bulk_addr_list))
+                self.logger.info("Saving %d new addresses" % len(bulk_addr_list))
 
                 Address.objects.bulk_create(bulk_addr_list)
                 bulk_addr_list = []
@@ -431,19 +430,19 @@ class HelsinkiImporter(Importer):
                 db.reset_queries()
 
         if bulk_addr_list:
-            print("Saving %d new addresses" % len(bulk_addr_list))
+            self.logger.info("Saving %d new addresses" % len(bulk_addr_list))
             Address.objects.bulk_create(bulk_addr_list)
             bulk_addr_list = []
 
         for muni in muni_list:
             for s in muni.streets_by_name.values():
                 if not s._found:
-                    print("Street %s removed" % s)
+                    self.logger.info("Street %s removed" % s)
                     s.delete()
                     continue
                 for a in s.addrs.values():
                     if not a._found:
-                        print("%s removed" % a)
+                        self.logger.info("%s removed" % a)
                         a.delete()
 
     def import_pois(self):
@@ -457,7 +456,7 @@ class HelsinkiImporter(Importer):
             cat_type, cat_desc = SERVICE_CATEGORY_MAP[srv_id]
             cat, c = POICategory.objects.get_or_create(type=cat_type, defaults={'description': cat_desc})
 
-            print("\tImporting %s" % cat_type)
+            self.logger.info("\tImporting %s" % cat_type)
             ret = requests.get(URL_BASE % srv_id)
             for srv_info in ret.json():
                 srv_id = str(srv_info['id'])
@@ -468,33 +467,33 @@ class HelsinkiImporter(Importer):
                 poi.name = srv_info['name_fi']
                 poi.category = cat
                 if not 'address_city_fi' in srv_info:
-                    print("No city!")
-                    print(srv_info)
+                    self.logger.info("No city!")
+                    self.logger.info(srv_info)
                     continue
                 city_name = srv_info['address_city_fi']
                 if not city_name in muni_dict:
                     city_name = city_name.encode('utf8')
                     post_code = srv_info.get('address_zip', '')
                     if post_code.startswith('00'):
-                        print("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
+                        self.logger.info("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
                         city_name = "Helsinki"
                     elif post_code.startswith('01'):
-                        print("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
+                        self.logger.info("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
                         city_name = "Vantaa"
                     elif post_code in ('02700', '02701', '02760'):
-                        print("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
+                        self.logger.info("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
                         city_name = "Kauniainen"
                     elif post_code.startswith('02'):
-                        print("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
+                        self.logger.info("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
                         city_name = "Espoo"
                     else:
-                        print(srv_info)
+                        self.logger.info(srv_info)
                 poi.municipality = muni_dict[city_name]
                 poi.street_address = srv_info.get('street_address_fi', None)
                 poi.zip_code = srv_info.get('address_zip', None)
                 if not 'northing_etrs_gk25' in srv_info:
-                    print("No location!")
-                    print(srv_info)
+                    self.logger.info("No location!")
+                    self.logger.info(srv_info)
                     continue
                 poi.location = convert_from_gk25(srv_info['northing_etrs_gk25'], srv_info['easting_etrs_gk25'])
                 poi.save()
