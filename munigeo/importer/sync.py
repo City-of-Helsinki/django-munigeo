@@ -32,7 +32,7 @@ class ModelSyncher(object):
         delete_list = []
         for obj_id, obj in self.obj_dict.items():
             if not obj._found:
-                logger.info("Deleting object %s" % obj)
+                logger.debug("Deleting object %s" % obj)
                 delete_list.append(obj)
         if len(delete_list) > 5 and len(delete_list) > len(self.obj_dict) * 0.4:
             raise Exception("Attempting to delete more than 40% of total items")

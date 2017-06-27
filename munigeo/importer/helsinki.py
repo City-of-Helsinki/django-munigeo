@@ -192,7 +192,7 @@ class HelsinkiImporter(Importer):
             val = attr_dict['ocd_id']
             args[div['ocd_id']] = val
             obj.ocd_id = ocd.make_id(**args)
-            self.logger.info("\t%s" % obj.ocd_id)
+            self.logger.debug("%s" % obj.ocd_id)
         obj.save()
         syncher.mark(obj)
 
@@ -456,7 +456,7 @@ class HelsinkiImporter(Importer):
             cat_type, cat_desc = SERVICE_CATEGORY_MAP[srv_id]
             cat, c = POICategory.objects.get_or_create(type=cat_type, defaults={'description': cat_desc})
 
-            self.logger.info("\tImporting %s" % cat_type)
+            self.logger.info("Importing %s" % cat_type)
             ret = requests.get(URL_BASE % srv_id)
             for srv_info in ret.json():
                 srv_id = str(srv_info['id'])

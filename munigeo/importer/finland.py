@@ -37,7 +37,7 @@ class FinlandImporter(Importer):
         m = re.match(r'\(2:([\w\s:-]+),([\w\s:-]+)\)', t)
         name_fi = m.groups()[0]
         name_sv = m.groups()[1]
-        self.logger.info(name_fi)
+        self.logger.debug(name_fi)
 
         munidiv = syncher.get(muni_id)
         if not munidiv:
@@ -76,7 +76,7 @@ class FinlandImporter(Importer):
         fin_bbox = Polygon.from_bbox(FIN_GRID)
         fin_bbox.srid = TM35_SRID
         fin_bbox.transform(4326)
-        self.logger.info("Loading global land shape")
+        self.logger.debug("Loading global land shape")
         path = self.find_data_file('global/ne_10m_land.shp')
         ds = DataSource(path)
         land = ds[0][0]

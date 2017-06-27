@@ -19,7 +19,7 @@ class Importer(object):
     def _import_citadel(self, muni, info):
         muni_slug = slugify(muni.name)
 
-        self.logger.info("\tImporting from Citadel")
+        self.logger.info("Importing from Citadel")
         resp = requests.get(info['url'])
         assert resp.status_code == 200
         s = resp.content.decode('utf8')
