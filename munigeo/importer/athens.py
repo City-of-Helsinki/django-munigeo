@@ -82,7 +82,7 @@ class AthensImporter(Importer):
 
     def import_municipalities(self):
         muni, c = Municipality.objects.get_or_create(id=30001, name="Athens")
-        print("Athens municipality added.")
+        self.logger.info("Athens municipality added.")
 
     def import_pois_from_citadel(self):
         muni = Municipality.objects.get(id=30001)
@@ -91,5 +91,5 @@ class AthensImporter(Importer):
 
     def import_pois(self):
         requests_cache.install_cache('geo_import_athens')
-        print("Importing POIs from Citadel")
+        self.logger.info("Importing POIs from Citadel")
         self.import_pois_from_citadel()

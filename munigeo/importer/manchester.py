@@ -70,13 +70,13 @@ class ManchesterImporter(Importer):
 
     def import_municipalities(self):
         muni, c = Municipality.objects.get_or_create(id=44001, name="Manchester")
-        print("Manchester municipality added.")
+        self.logger.info("Manchester municipality added.")
 
     def import_pois_from_csv(self):
         muni = Municipality.objects.get(id=44001)
         for poi_info in POI_LIST:
-            print("\tImporting %s" % poi_info['category'])
-            print(poi_info['url'])
+            self.logger.info("Importing %s" % poi_info['category'])
+            self.logger.info(poi_info['url'])
             resp = requests.get(poi_info['url'])
             assert resp.status_code == 200
 
@@ -102,7 +102,7 @@ class ManchesterImporter(Importer):
                     continue
                 coords = [float(x) for x in coords.split(',')]
                 if coords[0] > 180 or coords[0] < -180:
-                    print("Skipping invalid coords for %s" % poi.name)
+                    self.logger.info("Skipping invalid coords for %s" % poi.name)
                     continue
                 poi.category = cat
                 poi.municipality = muni
@@ -117,7 +117,7 @@ class ManchesterImporter(Importer):
             cat_type, cat_desc = SERVICE_CATEGORY_MAP[srv_id]
             cat, c = POICategory.objects.get_or_create(type=cat_type, defaults={'description': cat_desc})
 
-            print("\tImporting %s" % cat_type)
+            self.logger.info("Importing %s" % cat_type)
             ret = requests.get(URL_BASE % srv_id)
             if ret.status_code != 200:
                 raise Exception("HTTP request failed with %d" % ret.status_code)
@@ -145,7 +145,7 @@ class ManchesterImporter(Importer):
                 poi.location = convert_from_wgs84(coords)
                 poi.save()
                 count = count + 1
-            print("\t%d imported" % count)
+            self.logger.info("%d imported" % count)
 
     def import_pois_from_citadel(self):
         muni = Municipality.objects.get(id=44001)
@@ -154,9 +154,9 @@ class ManchesterImporter(Importer):
 
     def import_pois(self):
         requests_cache.install_cache('geo_import_man')
-        print("Importing POIs from Citadel")
+        self.logger.info("Importing POIs from Citadel")
         self.import_pois_from_citadel()
-        #print("Importing POIs from CSV")
-        #self.import_pois_from_csv()
-        print("Importing POIs from REST")
+        # self.logger.info("Importing POIs from CSV")
+        # self.import_pois_from_csv()
+        self.logger.info("Importing POIs from REST")
         self.import_pois_from_rest()
