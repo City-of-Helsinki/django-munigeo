@@ -1,0 +1,16 @@
+sudo: false
+language: python
+
+cache: pip
+
+python:
+  - "3.6"
+  - "nightly"
+
+install:
+  - pip install pytest-cov -r requirements.txt
+
+script:
+  - pytest --cov=.
+
+after_success: codecov
