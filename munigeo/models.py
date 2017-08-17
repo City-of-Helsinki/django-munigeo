@@ -19,10 +19,10 @@ class AdministrativeDivisionType(models.Model):
                             help_text=_("Type name of the division (e.g. muni, school_district)"))
     name = models.CharField(max_length=100,
                             help_text=_("Human-readable name for the division"))
-    ## European Union Nomenclature des Unités Territoriales Statistiques level
-    #nuts_level = models.PositiveSmallIntegerField(null=True, db_index=True)
-    ## European Union Local Administrative Unit level
-    #lau_level = models.PositiveSmallIntegerField(null=True, db_index=True)
+    # European Union Nomenclature des Unités Territoriales Statistiques level
+    # nuts_level = models.PositiveSmallIntegerField(null=True, db_index=True)
+    # European Union Local Administrative Unit level
+    # lau_level = models.PositiveSmallIntegerField(null=True, db_index=True)
 
     def __str__(self):
         return "%s (%s)" % (self.name, self.type)
@@ -61,16 +61,16 @@ class AdministrativeDivisionManager(TreeManager):
 
 @python_2_unicode_compatible
 class AdministrativeDivision(MPTTModel):
-    type = models.ForeignKey(AdministrativeDivisionType, db_index=True)
+    type = models.ForeignKey(AdministrativeDivisionType, db_index=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, null=True, db_index=True)
     parent = TreeForeignKey('self', db_index=True, null=True,
-                            related_name='children')
+                            related_name='children', on_delete=models.CASCADE)
 
     origin_id = models.CharField(max_length=50, db_index=True)
     ocd_id = models.CharField(max_length=200, unique=True, db_index=True, null=True,
                               help_text=_("Open Civic Data identifier"))
 
-    municipality = models.ForeignKey('munigeo.Municipality', null=True)
+    municipality = models.ForeignKey('munigeo.Municipality', null=True, on_delete=models.CASCADE)
 
     # Service districts might have a related service point id
     service_point_id = models.CharField(max_length=50, db_index=True, null=True,
@@ -97,7 +97,7 @@ class AdministrativeDivision(MPTTModel):
 
 
 class AdministrativeDivisionGeometry(models.Model):
-    division = models.OneToOneField(AdministrativeDivision, related_name='geometry')
+    division = models.OneToOneField(AdministrativeDivision, related_name='geometry', on_delete=models.CASCADE)
     boundary = models.MultiPolygonField(srid=PROJECTION_SRID)
 
     objects = models.GeoManager()
@@ -108,7 +108,7 @@ class Municipality(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
     name = models.CharField(max_length=100, null=True, db_index=True)
     division = models.OneToOneField(AdministrativeDivision, null=True, db_index=True,
-                                    related_name='muni')
+                                    related_name='muni', on_delete=models.CASCADE)
 
     objects = models.Manager()
 
@@ -118,7 +118,7 @@ class Municipality(models.Model):
 
 @python_2_unicode_compatible
 class Plan(models.Model):
-    municipality = models.ForeignKey(Municipality)
+    municipality = models.ForeignKey(Municipality, on_delete=models.CASCADE)
     geometry = models.MultiPolygonField(srid=PROJECTION_SRID)
     origin_id = models.CharField(max_length=20)
     in_effect = models.BooleanField(default=False)
@@ -138,7 +138,7 @@ class Plan(models.Model):
 @python_2_unicode_compatible
 class Street(models.Model):
     name = models.CharField(max_length=100, db_index=True)
-    municipality = models.ForeignKey(Municipality, db_index=True)
+    municipality = models.ForeignKey(Municipality, db_index=True, on_delete=models.CASCADE)
     modified_at = models.DateTimeField(auto_now=True,
                                        help_text='Time when the information was last changed')
 
@@ -151,7 +151,7 @@ class Street(models.Model):
 
 @python_2_unicode_compatible
 class Address(models.Model):
-    street = models.ForeignKey(Street, db_index=True, related_name='addresses')
+    street = models.ForeignKey(Street, db_index=True, related_name='addresses', on_delete=models.CASCADE)
     number = models.CharField(max_length=6, blank=True,
                               help_text="Building number")
     number_end = models.CharField(max_length=6, blank=True,
@@ -192,10 +192,10 @@ class POICategory(models.Model):
 @python_2_unicode_compatible
 class POI(models.Model):
     name = models.CharField(max_length=200)
-    category = models.ForeignKey(POICategory, db_index=True)
+    category = models.ForeignKey(POICategory, db_index=True, on_delete=models.CASCADE)
     description = models.TextField(null=True, blank=True)
     location = models.PointField(srid=PROJECTION_SRID)
-    municipality = models.ForeignKey(Municipality, db_index=True)
+    municipality = models.ForeignKey(Municipality, db_index=True, on_delete=models.CASCADE)
     street_address = models.CharField(max_length=100, null=True, blank=True)
     zip_code = models.CharField(max_length=10, null=True, blank=True)
     origin_id = models.CharField(max_length=40, db_index=True, unique=True)
