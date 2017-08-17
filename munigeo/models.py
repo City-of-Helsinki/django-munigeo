@@ -181,6 +181,26 @@ class Address(models.Model):
 
 
 @python_2_unicode_compatible
+class Building(models.Model):
+    origin_id = models.CharField(max_length=40, db_index=True)
+    municipality = models.ForeignKey(Municipality, db_index=True)
+    geometry = models.MultiPolygonField(srid=PROJECTION_SRID)
+
+    addresses = models.ManyToManyField(Address, blank=True)
+
+    objects = models.GeoManager()
+
+    modified_at = models.DateTimeField(auto_now=True,
+                                       help_text='Time when the information was last changed')
+
+    def __str__(self):
+        return '%s in %s' % (self.origin_id, self.municipality)
+
+    class Meta:
+        ordering = ['municipality', 'origin_id']
+
+
+@python_2_unicode_compatible
 class POICategory(models.Model):
     type = models.CharField(max_length=50, db_index=True)
     description = models.CharField(max_length=100)
