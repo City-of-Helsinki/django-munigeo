@@ -7,3 +7,4 @@ django-modeltranslation
 six
 pyyaml
 unicodecsv
+psycopg2

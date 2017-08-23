@@ -28,6 +28,8 @@ setup(
         'six',
         'pyyaml',
     ],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest', 'pytest-django'],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
