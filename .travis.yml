@@ -1,4 +1,4 @@
-sudo: false
+sudo: required
 language: python
 
 cache: pip
@@ -6,6 +6,22 @@ cache: pip
 python:
   - "3.6"
   - "nightly"
+
+services:
+  - postgresql
+
+addons:
+  postgresql: "9.5"
+  apt:
+    packages:
+      - postgresql-9.5-postgis-2.3
+
+before_script:
+  - psql -U postgres -c "create extension postgis"
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y binutils libproj-dev gdal-bin
 
 install:
   - pip install pytest-cov -r requirements.txt
