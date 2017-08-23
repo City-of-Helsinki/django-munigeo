@@ -10,7 +10,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-munigeo',
-    version='0.2.0',
+    version='0.2.1',
     packages=['munigeo'],
     include_package_data=True,
     license='BSD License',
@@ -28,6 +28,8 @@ setup(
         'six',
         'pyyaml',
     ],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest', 'pytest-django'],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',

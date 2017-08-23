@@ -28,13 +28,22 @@ class ModelSyncher(object):
     def get(self, obj_id):
         return self.obj_dict.get(obj_id, None)
 
+    def get_deleted_objects(self):
+        """Called after an import run, returns objects not found in the source
+        system, which need to be deleted from the current system.
+
+        Returns a list of objects.
+
+        Can be used to process related objects or do other
+        preprocessing before deleting.
+
+        """
+        return [obj for obj in self.obj_dict.values() if not obj._found]
+
     def finish(self):
-        delete_list = []
-        for obj_id, obj in self.obj_dict.items():
-            if not obj._found:
-                logger.debug("Deleting object %s" % obj)
-                delete_list.append(obj)
+        delete_list = self.get_deleted_objects()
         if len(delete_list) > 5 and len(delete_list) > len(self.obj_dict) * 0.4:
             raise Exception("Attempting to delete more than 40% of total items")
         for obj in delete_list:
+            logger.debug("Deleting object %s" % obj)
             obj.delete()
