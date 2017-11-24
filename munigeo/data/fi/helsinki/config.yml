@@ -159,7 +159,7 @@ divisions:
         end: '2017-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
-    wfs_layer: 'avoindata:opev_ooa_alaaste_suomi'
+    wfs_layer: 'avoindata:Opev_ooa_alaaste_suomi'
     fields:
         origin_id: id
         ocd_id: id
@@ -172,7 +172,7 @@ divisions:
         end: '2018-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
-    wfs_layer: 'avoindata:opev_ooa_alaaste_suomi_tuleva'
+    wfs_layer: 'avoindata:Opev_ooa_alaaste_suomi_tuleva'
     fields:
         origin_id: id
         ocd_id: id
@@ -185,7 +185,7 @@ divisions:
         end: '2017-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu_sv
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
-    wfs_layer: 'avoindata:opev_ooa_alaaste_ruotsi'
+    wfs_layer: 'avoindata:Opev_ooa_alaaste_ruotsi'
     fields:
         origin_id: id
         ocd_id: id
@@ -198,7 +198,7 @@ divisions:
         end: '2018-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu_sv
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
-    wfs_layer: 'avoindata:opev_ooa_alaaste_ruotsi_tuleva'
+    wfs_layer: 'avoindata:Opev_ooa_alaaste_ruotsi_tuleva'
     fields:
         origin_id: id
         ocd_id: id
@@ -211,7 +211,7 @@ divisions:
         end: '2017-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
-    wfs_layer: 'avoindata:opev_ooa_ylaaste_suomi'
+    wfs_layer: 'avoindata:Opev_ooa_ylaaste_suomi'
     fields:
         origin_id: id
         ocd_id: id
@@ -224,7 +224,7 @@ divisions:
         end: '2018-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
-    wfs_layer: 'avoindata:opev_ooa_ylaaste_suomi_tuleva'
+    wfs_layer: 'avoindata:Opev_ooa_ylaaste_suomi_tuleva'
     fields:
         origin_id: id
         ocd_id: id
@@ -238,7 +238,7 @@ divisions:
         end: '2017-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu_sv
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
-    wfs_layer: 'avoindata:opev_ooa_ylaaste_ruotsi'
+    wfs_layer: 'avoindata:Opev_ooa_ylaaste_ruotsi'
     fields:
         origin_id: id
         ocd_id: id
@@ -251,7 +251,7 @@ divisions:
         end: '2018-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu_sv
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
-    wfs_layer: 'avoindata:opev_ooa_ylaaste_ruotsi_tuleva'
+    wfs_layer: 'avoindata:Opev_ooa_ylaaste_ruotsi_tuleva'
     fields:
         origin_id: id
         ocd_id: id
