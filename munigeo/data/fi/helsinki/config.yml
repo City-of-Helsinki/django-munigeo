@@ -281,3 +281,18 @@ divisions:
         ocd_id: kokotun
         name:
             fi: nimi
+
+  - type: preschool_education
+    name: Esiopetuksen oppilaaksiottoalue
+    validity:
+        start: '2018-07-01'
+        end: '2019-07-31'
+    ocd_id: esiopetuksen_oppilaaksiottoalue
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:esiopetusalueet_2018'
+    fields:
+        origin_id: ID
+        ocd_id: ID
+        service_point_id: ID
+        name:
+            fi: ALUE
