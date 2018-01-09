@@ -295,4 +295,4 @@ divisions:
         ocd_id: ID
         service_point_id: ID
         name:
-            fi: ALUE
+            fi: TOIMIPISTE
