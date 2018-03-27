@@ -6,6 +6,9 @@ import django.contrib.gis.db.models.fields
 from django.db import migrations, models
 import django.db.models.deletion
 
+from munigeo.utils import get_default_srid
+DEFAULT_SRID = get_default_srid()
+
 
 class Migration(migrations.Migration):
 
@@ -19,7 +22,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('origin_id', models.CharField(db_index=True, max_length=40)),
-                ('geometry', django.contrib.gis.db.models.fields.MultiPolygonField(srid=4326)),
+                ('geometry', django.contrib.gis.db.models.fields.MultiPolygonField(srid=DEFAULT_SRID)),
                 ('modified_at', models.DateTimeField(auto_now=True, help_text='Time when the information was last changed')),
                 ('addresses', models.ManyToManyField(blank=True, to='munigeo.Address')),
                 ('municipality', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='munigeo.Municipality')),
