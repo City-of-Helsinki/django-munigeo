@@ -9,13 +9,15 @@ import requests
 import io
 
 from django import db
-from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon, Point
+from django.contrib.gis.gdal import DataSource
+from django.contrib.gis.geos import MultiPolygon, Polygon
 
 from munigeo.importer.base import Importer, register_importer
 from munigeo.importer.sync import ModelSyncher
-from munigeo.models import *
+from munigeo.models import AdministrativeDivision, AdministrativeDivisionGeometry, AdministrativeDivisionType, \
+    Municipality, PROJECTION_SRID
 from munigeo import ocd
+from .helsinki import FIN_GRID, TM35_SRID
 
 try:
     from concurrent.futures import ThreadPoolExecutor
@@ -56,7 +58,7 @@ class FinlandImporter(Importer):
         geom = feat.geom
         geom.transform(PROJECTION_SRID)
         # Store only the land boundaries
-        #geom = geom.geos.intersection(self.land_area)
+        # geom = geom.geos.intersection(self.land_area)
         geom = geom.geos
         if geom.geom_type == 'Polygon':
             geom = MultiPolygon(geom)
@@ -123,7 +125,7 @@ class FinlandImporter(Importer):
             return os.path.join(base_path, p)
 
     def import_municipalities(self):
-        #self._setup_land_area()
+        # self._setup_land_area()
 
         self.logger.info("Loading municipality boundaries")
         path = self.find_muni_data()
