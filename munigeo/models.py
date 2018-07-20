@@ -5,6 +5,8 @@ from django.contrib.gis.db import models
 from django.db.models.query import QuerySet, Q
 from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
+from parler.models import TranslatableModel, TranslatedFields
+from parler.managers import TranslatableQuerySet, TranslatableManager
 try:
     from django.contrib.gis.db.models import GeoManager
 except ImportError:
@@ -30,7 +32,7 @@ class AdministrativeDivisionType(models.Model):
         return "%s (%s)" % (self.name, self.type)
 
 
-class AdministrativeDivisionQuerySet(QuerySet):
+class AdministrativeDivisionQuerySet(TranslatableQuerySet):
 
     def by_ancestor(self, ancestor):
         manager = self.model.objects
@@ -43,7 +45,7 @@ class AdministrativeDivisionQuerySet(QuerySet):
         return self.filter(qs)
 
 
-class AdministrativeDivisionManager(TreeManager):
+class AdministrativeDivisionManager(TreeManager, TranslatableManager):
 
     def get_queryset(self):
         return AdministrativeDivisionQuerySet(self.model, using=self._db)
@@ -62,9 +64,8 @@ class AdministrativeDivisionManager(TreeManager):
 
 
 @python_2_unicode_compatible
-class AdministrativeDivision(MPTTModel):
+class AdministrativeDivision(MPTTModel, TranslatableModel):
     type = models.ForeignKey(AdministrativeDivisionType, db_index=True, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, null=True, db_index=True)
     parent = TreeForeignKey('self', db_index=True, null=True,
                             related_name='children', on_delete=models.CASCADE)
 
@@ -86,13 +87,20 @@ class AdministrativeDivision(MPTTModel):
     modified_at = models.DateTimeField(auto_now=True,
                                        help_text='Time when the information was last changed')
 
+    translations = TranslatedFields(
+        name=models.CharField(_("Name"), max_length=100, null=True, db_index=True)
+    )
+
     objects = AdministrativeDivisionManager()
 
     def __str__(self):
         ocd_id = ''
         if self.ocd_id:
             ocd_id = '%s / ' % self.ocd_id
-        return "%s (%s%s)" % (self.name, ocd_id, self.type.type)
+        if self.name:
+            return "%s (%s%s)" % (self.name, ocd_id, self.type.type)
+        else:
+            return "(%s%s)" % (ocd_id, self.type.type)
 
     class Meta:
         unique_together = (('origin_id', 'type', 'parent'),)
@@ -106,11 +114,14 @@ class AdministrativeDivisionGeometry(models.Model):
 
 
 @python_2_unicode_compatible
-class Municipality(models.Model):
+class Municipality(TranslatableModel):
     id = models.CharField(max_length=100, primary_key=True)
-    name = models.CharField(max_length=100, null=True, db_index=True)
     division = models.OneToOneField(AdministrativeDivision, null=True, db_index=True,
                                     related_name='muni', on_delete=models.CASCADE)
+
+    translations = TranslatedFields(
+        name=models.CharField(_("Name"), max_length=100, null=True, db_index=True)
+    )
 
     objects = GeoManager()
 
@@ -138,17 +149,21 @@ class Plan(models.Model):
 
 
 @python_2_unicode_compatible
-class Street(models.Model):
-    name = models.CharField(max_length=100, db_index=True)
+class Street(TranslatableModel):
     municipality = models.ForeignKey(Municipality, db_index=True, on_delete=models.CASCADE)
     modified_at = models.DateTimeField(auto_now=True,
                                        help_text='Time when the information was last changed')
 
+    translations = TranslatedFields(
+        name=models.CharField(_("Name"), max_length=100, db_index=True)
+    )
+
     def __str__(self):
         return self.name
 
-    class Meta:
-        unique_together = (('municipality', 'name'),)
+    # TODO: Find way to implement this, when one of the fields is translated
+    # class Meta:
+    #     unique_together = (('municipality', 'name'),)
 
 
 @python_2_unicode_compatible
