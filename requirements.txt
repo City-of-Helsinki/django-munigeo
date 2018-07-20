@@ -3,7 +3,8 @@ djangorestframework
 requests
 requests-cache
 django-mptt
-django-modeltranslation
+django-parler
+django-parler-rest
 six
 pyyaml
 unicodecsv
