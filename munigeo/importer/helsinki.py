@@ -177,8 +177,8 @@ class HelsinkiImporter(Importer):
             setattr(obj, attr, attr_dict[attr])
         for attr in lang_dict.keys():
             for lang, val in lang_dict[attr].items():
-                key = "%s_%s" % (attr, lang)
-                setattr(obj, key, val)
+                obj.set_current_language(lang)
+                setattr(obj, attr, val)
 
         if 'ocd_id' in div:
             assert (parent and parent.ocd_id) or 'parent_ocd_id' in div
@@ -384,17 +384,21 @@ class HelsinkiImporter(Importer):
             muni = muni_dict[muni_name]
             street = muni.streets_by_name.get(street_name, None)
             if not street:
-                street = Street(name_fi=street_name, name=street_name, municipality=muni)
-                street.name_sv = street_name_sv
+                street = Street(municipality=muni)
+                street.set_current_language('fi')
+                street.name = street_name
+                street.set_current_language('sv')
+                street.name = street_name_sv
 
                 #bulk_street_list.append(street)
                 street.save()
                 muni.streets_by_name[street_name] = street
                 street.addrs = {}
             else:
-                if street.name_sv != street_name_sv:
-                    self.logger.warning("%s: %s -> %s" % (street, street.name_sv, street_name_sv))
-                    street.name_sv = street_name_sv
+                street.set_current_language('sv')
+                if street.name != street_name_sv:
+                    self.logger.warning("%s: %s -> %s" % (street, street.name, street_name_sv))
+                    street.name = street_name_sv
                     street.save()
             street._found = True
 
