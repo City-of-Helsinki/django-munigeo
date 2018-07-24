@@ -10,15 +10,15 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-munigeo',
-    version='0.2.7',
+    version='0.3.1',
     packages=['munigeo'],
     include_package_data=True,
     license='BSD License',
     description='A Django app for processing municipality-related geospatial data.',
     long_description=README,
     url='https://github.com/City-of-Helsinki/django-munigeo',
-    author='Juha Yrjölä',
-    author_email='juha.yrjola@iki.fi',
+    author='City of Helsinki',
+    author_email='dev@hel.fi',
     install_requires=[
         'Django',
         'requests',
