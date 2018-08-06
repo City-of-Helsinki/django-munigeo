@@ -248,7 +248,7 @@ class HelsinkiImporter(Importer):
                 sep = '&'
             else:
                 sep = '?'
-            url = wfs_url + sep + 'typeName=' + div['wfs_layer'] + '&' + "srsName=EPSG:%d" % PROJECTION_SRID
+            url = wfs_url + sep + 'typeName=' + div['wfs_layer'] + '&' + "srsName=EPSG:%d" % PROJECTION_SRID + '&' + "outputFormat=application/json"
             ds = DataSource(url)
         lyr = ds[0]
         assert len(ds) == 1
