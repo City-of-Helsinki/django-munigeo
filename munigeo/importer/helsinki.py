@@ -59,16 +59,6 @@ def convert_from_gk25(north, east):
     pnt.transform(coord_transform)
     return pnt
 
-def poly_diff(p1, p2):
-    # Make sure we calculate the area with a 2d coordinate system
-    if p1.srs.units[1] == 'degree':
-        tf = CoordTransform(p1.srs, WEB_MERCATOR_SRS)
-        p1 = p1.clone()
-        p1.transform(tf)
-        p2 = p2.clone()
-        p2.transform(tf)
-    return (p1 - p2).area
-
 
 @register_importer
 class HelsinkiImporter(Importer):
@@ -130,13 +120,17 @@ class HelsinkiImporter(Importer):
                 del attr_dict['parent_id']
             else:
                 # If no parent id is available, we determine the parent
-                # heuristically by choosing the one that we overlap with
-                # the most.
+                # heuristically by choosing the one that we overlap with.
                 parents = []
                 for parent in parent_dict.values():
-                    diff_area = poly_diff(geom, parent.geometry.boundary)
-                    if diff_area < 300:
-                        parents.append(parent)
+                    parent_geom = parent.geometry.boundary
+                    if not geom.intersects(parent_geom):
+                        continue
+                    area = (geom - parent.geometry.boundary).area
+                    if area > 1e-6:
+                        continue
+                    parents.append(parent)
+                parents = sorted(parents)
                 if not parents:
                     raise Exception("No parent found for %s" % origin_id)
                 elif len(parents) > 1:
