@@ -317,7 +317,7 @@ class HelsinkiImporter(Importer):
     def import_addresses(self):
 
         wfs_url = 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=avoindata:PKS_osoiteluettelo&SRSNAME=EPSG:3067'
-        self.logger.info("import_addresses: instantiating WFS datasource")
+        self.logger.info("instantiating WFS datasource")
         ds = DataSource(wfs_url)
         lyr = ds[0]
         assert len(ds) == 1
@@ -336,7 +336,7 @@ class HelsinkiImporter(Importer):
         for muni in muni_list:
             muni_dict[muni.name_fi] = muni
 
-            self.logger.info('Loading existing data for %s' % muni)
+            self.logger.info("Loading existing data for %s".format(muni))
 
             streets = Street.objects.filter(municipality=muni)
             muni.streets_by_name = {}
@@ -357,7 +357,7 @@ class HelsinkiImporter(Importer):
         bulk_street_list = []
         count = 0
 
-        self.logger.debug("Starting to process data from WFS source")
+        self.logger.info("Starting to process data from WFS source")
         for feat in lyr:
             count += 1
             if count % 1000 == 0:
@@ -386,7 +386,7 @@ class HelsinkiImporter(Importer):
             muni = muni_dict[muni_name]
             street = muni.streets_by_name.get(street_name, None)
             if not street:
-                self.logger.debug("street {} not found in DB, creating it".format(street_name))
+                self.logger.info("street {} not found in DB, creating it".format(street_name))
                 street = Street(name_fi=street_name, name=street_name, municipality=muni)
                 street.name_sv = street_name_sv
 
@@ -396,7 +396,7 @@ class HelsinkiImporter(Importer):
                 street.addrs = {}
             else:
                 if street.name_sv != street_name_sv:
-                    self.logger.warning("%s: %s -> %s" % (street, street.name_sv, street_name_sv))
+                    self.logger.warning("{}: {} -> {}".format(street, street.name_sv, street_name_sv))
                     street.name_sv = street_name_sv
                     street.save()
             street._found = True
@@ -412,7 +412,7 @@ class HelsinkiImporter(Importer):
                 street.addrs[addr_id] = addr
             else:
                 if addr._found:
-                    self.logger.warning("{}: is duplicate, skipping".format(addr))
+                    self.logger.debug("{}: is duplicate, skipping".format(addr))
                     continue
                 # if the location has changed for more than 10cm, save the new one.
                 assert addr.location.srid == location.srid, "SRID changed"
