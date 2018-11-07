@@ -362,8 +362,6 @@ class HelsinkiImporter(Importer):
             street_name = feat.get('katunimi').strip()
             street_name_sv = feat.get('gatan').strip()
 
-            if int(feat.get('tyyppi')) != 1: # only addresses
-                continue
             num = feat.get('osoitenumero')
             if not num:
                 #self.logger.info(row)
