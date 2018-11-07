@@ -317,7 +317,7 @@ class HelsinkiImporter(Importer):
     def import_addresses(self):
 
         wfs_url = 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=avoindata:PKS_osoiteluettelo&SRSNAME=EPSG:3067'
-        self.logger.info("instantiating WFS datasource")
+        self.logger.info("Loading master data from WFS datasource")
         ds = DataSource(wfs_url)
         lyr = ds[0]
         assert len(ds) == 1
@@ -336,7 +336,7 @@ class HelsinkiImporter(Importer):
         for muni in muni_list:
             muni_dict[muni.name_fi] = muni
 
-            self.logger.info("Loading existing data for %s".format(muni))
+            self.logger.info("Loading existing data for {}".format(muni))
 
             streets = Street.objects.filter(municipality=muni)
             muni.streets_by_name = {}
@@ -357,11 +357,11 @@ class HelsinkiImporter(Importer):
         bulk_street_list = []
         count = 0
 
-        self.logger.info("Starting to process data from WFS source")
+        self.logger.info("starting data synchronization")
         for feat in lyr:
             count += 1
             if count % 1000 == 0:
-                self.logger.info("%d processed" % count)
+                self.logger.debug("{} processed".format(count))
 
             street_name = feat.get('katunimi').strip()
             street_name_sv = feat.get('gatan').strip()
@@ -448,6 +448,8 @@ class HelsinkiImporter(Importer):
                     if not a._found:
                         self.logger.info("Address {} removed".format(a))
                         a.delete()
+
+        self.logger.info("synchronization complete")
 
     def import_pois(self):
         URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v2/unit/?service=%d'
