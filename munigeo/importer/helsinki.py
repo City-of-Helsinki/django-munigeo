@@ -315,7 +315,9 @@ class HelsinkiImporter(Importer):
 
     @db.transaction.atomic
     def import_addresses(self):
+
         wfs_url = 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=avoindata:PKS_osoiteluettelo&SRSNAME=EPSG:3067'
+        self.logger.info("Loading master data from WFS datasource")
         ds = DataSource(wfs_url)
         lyr = ds[0]
         assert len(ds) == 1
@@ -334,7 +336,8 @@ class HelsinkiImporter(Importer):
         for muni in muni_list:
             muni_dict[muni.name_fi] = muni
 
-            self.logger.info('Loading existing data for %s' % muni)
+            self.logger.info("Loading existing data for {}".format(muni))
+
             streets = Street.objects.filter(municipality=muni)
             muni.streets_by_name = {}
             muni.streets_by_id = {}
@@ -354,21 +357,22 @@ class HelsinkiImporter(Importer):
         bulk_street_list = []
         count = 0
 
+        self.logger.info("starting data synchronization")
         for feat in lyr:
             count += 1
             if count % 1000 == 0:
-                self.logger.info("%d processed" % count)
+                self.logger.debug("{} processed".format(count))
 
             street_name = feat.get('katunimi').strip()
             street_name_sv = feat.get('gatan').strip()
-
             num = feat.get('osoitenumero')
+
             if not num:
-                #self.logger.info(row)
+                self.logger.debug("Rejecting {}, due to {} not being valid street number".format(street_name, num))
                 continue
             else:
                 if num == '0':
-                    #self.logger.info(row)
+                    self.logger.debug("Rejecting {}, due to {} not being valid street number".format(street_name, num))
                     continue
 
             num2 = feat.get('osoitenumero2')
@@ -382,6 +386,7 @@ class HelsinkiImporter(Importer):
             muni = muni_dict[muni_name]
             street = muni.streets_by_name.get(street_name, None)
             if not street:
+                self.logger.info("street {} not found in DB, creating it".format(street_name))
                 street = Street(name_fi=street_name, name=street_name, municipality=muni)
                 street.name_sv = street_name_sv
 
@@ -391,7 +396,7 @@ class HelsinkiImporter(Importer):
                 street.addrs = {}
             else:
                 if street.name_sv != street_name_sv:
-                    self.logger.warning("%s: %s -> %s" % (street, street.name_sv, street_name_sv))
+                    self.logger.warning("{}: {} -> {}".format(street, street.name_sv, street_name_sv))
                     street.name_sv = street_name_sv
                     street.save()
             street._found = True
@@ -400,13 +405,14 @@ class HelsinkiImporter(Importer):
             addr = street.addrs.get(addr_id, None)
             location = convert_from_gk25(coord_n, coord_e)
             if not addr:
+                self.logger.debug("Street {} did not have address {}. Creating".format(street.name, addr_id))
                 addr = Address(street=street, number=num, number_end=num2, letter=letter)
                 addr.location = location.wkb
                 bulk_addr_list.append(addr)
                 street.addrs[addr_id] = addr
             else:
                 if addr._found:
-                    self.logger.warning("%s: Skipping duplicate" % addr)
+                    self.logger.debug("{}: is duplicate, skipping".format(addr))
                     continue
                 # if the location has changed for more than 10cm, save the new one.
                 assert addr.location.srid == location.srid, "SRID changed"
@@ -428,20 +434,22 @@ class HelsinkiImporter(Importer):
                 db.reset_queries()
 
         if bulk_addr_list:
-            self.logger.info("Saving %d new addresses" % len(bulk_addr_list))
+            self.logger.info("Saving {} new addresses".format(len(bulk_addr_list)))
             Address.objects.bulk_create(bulk_addr_list)
             bulk_addr_list = []
 
         for muni in muni_list:
             for s in muni.streets_by_name.values():
                 if not s._found:
-                    self.logger.info("Street %s removed" % s)
+                    self.logger.info("Street {} removed".format(s))
                     s.delete()
                     continue
                 for a in s.addrs.values():
                     if not a._found:
-                        self.logger.info("%s removed" % a)
+                        self.logger.info("Address {} removed".format(a))
                         a.delete()
+
+        self.logger.info("synchronization complete")
 
     def import_pois(self):
         URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v2/unit/?service=%d'
