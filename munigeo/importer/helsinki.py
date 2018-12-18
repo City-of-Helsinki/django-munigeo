@@ -59,16 +59,6 @@ def convert_from_gk25(north, east):
     pnt.transform(coord_transform)
     return pnt
 
-def poly_diff(p1, p2):
-    # Make sure we calculate the area with a 2d coordinate system
-    if p1.srs.units[1] == 'degree':
-        tf = CoordTransform(p1.srs, WEB_MERCATOR_SRS)
-        p1 = p1.clone()
-        p1.transform(tf)
-        p2 = p2.clone()
-        p2.transform(tf)
-    return (p1 - p2).area
-
 
 @register_importer
 class HelsinkiImporter(Importer):
@@ -130,13 +120,17 @@ class HelsinkiImporter(Importer):
                 del attr_dict['parent_id']
             else:
                 # If no parent id is available, we determine the parent
-                # heuristically by choosing the one that we overlap with
-                # the most.
+                # heuristically by choosing the one that we overlap with.
                 parents = []
                 for parent in parent_dict.values():
-                    diff_area = poly_diff(geom, parent.geometry.boundary)
-                    if diff_area < 300:
-                        parents.append(parent)
+                    parent_geom = parent.geometry.boundary
+                    if not geom.intersects(parent_geom):
+                        continue
+                    area = (geom - parent.geometry.boundary).area
+                    if area > 1e-6:
+                        continue
+                    parents.append(parent)
+                parents = sorted(parents)
                 if not parents:
                     raise Exception("No parent found for %s" % origin_id)
                 elif len(parents) > 1:
@@ -177,8 +171,8 @@ class HelsinkiImporter(Importer):
             setattr(obj, attr, attr_dict[attr])
         for attr in lang_dict.keys():
             for lang, val in lang_dict[attr].items():
-                key = "%s_%s" % (attr, lang)
-                setattr(obj, key, val)
+                obj.set_current_language(lang)
+                setattr(obj, attr, val)
 
         if 'ocd_id' in div:
             assert (parent and parent.ocd_id) or 'parent_ocd_id' in div
@@ -323,7 +317,7 @@ class HelsinkiImporter(Importer):
         assert len(ds) == 1
 
         muni_names = ('Helsinki', 'Espoo', 'Vantaa', 'Kauniainen')
-        muni_list = Municipality.objects.filter(name_fi__in=muni_names)
+        muni_list = Municipality.objects.filter(translations__language_code='fi', translations__name__in=muni_names)
         muni_dict = {}
 
         def make_addr_id(num, num_end, letter):
@@ -334,7 +328,7 @@ class HelsinkiImporter(Importer):
             return '%s-%s-%s' % (num, num_end, letter)
 
         for muni in muni_list:
-            muni_dict[muni.name_fi] = muni
+            muni_dict[muni.get_translation('fi').name] = muni
 
             self.logger.info("Loading existing data for {}".format(muni))
 
@@ -342,7 +336,7 @@ class HelsinkiImporter(Importer):
             muni.streets_by_name = {}
             muni.streets_by_id = {}
             for s in streets:
-                muni.streets_by_name[s.name_fi] = s
+                muni.streets_by_name[s.get_translation('fi').name] = s
                 muni.streets_by_id[s.id] = s
                 s.addrs = {}
                 s._found = False
@@ -365,6 +359,7 @@ class HelsinkiImporter(Importer):
 
             street_name = feat.get('katunimi').strip()
             street_name_sv = feat.get('gatan').strip()
+
             num = feat.get('osoitenumero')
 
             if not num:
@@ -387,17 +382,21 @@ class HelsinkiImporter(Importer):
             street = muni.streets_by_name.get(street_name, None)
             if not street:
                 self.logger.info("street {} not found in DB, creating it".format(street_name))
-                street = Street(name_fi=street_name, name=street_name, municipality=muni)
-                street.name_sv = street_name_sv
+                street = Street(municipality=muni)
+                street.set_current_language('fi')
+                street.name = street_name
+                street.set_current_language('sv')
+                street.name = street_name_sv
 
                 #bulk_street_list.append(street)
                 street.save()
                 muni.streets_by_name[street_name] = street
                 street.addrs = {}
             else:
-                if street.name_sv != street_name_sv:
-                    self.logger.warning("{}: {} -> {}".format(street, street.name_sv, street_name_sv))
-                    street.name_sv = street_name_sv
+                street.set_current_language('sv')
+                if street.name != street_name_sv:
+                    self.logger.warning("%s: %s -> %s" % (street, street.name, street_name_sv))
+                    street.name = street_name_sv
                     street.save()
             street._found = True
 

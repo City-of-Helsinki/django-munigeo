@@ -4,6 +4,7 @@ from django.db.models import Q
 from datetime import datetime
 from django.conf import settings
 from django.contrib.gis.db import models
+from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
 from rest_framework import serializers, viewsets, generics
 from rest_framework.exceptions import ParseError
 from django.contrib.gis.gdal import SRSException, CoordTransform, SpatialReference
@@ -15,8 +16,6 @@ except ImportError:
     from django.contrib.gis import gdal
 from munigeo.models import AdministrativeDivisionType, AdministrativeDivision,\
     AdministrativeDivisionGeometry, Municipality, Street, Address
-from modeltranslation import models as mt_models # workaround for init problem
-from modeltranslation.translator import translator, NotRegistered
 
 # Use the GPS coordinate system by default
 DEFAULT_SRID = 4326
@@ -69,30 +68,8 @@ def make_muni_ocd_id(name, rest=None):
     return s
 
 
-class TranslatedModelSerializer(serializers.ModelSerializer):
-    def __init__(self, *args, **kwargs):
-        super(TranslatedModelSerializer, self).__init__(*args, **kwargs)
-        model = self.Meta.model
-        try:
-            trans_opts = translator.get_options_for_model(model)
-        except NotRegistered:
-            self.translated_fields = []
-            return
-
-        self.translated_fields = trans_opts.fields.keys()
-        lang_codes = [x[0] for x in settings.LANGUAGES]
-        remove_fields = []
-        # Remove the pre-existing data in the bundle.
-        for field_name in self.translated_fields:
-            for lang in lang_codes:
-                key = "%s_%s" % (field_name, lang)
-                if key in self.fields:
-                    del self.fields[key]
-            del self.fields[field_name]
-            remove_fields.append(field_name)
-        for field_name in remove_fields:
-            if field_name in self.fields:
-                del self.fields[field_name]
+class TranslatedModelSerializer(TranslatableModelSerializer):
+    translations = TranslatedFieldsField()
 
     def to_representation(self, obj):
         ret = super(TranslatedModelSerializer, self).to_representation(obj)
@@ -101,22 +78,17 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
         return self.translated_fields_to_representation(obj, ret)
 
     def translated_fields_to_representation(self, obj, ret):
-        for field_name in self.translated_fields:
-            d = {}
-            for lang in [x[0] for x in settings.LANGUAGES]:
-                key = "%s_%s" % (field_name, lang)
-                val = getattr(obj, key, None)
-                if val is None:
-                    continue
-                d[lang] = val
+        translated_fields = {}
 
-            # If no text provided, leave the field as null
-            for key, val in d.items():
-                if val is not None:
-                    break
-            else:
-                d = None
-            ret[field_name] = d
+        for lang_key, trans_dict in ret.pop('translations', {}).items():
+
+            for field_name, translation in trans_dict.items():
+                if not field_name in translated_fields:
+                    translated_fields[field_name] = {lang_key: translation}
+                else:
+                    translated_fields[field_name].update({lang_key: translation})
+
+        ret.update(translated_fields)
 
         return ret
 
