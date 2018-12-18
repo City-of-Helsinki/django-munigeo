@@ -315,7 +315,7 @@ class HelsinkiImporter(Importer):
         assert len(ds) == 1
 
         muni_names = ('Helsinki', 'Espoo', 'Vantaa', 'Kauniainen')
-        muni_list = Municipality.objects.filter(name_fi__in=muni_names)
+        muni_list = Municipality.objects.filter(translations__language_code='fi', translations__name__in=muni_names)
         muni_dict = {}
 
         def make_addr_id(num, num_end, letter):
@@ -326,14 +326,14 @@ class HelsinkiImporter(Importer):
             return '%s-%s-%s' % (num, num_end, letter)
 
         for muni in muni_list:
-            muni_dict[muni.name_fi] = muni
+            muni_dict[muni.get_translation('fi').name] = muni
 
             self.logger.info('Loading existing data for %s' % muni)
             streets = Street.objects.filter(municipality=muni)
             muni.streets_by_name = {}
             muni.streets_by_id = {}
             for s in streets:
-                muni.streets_by_name[s.name_fi] = s
+                muni.streets_by_name[s.get_translation('fi').name] = s
                 muni.streets_by_id[s.id] = s
                 s.addrs = {}
                 s._found = False
