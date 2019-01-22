@@ -96,7 +96,7 @@ divisions:
   - type: health_station_district
     name: Terveysasema-aluejako
     ocd_id: terveysasema-alue
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
     wfs_layer: 'hel:sote_terveysasema_aluejako'
     fields:
         origin_id: tunnus
@@ -108,7 +108,7 @@ divisions:
   - type: emergency_care_district
     name: Päivystysalue
     ocd_id: päivystysalue
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
     wfs_layer: 'hel:terke_paivystysalue'
     fields:
         origin_id: id
@@ -119,7 +119,7 @@ divisions:
   - type: rescue_area
     name: Suojelupiiri
     ocd_id: suojelupiiri
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
     wfs_layer: 'hel:pel_suojelupiiri'
     fields:
         origin_id: suojelupiiri_tunnus
@@ -131,7 +131,7 @@ divisions:
   - type: rescue_district
     name: Suojelulohko
     ocd_id: suojelulohko
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
     wfs_layer: 'hel:pel_suojelulohko'
     fields:
         origin_id: suojelulohko_tunnus
@@ -143,7 +143,7 @@ divisions:
   - type: rescue_sub_district
     name: Suojelulalaohko
     ocd_id: suojelualalohko
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
     wfs_layer: 'hel:pel_suojelualalohko'
     fields:
         origin_id: suojelualalohko_tunnus
@@ -260,7 +260,7 @@ divisions:
   - type: maternity_clinic_district
     name: Neuvola-alue
     ocd_id: neuvola-alue
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
     wfs_layer: 'hel:sote_neuvola_aluejako'
     fields:
         origin_id: tunnus
@@ -288,7 +288,7 @@ divisions:
         start: '2018-07-01'
         end: '2019-07-31'
     ocd_id: esiopetuksen_oppilaaksiottoalue
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
     wfs_layer: 'hel:esiopetusalueet_2018'
     fields:
         origin_id: ID

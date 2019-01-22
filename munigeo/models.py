@@ -2,15 +2,11 @@
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 from django.contrib.gis.db import models
-from django.db.models.query import QuerySet, Q
+from django.db.models.query import Q
 from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
 from parler.models import TranslatableModel, TranslatedFields
 from parler.managers import TranslatableQuerySet, TranslatableManager
-try:
-    from django.contrib.gis.db.models import GeoManager
-except ImportError:
-    from django.db.models import Manager as GeoManager
 
 from munigeo.utils import get_default_srid
 
@@ -46,7 +42,6 @@ class AdministrativeDivisionQuerySet(TranslatableQuerySet):
 
 
 class AdministrativeDivisionManager(TreeManager, TranslatableManager):
-
     def get_queryset(self):
         return AdministrativeDivisionQuerySet(self.model, using=self._db)
 
@@ -110,8 +105,6 @@ class AdministrativeDivisionGeometry(models.Model):
     division = models.OneToOneField(AdministrativeDivision, related_name='geometry', on_delete=models.CASCADE)
     boundary = models.MultiPolygonField(srid=PROJECTION_SRID)
 
-    objects = GeoManager()
-
 
 @python_2_unicode_compatible
 class Municipality(TranslatableModel):
@@ -123,8 +116,6 @@ class Municipality(TranslatableModel):
         name=models.CharField(_("Name"), max_length=100, null=True, db_index=True)
     )
 
-    objects = GeoManager()
-
     def __str__(self):
         return self.name
 
@@ -135,8 +126,6 @@ class Plan(models.Model):
     geometry = models.MultiPolygonField(srid=PROJECTION_SRID)
     origin_id = models.CharField(max_length=20)
     in_effect = models.BooleanField(default=False)
-
-    objects = models.Manager()
 
     def __str__(self):
         effect = "in effect"
@@ -178,8 +167,6 @@ class Address(models.Model):
     location = models.PointField(srid=PROJECTION_SRID,
                                  help_text="Coordinates of the address")
 
-    objects = GeoManager()
-
     modified_at = models.DateTimeField(auto_now=True,
                                        help_text='Time when the information was last changed')
 
@@ -202,11 +189,7 @@ class Building(models.Model):
     origin_id = models.CharField(max_length=40, db_index=True)
     municipality = models.ForeignKey(Municipality, db_index=True, on_delete=models.CASCADE)
     geometry = models.MultiPolygonField(srid=PROJECTION_SRID)
-
     addresses = models.ManyToManyField(Address, blank=True)
-
-    objects = GeoManager()
-
     modified_at = models.DateTimeField(auto_now=True,
                                        help_text='Time when the information was last changed')
 
@@ -236,8 +219,6 @@ class POI(models.Model):
     street_address = models.CharField(max_length=100, null=True, blank=True)
     zip_code = models.CharField(max_length=10, null=True, blank=True)
     origin_id = models.CharField(max_length=40, db_index=True, unique=True)
-
-    objects = GeoManager()
 
     def __str__(self):
         return "%s (%s, %s)" % (self.name, self.category.type, self.municipality)
