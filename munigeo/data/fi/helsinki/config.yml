@@ -90,8 +90,8 @@ divisions:
         origin_id: tunnus
         ocd_id: tunnus
         name:
-            fi: nimi_fi
-            sv: nimi_se
+            fi: tunnus
+            sv: tunnus
 
   - type: health_station_district
     name: Terveysasema-aluejako
