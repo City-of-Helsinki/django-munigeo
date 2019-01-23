@@ -258,7 +258,7 @@ class HelsinkiImporter(Importer):
 
     def import_divisions(self):
         path = self.find_data_file(os.path.join(self.muni_data_path, 'config.yml'))
-        config = yaml.safe_load(open(path, 'r'))
+        config = yaml.safe_load(open(path, 'r', encoding='utf-8'))
         self.division_data_path = os.path.join(self.muni_data_path, config['paths']['division'])
 
         muni = Municipality.objects.get(division__origin_id=config['origin_id'])
