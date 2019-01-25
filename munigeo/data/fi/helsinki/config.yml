@@ -282,17 +282,33 @@ divisions:
         name:
             fi: nimi
 
-  - type: preschool_education
-    name: Esiopetuksen oppilaaksiottoalue
+  - type: preschool_education_fi
+    name: Oppilaaksiottoalue, esikoulu
     validity:
-        start: '2018-07-01'
-        end: '2019-07-31'
-    ocd_id: esiopetuksen_oppilaaksiottoalue
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:esiopetusalueet_2018'
+        start: '2019-07-01'
+        end: '2020-08-01'
+    ocd_id: esiopetuksen_oppilaaksiottoalue_fi
+    wfs_url: 'http://localhost:8080/geoserver/hel/wfs'
+    wfs_layer: 'hel:Vaka_paivakotialueet'
     fields:
-        origin_id: ID
-        ocd_id: ID
-        service_point_id: ID
+        origin_id: toimipiste_id
+        ocd_id: toimipiste_id
+        service_point_id: toimipiste_id
         name:
-            fi: TOIMIPISTE
+            fi: toimipiste
+
+  - type: preschool_education_sv
+    name: Oppilaaksiottoalue, esikoulu (ruotsi)
+    validity:
+        start: '2019-07-01'
+        end: '2020-08-01'
+    ocd_id: esiopetuksen_oppilaaksiottoalue_sv
+    wfs_url: 'http://localhost:8080/geoserver/hel/wfs'
+    wfs_layer: 'hel:Vaka_esiopetus_ruotsi'
+    fields:
+        origin_id: toimipiste_id
+        ocd_id: toimipiste_id
+        service_point_id: toimipiste_id
+        name:
+            sv: nimi_se
+            fi: nimi_se
