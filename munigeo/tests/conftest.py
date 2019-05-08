@@ -29,6 +29,7 @@ settings.configure(
             'ATOMIC_REQUESTS': True,
         }
     },
+    ROOT_URLCONF='munigeo.urls',
     SECRET_KEY="django_tests_secret_key",
     DEBUG=False,
     TEMPLATE_DEBUG=False,

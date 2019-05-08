@@ -8,3 +8,6 @@ six
 pyyaml
 unicodecsv
 psycopg2
+pytest-django==3.4.5
+pytest==4.1.1             # via pytest-django
+python-dateutil

@@ -4,6 +4,7 @@ Open Civic Data helper functions
 
 import re
 
+
 def make_id(parent=None, **kwargs):
     country = kwargs.pop('country', 'us')
     if len(kwargs) > 1:

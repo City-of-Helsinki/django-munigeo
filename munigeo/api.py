@@ -24,8 +24,11 @@ DATABASE_SRID = getattr(settings, 'PROJECTION_SRID', 4326)
 DEFAULT_SRS = SpatialReference(DEFAULT_SRID)
 
 all_views = []
+
+
 def register_view(klass, name):
     all_views.append({'class': klass, 'name': name})
+
 
 def poly_from_bbox(bbox_val):
     points = bbox_val.split(',')
@@ -37,6 +40,7 @@ def poly_from_bbox(bbox_val):
         raise ParseError("bbox values must be floating points or integers")
     poly = Polygon.from_bbox(points)
     return poly
+
 
 def srid_to_srs(srid):
     if not srid:
@@ -51,11 +55,13 @@ def srid_to_srs(srid):
         raise ParseError("SRID %d not found (try 4326 for GPS coordinate system)" % srid)
     return srs
 
+
 def build_bbox_filter(srs, bbox_val, field_name):
     poly = poly_from_bbox(bbox_val)
     poly.set_srid(srs.srid)
 
     return {"%s__within" % field_name: poly}
+
 
 def make_muni_ocd_id(name, rest=None):
     country = getattr(settings, 'DEFAULT_COUNTRY', None)
@@ -133,6 +139,7 @@ class MPTTModelSerializer(serializers.ModelSerializer):
 # reasons.
 srs_cache = {}
 coord_transforms = {}
+
 
 def geom_to_json(geom, target_srs):
     srs = srs_cache.get(geom.srid, None)
@@ -225,6 +232,7 @@ class AdministrativeDivisionTypeSerializer(TranslatedModelSerializer):
 class AdministrativeDivisionTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = AdministrativeDivisionType.objects.all()
     serializer_class = AdministrativeDivisionTypeSerializer
+
 
 register_view(AdministrativeDivisionTypeViewSet, 'administrative_division_type')
 
@@ -338,6 +346,7 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
 
         return queryset
 
+
 register_view(AdministrativeDivisionViewSet, 'administrative_division')
 
 
@@ -345,6 +354,7 @@ class StreetSerializer(TranslatedModelSerializer):
     class Meta:
         model = Street
         fields = '__all__'
+
 
 LANG_CODES = [x[0] for x in settings.LANGUAGES]
 
@@ -382,6 +392,7 @@ class StreetViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(**args)
 
         return queryset
+
 
 register_view(StreetViewSet, 'street')
 

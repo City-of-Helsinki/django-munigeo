@@ -1,4 +1,7 @@
 *~
 *.pyc
+.eggs/
+.idea/
+venv/
 __pycache__
 django_munigeo.egg-info/
