@@ -49,36 +49,36 @@ def test_geometry_filter(administrative_divisions, api_client):
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("test_input,expected", [('muni_', [3, 'muni_0', 'muni_1', 'muni_2']),
-                                                 ('district_', [3, 'district_0', 'district_1', 'district_2']),
-                                                 ('_0', [2, 'muni_0', 'district_0'])])
+@pytest.mark.parametrize("test_input,expected", [('muni_', ['muni_0', 'muni_1', 'muni_2']),
+                                                 ('district_', ['district_0', 'district_1', 'district_2']),
+                                                 ('_0', ['muni_0', 'district_0'])])
 def test_input_filter_param(administrative_divisions, api_client, test_input, expected):
     res = get_administrativedivision_list(api_client, query_string='input=' + test_input)
-    assert len(res) == expected[0]
-    for i in range(len(res)):
-        assert res[i]['name'] == expected[i + 1]
+    assert len(res) == len(expected)
+    for r, e in zip(res, expected):
+        assert r['name'] == e
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("test_input,expected", [('origin_muni_0', [1, 0, 'origin_muni_0']),
-                                                 ('origin_muni_2', [1, 2, 'origin_muni_2']),
-                                                 ('origin_district_1', [1, 4, 'origin_district_1']),
-                                                 ('origin_district_2', [1, 5, 'origin_district_2'])])
+@pytest.mark.parametrize("test_input,expected", [('origin_muni_0', [0, 'origin_muni_0']),
+                                                 ('origin_muni_2', [2, 'origin_muni_2']),
+                                                 ('origin_district_1', [4, 'origin_district_1']),
+                                                 ('origin_district_2', [5, 'origin_district_2'])])
 def test_origin_id_filter(administrative_divisions, api_client, test_input, expected):
     res = get_administrativedivision_list(api_client, query_string='origin_id=' + test_input)
-    assert len(res) == expected[0]
-    assert res[0]['id'] == expected[1]
-    assert res[0]['origin_id'] == expected[2]
+    assert len(res) == 1
+    assert res[0]['id'] == expected[0]
+    assert res[0]['origin_id'] == expected[1]
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("test_input,expected", [('2020-06-16', [4, list(range(0, 4))]),
-                                                 ('2020-08-7', [6, list(range(0, 6))]),
-                                                 ('2020-5-4', [3, list(range(0, 3))]),
-                                                 ('2019-12-01', [3,list(range(0, 3))]),
-                                                 ('2022-12-01', [3, list(range(0, 3))])])
+@pytest.mark.parametrize("test_input,expected", [('2020-06-16', list(range(0, 4))),
+                                                 ('2020-08-7', list(range(0, 6))),
+                                                 ('2020-5-4', list(range(0, 3))),
+                                                 ('2019-12-01', list(range(0, 3))),
+                                                 ('2022-12-01', list(range(0, 3)))])
 def test_date_filter(administrative_divisions, api_client, test_input, expected):
     res = get_administrativedivision_list(api_client, query_string='date=' + test_input)
-    assert len(res) == expected[0]
-    for i in range(len(res)):
-        assert res[i]['id'] == expected[1][i]
+    assert len(res) == len(expected)
+    for r, e in zip(res, expected):
+        assert r['id'] == e
