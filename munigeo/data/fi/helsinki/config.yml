@@ -275,7 +275,7 @@ divisions:
     no_parent_division: yes
     parent_ocd_id: 'ocd-division/country:fi'
     wfs_url: 'https://kartta.hsy.fi/geoserver/wfs?CQL_FILTER=kunta%20in%20(%27091%27,%27092%27,%27049%27,%27235%27)'
-    wfs_layer: 'taustakartat_ja_aluejaot:seutukartta_pienalueet'
+    wfs_layer: 'taustakartat_ja_aluejaot:seutukartta_pien_2018'
     fields:
         origin_id: kokotun
         ocd_id: kokotun
