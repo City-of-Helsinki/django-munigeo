@@ -96,8 +96,8 @@ divisions:
   - type: health_station_district
     name: Terveysasema-aluejako
     ocd_id: terveysasema-alue
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:sote_terveysasema_aluejako'
+    wfs_url: 'http://localhost:8080/geoserver/hel/wfs'
+    wfs_layer: 'hel:Terveysasemaaluejako'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
