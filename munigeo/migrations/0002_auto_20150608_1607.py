@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='municipality',
             name='division',
-            field=models.OneToOneField(related_name='muni', to='munigeo.AdministrativeDivision', null=True),
+            field=models.OneToOneField(related_name='muni', to='munigeo.AdministrativeDivision', null=True, on_delete=models.CASCADE),
         ),
     ]

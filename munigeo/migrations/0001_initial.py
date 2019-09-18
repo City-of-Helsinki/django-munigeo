@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('boundary', django.contrib.gis.db.models.fields.MultiPolygonField(srid=DEFAULT_SRID)),
-                ('division', models.OneToOneField(to='munigeo.AdministrativeDivision', related_name='geometry')),
+                ('division', models.OneToOneField(to='munigeo.AdministrativeDivision', related_name='geometry', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
                 ('name_fi', models.CharField(null=True, max_length=100, db_index=True)),
                 ('name_sv', models.CharField(null=True, max_length=100, db_index=True)),
                 ('name_en', models.CharField(null=True, max_length=100, db_index=True)),
-                ('division', models.ForeignKey(to='munigeo.AdministrativeDivision', null=True, unique=True, related_name='muni')),
+                ('division', models.ForeignKey(to='munigeo.AdministrativeDivision', null=True, unique=True, related_name='muni', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -96,7 +96,7 @@ class Migration(migrations.Migration):
                 ('geometry', django.contrib.gis.db.models.fields.MultiPolygonField(srid=DEFAULT_SRID)),
                 ('origin_id', models.CharField(max_length=20)),
                 ('in_effect', models.BooleanField(default=False)),
-                ('municipality', models.ForeignKey(to='munigeo.Municipality')),
+                ('municipality', models.ForeignKey(to='munigeo.Municipality', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -136,7 +136,7 @@ class Migration(migrations.Migration):
                 ('name_fi', models.CharField(null=True, max_length=100, db_index=True)),
                 ('name_sv', models.CharField(null=True, max_length=100, db_index=True)),
                 ('name_en', models.CharField(null=True, max_length=100, db_index=True)),
-                ('municipality', models.ForeignKey(to='munigeo.Municipality')),
+                ('municipality', models.ForeignKey(to='munigeo.Municipality', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -149,13 +149,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='poi',
             name='category',
-            field=models.ForeignKey(to='munigeo.POICategory'),
+            field=models.ForeignKey(to='munigeo.POICategory', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='poi',
             name='municipality',
-            field=models.ForeignKey(to='munigeo.Municipality'),
+            field=models.ForeignKey(to='munigeo.Municipality', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -165,19 +165,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='administrativedivision',
             name='municipality',
-            field=models.ForeignKey(null=True, to='munigeo.Municipality'),
+            field=models.ForeignKey(null=True, to='munigeo.Municipality', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='administrativedivision',
             name='parent',
-            field=mptt.fields.TreeForeignKey(to='munigeo.AdministrativeDivision', related_name='children', null=True),
+            field=mptt.fields.TreeForeignKey(to='munigeo.AdministrativeDivision', related_name='children', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='administrativedivision',
             name='type',
-            field=models.ForeignKey(to='munigeo.AdministrativeDivisionType'),
+            field=models.ForeignKey(to='munigeo.AdministrativeDivisionType', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -187,7 +187,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='address',
             name='street',
-            field=models.ForeignKey(related_name='addresses', to='munigeo.Street'),
+            field=models.ForeignKey(related_name='addresses', to='munigeo.Street', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
