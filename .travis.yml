@@ -5,19 +5,18 @@ cache: pip
 
 python:
   - "3.6"
+  - "3.7"
   - "nightly"
 
 services:
   - postgresql
 
 addons:
-  postgresql: "9.5"
+  postgresql: "10"
   apt:
     packages:
-      - postgresql-9.5-postgis-2.3
-      - binutils
-      - libproj-dev
-      - gdal-bin
+      - postgresql-10-postgis-2.5
+      - postgresql-10-postgis-2.5-scripts
 
 before_script:
   - psql -U postgres -c "create extension postgis"
