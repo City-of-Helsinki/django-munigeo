@@ -11,6 +11,7 @@ from django import db
 from datetime import datetime
 
 from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
+from django.contrib.gis.gdal.error import GDALException
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
 from django.contrib.gis import gdal
 
@@ -264,7 +265,10 @@ class HelsinkiImporter(Importer):
         muni = Municipality.objects.get(division__origin_id=config['origin_id'])
         self.muni = muni
         for div in config['divisions']:
-            self._import_one_division_type(muni, div)
+            try:
+                self._import_one_division_type(muni, div)
+            except GDALException as e:
+                self.logger.warning('Skipping division %s : %s' % (div, e))
 
     def _import_plans(self, fname, in_effect):
         path = os.path.join(self.data_path, 'kaavahakemisto', fname)
