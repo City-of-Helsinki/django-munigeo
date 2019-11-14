@@ -100,8 +100,6 @@ class AdministrativeDivisionGeometry(models.Model):
     division = models.OneToOneField(AdministrativeDivision, related_name='geometry', on_delete=models.CASCADE)
     boundary = models.MultiPolygonField(srid=PROJECTION_SRID)
 
-    objects = models.GeoManager()
-
 
 @python_2_unicode_compatible
 class Municipality(models.Model):
@@ -110,7 +108,6 @@ class Municipality(models.Model):
     division = models.OneToOneField(AdministrativeDivision, null=True, db_index=True,
                                     related_name='muni', on_delete=models.CASCADE)
 
-    objects = models.Manager()
 
     def __str__(self):
         return self.name
@@ -123,7 +120,6 @@ class Plan(models.Model):
     origin_id = models.CharField(max_length=20)
     in_effect = models.BooleanField(default=False)
 
-    objects = models.GeoManager()
 
     def __str__(self):
         effect = "in effect"
@@ -161,8 +157,6 @@ class Address(models.Model):
     location = models.PointField(srid=PROJECTION_SRID,
                                  help_text="Coordinates of the address")
 
-    objects = models.GeoManager()
-
     modified_at = models.DateTimeField(auto_now=True,
                                        help_text='Time when the information was last changed')
 
@@ -183,12 +177,10 @@ class Address(models.Model):
 @python_2_unicode_compatible
 class Building(models.Model):
     origin_id = models.CharField(max_length=40, db_index=True)
-    municipality = models.ForeignKey(Municipality, db_index=True)
+    municipality = models.ForeignKey(Municipality, db_index=True, on_delete=models.CASCADE)
     geometry = models.MultiPolygonField(srid=PROJECTION_SRID)
 
     addresses = models.ManyToManyField(Address, blank=True)
-
-    objects = models.GeoManager()
 
     modified_at = models.DateTimeField(auto_now=True,
                                        help_text='Time when the information was last changed')
@@ -220,7 +212,6 @@ class POI(models.Model):
     zip_code = models.CharField(max_length=10, null=True, blank=True)
     origin_id = models.CharField(max_length=40, db_index=True, unique=True)
 
-    objects = models.GeoManager()
 
     def __str__(self):
         return "%s (%s, %s)" % (self.name, self.category.type, self.municipality)

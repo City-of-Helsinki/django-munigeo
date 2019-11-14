@@ -13,14 +13,15 @@ ALWAYS_INSTALLED_APPS = (
     'django.contrib.staticfiles',
 )
 
-ALWAYS_MIDDLEWARE_CLASSES = (
+ALWAYS_MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
+
 settings.configure(
     DATABASES={
         'default': {
@@ -34,7 +35,7 @@ settings.configure(
     TEMPLATE_DEBUG=False,
     ALLOWED_HOSTS=[],
     INSTALLED_APPS=ALWAYS_INSTALLED_APPS + CUSTOM_INSTALLED_APPS,
-    MIDDLEWARE_CLASSES=ALWAYS_MIDDLEWARE_CLASSES,
+    MIDDLEWARE=ALWAYS_MIDDLEWARE,
     LANGUAGE_CODE='en-us',
     TIME_ZONE='UTC',
     USE_I18N=True,
