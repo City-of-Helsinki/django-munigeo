@@ -8,11 +8,8 @@ from rest_framework import serializers, viewsets, generics
 from rest_framework.exceptions import ParseError
 from django.contrib.gis.gdal import SRSException, CoordTransform, SpatialReference
 from django.contrib.gis.geos import Point, Polygon
-try:
-    from django.contrib.gis.geos.base import gdal
-except ImportError:
-    # Django 1.9 onwards
-    from django.contrib.gis import gdal
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis import gdal
 from munigeo.models import AdministrativeDivisionType, AdministrativeDivision,\
     AdministrativeDivisionGeometry, Municipality, Street, Address
 from modeltranslation import models as mt_models # workaround for init problem
@@ -454,9 +451,9 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
         if number is not None:
             queryset = queryset.filter(number=number)
 
-        point = parse_lat_lon(self.request.query_params)
-        if point:
-            queryset = queryset.distance(point).order_by('distance')
+        query_point = parse_lat_lon(self.request.query_params)
+        if query_point:
+            queryset = queryset.annotate(distance=Distance('point', query_point)).order_by('distance')
 
         return queryset
 
