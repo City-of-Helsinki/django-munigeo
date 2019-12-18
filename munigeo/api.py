@@ -50,7 +50,7 @@ def srid_to_srs(srid):
 
 def build_bbox_filter(srs, bbox_val, field_name):
     poly = poly_from_bbox(bbox_val)
-    poly.set_srid(srs.srid)
+    poly.srid = srs.srid
 
     return {"%s__within" % field_name: poly}
 
