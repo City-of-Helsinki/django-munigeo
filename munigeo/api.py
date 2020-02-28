@@ -453,7 +453,7 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
 
         query_point = parse_lat_lon(self.request.query_params)
         if query_point:
-            queryset = queryset.annotate(distance=Distance('point', query_point)).order_by('distance')
+            queryset = queryset.annotate(distance=Distance('location', query_point)).order_by('distance')
 
         return queryset
 
