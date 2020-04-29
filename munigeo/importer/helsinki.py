@@ -128,8 +128,9 @@ class HelsinkiImporter(Importer):
                         continue
                     area = (geom - parent.geometry.boundary).area
                     # We allow a bit of extension (300 m^2) outside the parent
-                    # Geometries don't always match perfectly
-                    # 300m^2 is a bit more than the largest error in currently
+                    # as subdivision geometry boundaries don't always match perfectly
+                    # with their parents.
+                    # 300m^2 is a bit more than the largest error in current
                     # data (254m^2)
                     if area > 300:
                         continue
