@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Helsinki data: Data source change for Maternity clinics, public dataset was
   out of date
 
-[unreleased]: https://github.com/City-of-Helsinki/django-munigeo/v0.2.29...0.2
+[unreleased]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.2.29...0.2
 [0.2.29]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.2.28...v0.2.29
 [0.2.28]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.2.27...v0.2.28
 [0.2.27]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.2.26...v0.2.27
