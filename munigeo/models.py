@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 from django.contrib.gis.db import models
 from django.db.models.query import QuerySet, Q
@@ -13,7 +12,6 @@ from munigeo.utils import get_default_srid
 PROJECTION_SRID = get_default_srid()
 
 
-@python_2_unicode_compatible
 class AdministrativeDivisionType(models.Model):
     type = models.CharField(max_length=60, unique=True, db_index=True,
                             help_text=_("Type name of the division (e.g. muni, school_district)"))
@@ -59,7 +57,6 @@ class AdministrativeDivisionManager(TreeManager):
         return self._max_level
 
 
-@python_2_unicode_compatible
 class AdministrativeDivision(MPTTModel):
     type = models.ForeignKey(AdministrativeDivisionType, db_index=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, null=True, db_index=True)
@@ -101,7 +98,6 @@ class AdministrativeDivisionGeometry(models.Model):
     boundary = models.MultiPolygonField(srid=PROJECTION_SRID)
 
 
-@python_2_unicode_compatible
 class Municipality(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
     name = models.CharField(max_length=100, null=True, db_index=True)
@@ -113,7 +109,6 @@ class Municipality(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
 class Plan(models.Model):
     municipality = models.ForeignKey(Municipality, on_delete=models.CASCADE)
     geometry = models.MultiPolygonField(srid=PROJECTION_SRID)
@@ -131,7 +126,6 @@ class Plan(models.Model):
         unique_together = (('municipality', 'origin_id'),)
 
 
-@python_2_unicode_compatible
 class Street(models.Model):
     name = models.CharField(max_length=100, db_index=True)
     municipality = models.ForeignKey(Municipality, db_index=True, on_delete=models.CASCADE)
@@ -145,7 +139,6 @@ class Street(models.Model):
         unique_together = (('municipality', 'name'),)
 
 
-@python_2_unicode_compatible
 class Address(models.Model):
     street = models.ForeignKey(Street, db_index=True, related_name='addresses', on_delete=models.CASCADE)
     number = models.CharField(max_length=6, blank=True,
@@ -174,7 +167,6 @@ class Address(models.Model):
         ordering = ['street', 'number']
 
 
-@python_2_unicode_compatible
 class Building(models.Model):
     origin_id = models.CharField(max_length=40, db_index=True)
     municipality = models.ForeignKey(Municipality, db_index=True, on_delete=models.CASCADE)
@@ -192,7 +184,6 @@ class Building(models.Model):
         ordering = ['municipality', 'origin_id']
 
 
-@python_2_unicode_compatible
 class POICategory(models.Model):
     type = models.CharField(max_length=50, db_index=True)
     description = models.CharField(max_length=100)
@@ -201,7 +192,6 @@ class POICategory(models.Model):
         return "%s (%s)" % (self.type, self.description)
 
 
-@python_2_unicode_compatible
 class POI(models.Model):
     name = models.CharField(max_length=200)
     category = models.ForeignKey(POICategory, db_index=True, on_delete=models.CASCADE)
