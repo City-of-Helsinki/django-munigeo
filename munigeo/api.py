@@ -418,7 +418,7 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
 
         street = filters.get('street', None)
         if street is not None:
-            if street[0].isnumeric():
+            if street.isnumeric():
                 queryset = queryset.filter(street=street)
             else:
                 args = {}
