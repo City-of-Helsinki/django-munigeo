@@ -24,7 +24,7 @@ setup(
         'requests',
         'requests_cache',
         'django_mptt',
-        'django-parler',
+        'django-parler>=2',
         'django-parler-rest',
         'six',
         'pyyaml',

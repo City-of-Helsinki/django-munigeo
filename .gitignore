@@ -5,3 +5,4 @@ __pycache__
 django_munigeo.egg-info/
 /build
 /dist
+.idea
