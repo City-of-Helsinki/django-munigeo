@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for Django 3.x.
+
+### Changed
+- Pinned the `django-parler` version to `>=2` and add a migration required to upgrade it.
+
+### Fixed
+- Add a `tzinfo` to `Street` and `Address.modified_at` migrations to fix the warning 
+saying that a timezone-naive date was passed to a `DateTimeField`.  
+
 
 ## [0.3.6] - 2020-05-08
 
