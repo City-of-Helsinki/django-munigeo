@@ -46,4 +46,7 @@ class ModelSyncher(object):
             raise Exception("Attempting to delete more than 40% of total items")
         for obj in delete_list:
             logger.debug("Deleting object %s" % obj)
-            obj.delete()
+            try:
+                obj.soft_delete()
+            except AttributeError:
+                obj.delete()
