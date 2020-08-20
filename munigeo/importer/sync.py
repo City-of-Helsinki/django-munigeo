@@ -1,4 +1,5 @@
 import logging
+from django.db.models import ProtectedError
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +48,6 @@ class ModelSyncher(object):
         for obj in delete_list:
             logger.debug("Deleting object %s" % obj)
             try:
-                obj.soft_delete()
-            except AttributeError:
                 obj.delete()
+            except ProtectedError:
+                obj.soft_delete()
