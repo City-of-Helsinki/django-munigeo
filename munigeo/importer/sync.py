@@ -50,4 +50,7 @@ class ModelSyncher(object):
             try:
                 obj.delete()
             except ProtectedError:
-                obj.soft_delete()
+                logger.debug("Cannot delete object %s" % obj)
+                if getattr(obj, "soft_delete", None):
+                    logger.debug("Soft-deleting object %s" % obj)
+                    obj.soft_delete()
