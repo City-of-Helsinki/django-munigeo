@@ -81,7 +81,7 @@ class HelsinkiImporter(Importer):
 
     def _find_parent_division(self, parent_info):
         args = {
-            'type__type': parent_info['type'], 
+            'type__type': parent_info['type'],
             'origin_id': parent_info['id'],
             'parent__parent': parent_info['parent']
         }
@@ -418,12 +418,13 @@ class HelsinkiImporter(Importer):
                 if addr._found:
                     self.logger.debug("{}: is duplicate, skipping".format(addr))
                     continue
-                # if the location has changed for more than 10cm, save the new one.
+                # if the location has changed for more than 1m, save the new one.
                 assert addr.location.srid == location.srid, "SRID changed"
-                #if addr.location.distance(location) >= 0.10:
-                #    self.logger.info("%s: Location changed" % addr)
-                #    addr.location = location
-                #    addr.save()
+                location = GEOSGeometry(location.ewkt)
+                if addr.location.distance(location) >= 1:
+                    self.logger.info("%s: Location changed" % addr)
+                    addr.location = location
+                    addr.save()
             addr._found = True
 
             # self.logger.info("%s: %s %d%s N%d E%d (%f,%f)" % (muni_name, street, num, letter, coord_n, coord_e, pnt.y, pnt.x))
