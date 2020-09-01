@@ -4,6 +4,7 @@ from django.db.models import Q
 from datetime import datetime
 from django.conf import settings
 from django.contrib.gis.db import models
+from django.contrib.gis.measure import D
 from rest_framework import serializers, viewsets, generics
 from rest_framework.exceptions import ParseError
 from django.contrib.gis.gdal import SRSException, CoordTransform, SpatialReference
@@ -19,10 +20,14 @@ from modeltranslation.translator import translator, NotRegistered
 DEFAULT_SRID = 4326
 DATABASE_SRID = getattr(settings, 'PROJECTION_SRID', 4326)
 DEFAULT_SRS = SpatialReference(DEFAULT_SRID)
+ADDRESS_SEARCH_RADIUS = getattr(settings, 'ADDRESS_SEARCH_RADIUS', None)
 
 all_views = []
+
+
 def register_view(klass, name):
     all_views.append({'class': klass, 'name': name})
+
 
 def poly_from_bbox(bbox_val):
     points = bbox_val.split(',')
@@ -34,6 +39,7 @@ def poly_from_bbox(bbox_val):
         raise ParseError("bbox values must be floating points or integers")
     poly = Polygon.from_bbox(points)
     return poly
+
 
 def srid_to_srs(srid):
     if not srid:
@@ -48,11 +54,13 @@ def srid_to_srs(srid):
         raise ParseError("SRID %d not found (try 4326 for GPS coordinate system)" % srid)
     return srs
 
+
 def build_bbox_filter(srs, bbox_val, field_name):
     poly = poly_from_bbox(bbox_val)
     poly.srid = srs.srid
 
     return {"%s__within" % field_name: poly}
+
 
 def make_muni_ocd_id(name, rest=None):
     country = getattr(settings, 'DEFAULT_COUNTRY', None)
@@ -130,6 +138,7 @@ class MPTTModelSerializer(serializers.ModelSerializer):
 # reasons.
 srs_cache = {}
 coord_transforms = {}
+
 
 def geom_to_json(geom, target_srs):
     srs = srs_cache.get(geom.srid, None)
@@ -222,6 +231,7 @@ class AdministrativeDivisionTypeSerializer(TranslatedModelSerializer):
 class AdministrativeDivisionTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = AdministrativeDivisionType.objects.all()
     serializer_class = AdministrativeDivisionTypeSerializer
+
 
 register_view(AdministrativeDivisionTypeViewSet, 'administrative_division_type')
 
@@ -335,6 +345,7 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
 
         return queryset
 
+
 register_view(AdministrativeDivisionViewSet, 'administrative_division')
 
 
@@ -342,6 +353,7 @@ class StreetSerializer(TranslatedModelSerializer):
     class Meta:
         model = Street
         fields = '__all__'
+
 
 LANG_CODES = [x[0] for x in settings.LANGUAGES]
 
@@ -379,6 +391,7 @@ class StreetViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(**args)
 
         return queryset
+
 
 register_view(StreetViewSet, 'street')
 
@@ -453,9 +466,15 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
 
         query_point = parse_lat_lon(self.request.query_params)
         if query_point:
+            distance = filters.get('distance', None)
+            if distance is None and ADDRESS_SEARCH_RADIUS:
+                distance = ADDRESS_SEARCH_RADIUS
+            if distance:
+                queryset = queryset.filter(location__distance_lte=(query_point, D(m=distance)))
             queryset = queryset.annotate(distance=Distance('location', query_point)).order_by('distance')
 
         return queryset
+
 
 register_view(AddressViewSet, 'address')
 
