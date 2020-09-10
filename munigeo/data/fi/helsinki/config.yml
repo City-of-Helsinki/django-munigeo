@@ -153,106 +153,122 @@ divisions:
             sv: suojelualalohko_nimi_se
 
   - type: lower_comprehensive_school_district_fi
-    name: "Oppilaaksiottoalue, suomenkielinen ala-aste"
+    name: "Oppilaaksiottoalue, suomenkielinen alakoulu"
     validity:
-        start: '2019-08-01'
-        end: '2020-08-01'
+        start: '2020-08-01'
+        end: '2021-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_alaaste_suomi'
     fields:
+        name:
+          fi: nimi_fi
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
 
   - type: lower_comprehensive_school_district_fi
-    name: "Oppilaaksiottoalue, suomenkielinen ala-aste"
+    name: "Oppilaaksiottoalue, suomenkielinen alakoulu"
     validity:
-        start: '2020-08-01'
-        end: '2021-08-01'
+        start: '2021-08-01'
+        end: '2022-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_alaaste_suomi_tuleva'
     fields:
+        name:
+          fi: nimi_fi
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
 
   - type: lower_comprehensive_school_district_sv
-    name: "Oppilaaksiottoalue, ruotsinkielinen ala-aste"
+    name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"
     validity:
-        start: '2019-08-01'
-        end: '2020-08-01'
+        start: '2020-08-01'
+        end: '2021-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu_sv
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_alaaste_ruotsi'
     fields:
+        name:
+          sv: nimi_se
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
 
   - type: lower_comprehensive_school_district_sv
-    name: "Oppilaaksiottoalue, ruotsinkielinen ala-aste"
+    name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"
     validity:
-        start: '2020-08-01'
-        end: '2021-08-01'
+        start: '2021-08-01'
+        end: '2022-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu_sv
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_alaaste_ruotsi_tuleva'
     fields:
+        name:
+          sv: nimi_se
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
 
   - type: upper_comprehensive_school_district_fi
-    name: "Oppilaaksiottoalue, suomenkielinen yläaste"
+    name: "Oppilaaksiottoalue, suomenkielinen yläkoulu"
     validity:
-        start: '2019-08-01'
-        end: '2020-08-01'
+        start: '2020-08-01'
+        end: '2021-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_ylaaste_suomi'
     fields:
+        name:
+          fi: nimi_fi
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
 
   - type: upper_comprehensive_school_district_fi
-    name: "Oppilaaksiottoalue, suomenkielinen yläaste"
+    name: "Oppilaaksiottoalue, suomenkielinen yläkoulu"
     validity:
-        start: '2020-08-01'
-        end: '2021-08-01'
+        start: '2021-08-01'
+        end: '2022-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_ylaaste_suomi_tuleva'
     fields:
+        name:
+          fi: nimi_fi
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
 
 
   - type: upper_comprehensive_school_district_sv
-    name: "Oppilaaksiottoalue, ruotsinkielinen yläaste"
-    validity:
-        start: '2019-08-01'
-        end: '2020-08-01'
-    ocd_id: oppilaaksiottoalue_ylakoulu_sv
-    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
-    wfs_layer: 'avoindata:Opev_ooa_ylaaste_ruotsi'
-    fields:
-        origin_id: id
-        ocd_id: id
-        service_point_id: toimipiste_id
-
-  - type: upper_comprehensive_school_district_sv
-    name: "Oppilaaksiottoalue, ruotsinkielinen yläaste"
+    name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"
     validity:
         start: '2020-08-01'
         end: '2021-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu_sv
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Opev_ooa_ylaaste_ruotsi'
+    fields:
+        name:
+          sv: nimi_se
+        origin_id: id
+        ocd_id: id
+        service_point_id: toimipiste_id
+
+  - type: upper_comprehensive_school_district_sv
+    name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"
+    validity:
+        start: '2021-08-01'
+        end: '2022-08-01'
+    ocd_id: oppilaaksiottoalue_ylakoulu_sv
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_ylaaste_ruotsi_tuleva'
     fields:
+        name:
+          sv: nimi_se
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
