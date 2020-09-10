@@ -74,6 +74,7 @@ def poly_diff(p1, p2):
 @register_importer
 class HelsinkiImporter(Importer):
     name = "helsinki"
+    wfs_output_format = "outputFormat=application/json"
 
     def __init__(self, *args, **kwargs):
         super(HelsinkiImporter, self).__init__(*args, **kwargs)
@@ -249,7 +250,9 @@ class HelsinkiImporter(Importer):
                 sep = '&'
             else:
                 sep = '?'
-            url = wfs_url + sep + 'typeName=' + div['wfs_layer'] + '&' + "srsName=EPSG:%d" % PROJECTION_SRID + '&' + "outputFormat=application/json"
+            url = wfs_url + sep + 'typeName=' + div['wfs_layer'] + '&' + "srsName=EPSG:%d" % PROJECTION_SRID
+            if self.wfs_output_format:
+                  url = url + '&' + self.wfs_output_format
             ds = DataSource(url)
         lyr = ds[0]
         assert len(ds) == 1

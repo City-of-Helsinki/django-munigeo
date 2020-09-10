@@ -1,0 +1,75 @@
+name: Espoo
+origin_id: 49
+
+paths:
+    division: divisions
+
+divisions:
+  - type: lower_comprehensive_school_district_fi
+    name: "Oppilaaksiottoalue, suomenkielinen alakoulu"
+    validity:
+      start: '2020-08-01'
+      end: '2021-08-01'
+    ocd_id: oppilaaksiottoalue_alakoulu
+    wfs_url: 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx'
+    wfs_layer: 'GIS:Oppilaaksiottoalueet_suomenkielinen'
+    fields:
+        name:
+            fi: nimi
+        origin_id: Id
+        ocd_id: Id
+
+  - type: lower_comprehensive_school_district_sv
+    name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"
+    validity:
+      start: '2020-08-01'
+      end: '2021-08-01'
+    ocd_id: oppilaaksiottoalue_alakoulu
+    wfs_url: 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx'
+    wfs_layer: 'GIS:Oppilaaksiottoalueet_ruotsinkielinen'
+    fields:
+        name:
+            sv: nimi
+        origin_id: Id
+        ocd_id: Id
+
+  - type: upper_comprehensive_school_district_fi
+    name: "Oppilaaksiottoalue, suomenkielinen yläkoulu"
+    validity:
+      start: '2020-08-01'
+      end: '2021-08-01'
+    ocd_id: oppilaaksiottoalue_ylakoulu
+    wfs_url: 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx'
+    wfs_layer: 'GIS:Oppilaaksiottoalueet_suomenkielinen'
+    fields:
+      name:
+        fi: nimi
+      origin_id: Id
+      ocd_id: Id
+
+  - type: upper_comprehensive_school_district_sv
+    name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"
+    validity:
+      start: '2020-08-01'
+      end: '2021-08-01'
+    ocd_id: oppilaaksiottoalue_ylakoulu
+    wfs_url: 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx'
+    wfs_layer: 'GIS:Oppilaaksiottoalueet_ruotsinkielinen'
+    fields:
+      name:
+        sv: nimi
+      origin_id: Id
+      ocd_id: Id
+
+  - type: health_station_district
+    name: "Terveysasemien palvelualueet"
+    ocd_id: terveysasema-alue
+    wfs_url: 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx'
+    wfs_layer: 'GIS:TerveysasemienPalvelualueet'
+    fields:
+        name:
+            fi: Terveysasema
+            sv: Haelsostation
+        origin_id: Id
+        ocd_id: Id
+        service_point_id: Id
