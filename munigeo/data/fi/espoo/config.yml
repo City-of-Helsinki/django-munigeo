@@ -19,6 +19,21 @@ divisions:
         origin_id: Id
         ocd_id: Id
 
+  - type: lower_comprehensive_school_district_fi
+    name: "Oppilaaksiottoalue, suomenkielinen alakoulu"
+    validity:
+      start: '2021-08-01'
+      end: '2022-08-01'
+    ocd_id: oppilaaksiottoalue_alakoulu_seuraava
+    wfs_url: 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx'
+    wfs_layer: 'GIS:Oppilaaksiottoalueet_suomenkielinen'
+    id_suffix: '_1'
+    fields:
+        name:
+            fi: nimi
+        origin_id: Id
+        ocd_id: Id
+
   - type: lower_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"
     validity:
@@ -27,6 +42,21 @@ divisions:
     ocd_id: oppilaaksiottoalue_alakoulu
     wfs_url: 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx'
     wfs_layer: 'GIS:Oppilaaksiottoalueet_ruotsinkielinen'
+    fields:
+        name:
+            sv: nimi
+        origin_id: Id
+        ocd_id: Id
+
+  - type: lower_comprehensive_school_district_sv
+    name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"
+    validity:
+      start: '2021-08-01'
+      end: '2022-08-01'
+    ocd_id: oppilaaksiottoalue_alakoulu_seuraava
+    wfs_url: 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx'
+    wfs_layer: 'GIS:Oppilaaksiottoalueet_ruotsinkielinen'
+    id_suffix: '_1'
     fields:
         name:
             sv: nimi
@@ -47,6 +77,21 @@ divisions:
       origin_id: Id
       ocd_id: Id
 
+  - type: upper_comprehensive_school_district_fi
+    name: "Oppilaaksiottoalue, suomenkielinen yläkoulu"
+    validity:
+      start: '2021-08-01'
+      end: '2022-08-01'
+    ocd_id: oppilaaksiottoalue_ylakoulu_seuraava
+    wfs_url: 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx'
+    wfs_layer: 'GIS:Oppilaaksiottoalueet_suomenkielinen'
+    id_suffix: '_1'
+    fields:
+      name:
+        fi: nimi
+      origin_id: Id
+      ocd_id: Id
+
   - type: upper_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"
     validity:
@@ -55,6 +100,21 @@ divisions:
     ocd_id: oppilaaksiottoalue_ylakoulu
     wfs_url: 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx'
     wfs_layer: 'GIS:Oppilaaksiottoalueet_ruotsinkielinen'
+    fields:
+      name:
+        sv: nimi
+      origin_id: Id
+      ocd_id: Id
+
+  - type: upper_comprehensive_school_district_sv
+    name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"
+    validity:
+      start: '2021-08-01'
+      end: '2022-08-01'
+    ocd_id: oppilaaksiottoalue_ylakoulu_seuraava
+    wfs_url: 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx'
+    wfs_layer: 'GIS:Oppilaaksiottoalueet_ruotsinkielinen'
+    id_suffix: '_1'
     fields:
       name:
         sv: nimi

@@ -124,6 +124,8 @@ class HelsinkiImporter(Importer):
                 attr_dict[attr] = val.strip()
 
         origin_id = attr_dict['origin_id']
+        if 'id_suffix' in div:
+            origin_id = origin_id + div['id_suffix']
         del attr_dict['origin_id']
 
         if 'parent' in div:
@@ -192,6 +194,8 @@ class HelsinkiImporter(Importer):
             else:
                 args = {'parent': div['parent_ocd_id']}
             val = attr_dict['ocd_id']
+            if 'id_suffix' in div:
+                val = val + div['id_suffix']
             args[div['ocd_id']] = val
             obj.ocd_id = ocd.make_id(**args)
             self.logger.debug("%s" % obj.ocd_id)
