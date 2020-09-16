@@ -244,8 +244,9 @@ class AdministrativeDivisionSerializer(GeoModelSerializer, TranslatedModelSerial
             return ret
         qparams = self.context['request'].query_params
         if qparams.get('geometry', '').lower() in ('true', '1'):
-            geom = obj.geometry.boundary
-            ret['boundary'] = geom_to_json(geom, self.srs)
+            if obj.geometry:
+                geom = obj.geometry.boundary
+                ret['boundary'] = geom_to_json(geom, self.srs)
         ret['type'] = obj.type.type
         return ret
 
