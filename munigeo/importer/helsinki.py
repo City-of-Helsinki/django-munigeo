@@ -200,7 +200,7 @@ class HelsinkiImporter(Importer):
             obj.ocd_id = ocd.make_id(**args)
             self.logger.debug("%s" % obj.ocd_id)
         obj.save()
-        syncher.mark(obj)
+        syncher.mark(obj, True)
 
         try:
             geom_obj = obj.geometry

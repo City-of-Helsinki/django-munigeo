@@ -58,14 +58,16 @@ divisions:
   - type: neighborhood
     name: Kaupunginosa
     ocd_id: kaupunginosa
-    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
-    wfs_layer: 'avoindata:Kaupunginosajako'
+    no_parent_division: yes
+    parent_ocd_id: 'ocd-division/country:fi'
+    wfs_url: 'https://kartta.hsy.fi/geoserver/wfs'
+    wfs_layer: 'taustakartat_ja_aluejaot:kaupunginosat_2020'
     fields:
-        name:
-            fi: nimi_fi
-            sv: nimi_se
-        origin_id: tunnus
-        ocd_id: nimi_fi
+      origin_id: nimi
+      ocd_id: nimi
+      name:
+        fi: nimi
+        sv: nimi_se
 
   - type: voting_district
     name: Äänestysalue
@@ -84,14 +86,13 @@ divisions:
     ocd_id: postinumero
     no_parent_division: yes
     parent_ocd_id: 'ocd-division/country:fi'
-    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
-    wfs_layer: 'avoindata:Postinumeroalue'
+    wfs_url: 'https://kartta.hsy.fi/geoserver/wfs'
+    wfs_layer: 'taustakartat_ja_aluejaot:pks_postinumeroalueet_2020'
     fields:
-        origin_id: tunnus
-        ocd_id: tunnus
+        origin_id: posno
+        ocd_id: posno
         name:
-            fi: tunnus
-            sv: tunnus
+            fi: posno
 
   - type: health_station_district
     name: Terveysasema-aluejako
