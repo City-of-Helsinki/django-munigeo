@@ -1,5 +1,6 @@
 import re
 import json
+import logging
 from django.db.models import Q
 from datetime import datetime
 from django.conf import settings
@@ -21,6 +22,8 @@ DEFAULT_SRID = 4326
 DATABASE_SRID = getattr(settings, 'PROJECTION_SRID', 4326)
 DEFAULT_SRS = SpatialReference(DEFAULT_SRID)
 ADDRESS_SEARCH_RADIUS = getattr(settings, 'ADDRESS_SEARCH_RADIUS', None)
+
+logger = logging.getLogger(__name__)
 
 all_views = []
 
@@ -244,9 +247,12 @@ class AdministrativeDivisionSerializer(GeoModelSerializer, TranslatedModelSerial
             return ret
         qparams = self.context['request'].query_params
         if qparams.get('geometry', '').lower() in ('true', '1'):
-            if obj.geometry:
+            try:
                 geom = obj.geometry.boundary
                 ret['boundary'] = geom_to_json(geom, self.srs)
+            except AdministrativeDivisionGeometry.DoesNotExist:
+                logger.warning('AdministrativeDivisionGeometry does not exist for division with ocd_id: %s'
+                               % ret.get('ocd_id'))
         ret['type'] = obj.type.type
         return ret
 
