@@ -1,0 +1,34 @@
+name: hsy
+
+paths:
+    division: divisions
+
+divisions:
+  - type: neighborhood
+    name: Kaupunginosa
+    ocd_id: kaupunginosa
+    no_parent_division: yes
+    parent_ocd_id: 'ocd-division/country:fi'
+    wfs_url: 'https://kartta.hsy.fi/geoserver/wfs'
+    wfs_layer: 'taustakartat_ja_aluejaot:kaupunginosat_2020'
+    fields:
+      origin_id: kauposanro
+      ocd_id: kauposanro
+      parent_municipality_id: kunta
+      name:
+        fi: nimi
+        sv: nimi_se
+
+  - type: postcode_area
+    name: Postinumeroalue
+    ocd_id: postinumero
+    no_parent_division: yes
+    parent_ocd_id: 'ocd-division/country:fi'
+    wfs_url: 'https://kartta.hsy.fi/geoserver/wfs'
+    wfs_layer: 'taustakartat_ja_aluejaot:pks_postinumeroalueet_2020'
+    fields:
+        origin_id: posno
+        ocd_id: posno
+        parent_municipality_id: kunta_nro
+        name:
+            fi: posno
