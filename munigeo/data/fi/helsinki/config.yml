@@ -274,8 +274,8 @@ divisions:
   - type: preschool_education_fi
     name: Oppilaaksiottoalue, esikoulu
     validity:
-        start: '2020-07-01'
-        end: '2021-08-01'
+        start: '2021-07-01'
+        end: '2022-08-01'
     ocd_id: esiopetuksen_oppilaaksiottoalue_fi
     wfs_url: 'http://localhost:8080/geoserver/hel/wfs'
     wfs_layer: 'hel:Vaka_paivakotialueet'
