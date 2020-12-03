@@ -414,6 +414,10 @@ class AddressSerializer(GeoModelSerializer):
         if hasattr(obj, 'distance'):
             ret['distance'] = obj.distance.m
         ret['street'] = StreetSerializer(obj.street).data
+        div_qs = AdministrativeDivisionGeometry.objects.select_related(
+            "division", "division__type"
+        ).filter(boundary__contains=obj.location, division__type__type="postcode_area")
+        ret['postal_code'] = div_qs.first().division.name if div_qs else None
         return ret
 
     class Meta:
