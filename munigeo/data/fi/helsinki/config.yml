@@ -301,3 +301,14 @@ divisions:
         name:
             sv: nimi_se
             fi: nimi_se
+
+  - type: nature_reserve
+    name: Luonnonsuojelualue
+    ocd_id: luonnonsuojelualue
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_layer: 'avoindata:LTJ_avoin_rauhoitettu_luonnonsuojelualueet'
+    fields:
+        name:
+            fi: nimi
+        origin_id: tunnus
+        ocd_id: tunnus
