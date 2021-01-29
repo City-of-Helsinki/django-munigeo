@@ -101,7 +101,7 @@ class HelsinkiImporter(Importer):
         # geom = geom.geos.intersection(parent.geometry.boundary)
         geom = geom.geos
         if geom.geom_type == 'Polygon':
-            geom = MultiPolygon(geom, srid=geom.srid)
+            geom = MultiPolygon(geom.buffer(0), srid=geom.srid)
 
         #
         # Attributes
@@ -115,13 +115,14 @@ class HelsinkiImporter(Importer):
                 for lang, field_name in field.items():
                     val = feat[field_name].as_string()
                     # If the name is in all caps, fix capitalization.
+                    val = val or ''
                     if not re.search('[a-z]', val):
                         val = val.title()
                     d[lang] = val.strip()
                 lang_dict[attr] = d
             else:
                 val = feat[field].as_string()
-                attr_dict[attr] = val.strip()
+                attr_dict[attr] = val.strip() if val else ''
 
         origin_id = attr_dict['origin_id']
         if 'id_suffix' in div:
@@ -387,9 +388,10 @@ class HelsinkiImporter(Importer):
                     continue
 
             num2 = feat.get('osoitenumero2')
-            if num2 == 0:
+            if num2 == 0 or num2 == None:
                 num2 = ''
-            letter = feat.get('osoitekirjain').strip()
+            letter_raw = feat.get('osoitekirjain')
+            letter = letter_raw.strip() if letter_raw else ''
             coord_n = int(feat.get('n'))
             coord_e = int(feat.get('e'))
             muni_name = feat.get('kaupunki')
