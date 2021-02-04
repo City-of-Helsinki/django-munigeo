@@ -310,5 +310,5 @@ divisions:
     fields:
         name:
             fi: nimi
-        origin_id: tunnus
+        origin_id: id
         ocd_id: tunnus
