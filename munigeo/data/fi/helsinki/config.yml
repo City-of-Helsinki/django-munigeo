@@ -312,3 +312,14 @@ divisions:
             fi: nimi
         origin_id: id
         ocd_id: tunnus
+
+  - type: resident_parking_zone
+    name: Asukaspysäköintivyöhyke
+    ocd_id: asukaspysakointivyohyke
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Asukas_ja_yrityspysakointivyohykkeet_alue'
+    fields:
+        name:
+            fi: alueen_nimi
+        origin_id: id
+        ocd_id: asukaspysakointitunnus
