@@ -69,6 +69,7 @@ class HsyImporter(HelsinkiImporter):
                 d = {}
                 for lang, field_name in field.items():
                     val = feat[field_name].as_string()
+                    val = val or ''
                     # If the name is in all caps, fix capitalization.
                     if not re.search('[a-z]', val):
                         val = val.title()
@@ -76,9 +77,16 @@ class HsyImporter(HelsinkiImporter):
                 lang_dict[attr] = d
             else:
                 val = feat[field].as_string()
-                attr_dict[attr] = val.strip()
+                if val:
+                    attr_dict[attr] = val.strip()
+                else:
+                    attr_dict[attr] = None
 
         origin_id = attr_dict['origin_id']
+        # if origin_id is not found, we skip the feature
+        if not origin_id:
+            self.logger.info('Division origin_id is None. Skipping division...')
+            return
         del attr_dict['origin_id']
 
         # Municipality

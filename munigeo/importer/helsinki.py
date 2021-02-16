@@ -122,9 +122,16 @@ class HelsinkiImporter(Importer):
                 lang_dict[attr] = d
             else:
                 val = feat[field].as_string()
-                attr_dict[attr] = val.strip() if val else ''
+                if val:
+                    attr_dict[attr] = val.strip()
+                else:
+                    attr_dict[attr] = None
 
         origin_id = attr_dict['origin_id']
+        # if origin_id is not found, we skip the feature
+        if not origin_id:
+            self.logger.info('Division origin_id is None. Skipping division...')
+            return
         if 'id_suffix' in div:
             origin_id = origin_id + div['id_suffix']
         del attr_dict['origin_id']
