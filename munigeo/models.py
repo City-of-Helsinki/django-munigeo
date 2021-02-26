@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.contrib.gis.db import models
 from django.db.models.query import QuerySet, Q
 from django.conf import settings
