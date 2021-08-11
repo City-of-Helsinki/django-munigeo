@@ -59,7 +59,7 @@ class AdministrativeDivisionManager(TreeManager):
 
 class AdministrativeDivision(MPTTModel):
     type = models.ForeignKey(AdministrativeDivisionType, db_index=True, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, null=True, db_index=True)
+    name = models.CharField(max_length=200, null=True, db_index=True)
     parent = TreeForeignKey('self', db_index=True, null=True,
                             related_name='children', on_delete=models.CASCADE)
 
@@ -80,6 +80,8 @@ class AdministrativeDivision(MPTTModel):
 
     modified_at = models.DateTimeField(auto_now=True,
                                        help_text='Time when the information was last changed')
+
+    extra = models.JSONField(default=dict, null=True)
 
     objects = AdministrativeDivisionManager()
 
