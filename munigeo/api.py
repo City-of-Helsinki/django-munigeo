@@ -312,6 +312,10 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
         if 'input' in filters:
             queryset = queryset.filter(name__icontains=filters['input'].strip())
 
+        for filter in filters:
+            if filter.startswith('extra__'):
+                queryset = queryset.filter(**{filter: filters[filter].strip()})
+
         if 'ocd_id' in filters:
             # Divisions can be specified with form:
             # division=helsinki/kaupunginosa:kallio,vantaa/äänestysalue:5
