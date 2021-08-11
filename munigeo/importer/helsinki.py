@@ -127,6 +127,34 @@ class HelsinkiImporter(Importer):
                 else:
                     attr_dict[attr] = None
 
+        #
+        # Extra attributes
+        #
+        extra_attr_dict = {}
+        if 'extra_fields' in div:
+            for attr, field in div['extra_fields'].items():
+                val = feat[field].as_string()
+                if val:
+                    extra_attr_dict[attr] = val.strip()
+                else:
+                    extra_attr_dict[attr] = None
+
+        #
+        # Extra attribute-mappings
+        #
+        if 'extra_fields_mappings' in div:
+            for field_mapping in div['extra_fields_mappings']:
+                mapping = field_mapping['mapping']
+                attr, field = next(iter(mapping.items()))
+                val = str(feat[field].as_string())
+                mapped_val = field_mapping['values'][val]
+                if mapped_val:
+                    extra_attr_dict[attr] = mapped_val.strip()
+                else:
+                    extra_attr_dict[attr] = None
+
+        attr_dict['extra'] = extra_attr_dict
+
         origin_id = attr_dict['origin_id']
         # if origin_id is not found, we skip the feature
         if not origin_id:

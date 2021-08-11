@@ -323,3 +323,18 @@ divisions:
             fi: alueen_nimi
         origin_id: id
         ocd_id: asukaspysakointitunnus
+
+  - type: parking_area
+    name: Pysäköintipaikka-alue
+    ocd_id: pysäköintipaikka-alue
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Pysakointipaikat_alue'
+    fields:
+      name:
+        fi: luokka_nimi
+      origin_id: id
+      ocd_id: id
+    extra_fields:
+      origin_class: luokka
+      max_duration: kesto
+      validity_period: voimassaolo
