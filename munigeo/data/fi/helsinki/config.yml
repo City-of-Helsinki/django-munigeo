@@ -70,7 +70,7 @@ divisions:
   - type: health_station_district
     name: Terveysasema-aluejako
     ocd_id: terveysasema-alue
-    wfs_url: 'http://host.docker.internal:8080/geoserver/hel/wfs'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
     wfs_layer: 'hel:Terveysasemaaluejako'
     fields:
         origin_id: tunnus
@@ -249,7 +249,7 @@ divisions:
   - type: maternity_clinic_district
     name: Neuvola-alue
     ocd_id: neuvola-alue
-    wfs_url: 'http://host.docker.internal:8080/geoserver/hel/wfs'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
     wfs_layer: 'hel:Neuvolaaluejako'
     fields:
         origin_id: tunnus
@@ -277,7 +277,7 @@ divisions:
         start: '2021-07-01'
         end: '2022-08-01'
     ocd_id: esiopetuksen_oppilaaksiottoalue_fi
-    wfs_url: 'http://host.docker.internal:8080/geoserver/hel/wfs'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
     wfs_layer: 'hel:Vaka_paivakotialueet'
     fields:
         origin_id: oppilaaksiottoalue_id
@@ -292,7 +292,7 @@ divisions:
         start: '2020-07-01'
         end: '2021-08-01'
     ocd_id: esiopetuksen_oppilaaksiottoalue_sv
-    wfs_url: 'http://host.docker.internal:8080/geoserver/hel/wfs'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
     wfs_layer: 'hel:Vaka_esiopetus_ruotsi'
     fields:
         origin_id: toimipiste_id
