@@ -22,26 +22,27 @@ ALWAYS_MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-settings.configure(
-    DATABASES={
-        'default': {
-            'ENGINE': 'django.contrib.gis.db.backends.postgis',
-            'NAME': 'servicemap-api',
-            'ATOMIC_REQUESTS': True,
-        }
-    },
-    SECRET_KEY="django_tests_secret_key",
-    DEBUG=False,
-    TEMPLATE_DEBUG=False,
-    ALLOWED_HOSTS=[],
-    INSTALLED_APPS=ALWAYS_INSTALLED_APPS + CUSTOM_INSTALLED_APPS,
-    MIDDLEWARE=ALWAYS_MIDDLEWARE,
-    LANGUAGE_CODE='en-us',
-    TIME_ZONE='UTC',
-    USE_I18N=True,
-    USE_L10N=True,
-    USE_TZ=True,
-    STATIC_URL='/static/',
-)
+if not settings.configured:
+    settings.configure(
+        DATABASES={
+            'default': {
+                'ENGINE': 'django.contrib.gis.db.backends.postgis',
+                'NAME': 'servicemap-api',
+                'ATOMIC_REQUESTS': True,
+            }
+        },
+        SECRET_KEY="django_tests_secret_key",
+        DEBUG=False,
+        TEMPLATE_DEBUG=False,
+        ALLOWED_HOSTS=[],
+        INSTALLED_APPS=ALWAYS_INSTALLED_APPS + CUSTOM_INSTALLED_APPS,
+        MIDDLEWARE=ALWAYS_MIDDLEWARE,
+        LANGUAGE_CODE='en-us',
+        TIME_ZONE='UTC',
+        USE_I18N=True,
+        USE_L10N=True,
+        USE_TZ=True,
+        STATIC_URL='/static/',
+    )
 
-django.setup()
+    django.setup()
