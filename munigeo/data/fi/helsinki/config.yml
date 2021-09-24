@@ -338,3 +338,16 @@ divisions:
       origin_class: luokka
       max_duration: kesto
       validity_period: voimassaolo
+
+  - type: parking_payzone
+    name: Pysäköintimaksuvyöhyke
+    ocd_id: pysakointimaksuvyohyke
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Pysakoinnin_maksuvyohykkeet_alue'
+    fields:
+      name:
+        fi: nimi
+      origin_id: id
+      ocd_id: id
+    extra_fields:
+      info: lisatiedot
