@@ -326,18 +326,34 @@ divisions:
 
   - type: parking_area
     name: Pysäköintipaikka-alue
-    ocd_id: pysäköintipaikka-alue
+    ocd_id: pysakointipaikka-alue
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Pysakointipaikat_alue'
     fields:
-      name:
-        fi: luokka_nimi
       origin_id: id
       ocd_id: id
     extra_fields:
       origin_class: luokka
+      origin_name: luokka_nimi
       max_duration: kesto
       validity_period: voimassaolo
+    extra_fields_mappings:
+      - mapping:
+          class: luokka
+        values:
+          'None': '0'
+          '0': '0'
+          '1': '1'
+          '2': '2'
+          '3': '4'
+          '4': '4'
+          '5': '5'
+          '6': '6'
+          '7': '4'
+          '8': '1'
+          '9': '3'
+          '10': '6'
+          '11': '0'
 
   - type: parking_payzone
     name: Pysäköintimaksuvyöhyke
