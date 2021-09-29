@@ -8,7 +8,6 @@ import yaml
 from datetime import datetime
 
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
-from django.contrib.gis.gdal.error import GDALException
 from django.contrib.gis.geos import MultiPolygon
 from munigeo import ocd
 
@@ -41,7 +40,7 @@ class HsyImporter(HelsinkiImporter):
         for div in config['divisions']:
             try:
                 self._import_one_division_type(None, div)
-            except GDALException as e:
+            except Exception as e:
                 self.logger.warning('Skipping division %s : %s' % (div, e))
 
     def _import_division(self, muni, div, type_obj, syncher, parent_dict, feat):
