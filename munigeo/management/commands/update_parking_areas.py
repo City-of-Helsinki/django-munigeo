@@ -11,7 +11,7 @@ PARKING_CLASS_NAME_MAP = {
     0: "Muu",
     1: "Ilmainen, pysäköinti sallittu 30 min, 1 h, 2 h tai 4 h",
     2: "Ilmainen, pysäköinti sallittu 24 h tai ilman aikarajoitusta",
-    3: "Ilmainen, pysäköinti kielletty useimmilla paikoilla ma–pe 7–18, la 9–15",
+    3: "Ilmainen, useimmilla paikoilla pysäköinti kielletty ma–pe 7–18, la 9–15",
     4: "Maksullinen, pysäköinti sallittu 1 h tai 2 h",
     5: "Maksullinen, pysäköinti sallittu 4 h",
     6: "Maksullinen, ei aikarajoitusta",
