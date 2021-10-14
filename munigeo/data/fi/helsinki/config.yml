@@ -322,7 +322,9 @@ divisions:
         name:
             fi: alueen_nimi
         origin_id: id
-        ocd_id: asukaspysakointitunnus
+        ocd_id: id
+    extra_fields:
+      area_key: asukaspysakointitunnus
 
   - type: parking_area
     name: Pysäköintipaikka-alue
