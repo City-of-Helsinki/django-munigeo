@@ -293,14 +293,14 @@ divisions:
         end: '2022-08-01'
     ocd_id: esiopetuksen_oppilaaksiottoalue_sv
     wfs_url: 'http://host.docker.internal:8080/geoserver/hel/wfs'
-    wfs_layer: 'hel:Vaka_esiopetus_ruotsi'
+    wfs_layer: 'hel:Esiopetusalue_ruotsi'
     fields:
         origin_id: toimipiste_id
         ocd_id: toimipiste_id
         service_point_id: toimipiste_id
         name:
             sv: nimi_se
-            fi: nimi_se
+            fi: nimi_fi
 
   - type: nature_reserve
     name: Luonnonsuojelualue
