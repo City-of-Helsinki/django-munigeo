@@ -289,8 +289,8 @@ divisions:
   - type: preschool_education_sv
     name: Oppilaaksiottoalue, esikoulu (ruotsi)
     validity:
-        start: '2020-07-01'
-        end: '2021-08-01'
+        start: '2021-07-01'
+        end: '2022-08-01'
     ocd_id: esiopetuksen_oppilaaksiottoalue_sv
     wfs_url: 'http://host.docker.internal:8080/geoserver/hel/wfs'
     wfs_layer: 'hel:Vaka_esiopetus_ruotsi'
