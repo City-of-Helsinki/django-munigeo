@@ -20,7 +20,8 @@ MUNICIPALITY_ID_MAP = {
     "091": "Helsinki",
     "092": "Vantaa",
     "049": "Espoo",
-    "235": "Kauniainen"
+    "235": "Kauniainen",
+    "237": "Kirkkonummi"
 }
 
 
