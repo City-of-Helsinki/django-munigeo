@@ -127,12 +127,7 @@ class HelsinkiImporter(Importer):
                     if not geom.intersects(parent_geom):
                         continue
                     area = (geom - parent.geometry.boundary).area
-                    # We allow a bit of extension (300 m^2) outside the parent
-                    # as subdivision geometry boundaries don't always match perfectly
-                    # with their parents.
-                    # 300m^2 is a bit more than the largest error in current
-                    # data (254m^2)
-                    if area > 300:
+                    if area > 1e-6:
                         continue
                     parents.append(parent)
                 parents = sorted(parents)
