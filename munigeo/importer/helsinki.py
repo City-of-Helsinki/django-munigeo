@@ -130,7 +130,6 @@ class HelsinkiImporter(Importer):
                     if area > 1e-6:
                         continue
                     parents.append(parent)
-                parents = sorted(parents)
                 if not parents:
                     raise Exception("No parent found for %s" % origin_id)
                 elif len(parents) > 1:
