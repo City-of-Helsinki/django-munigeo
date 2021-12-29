@@ -243,6 +243,9 @@ class HelsinkiImporter(Importer):
                 sep = '?'
             url = wfs_url + sep + 'typeName=' + div['wfs_layer'] + '&' + "srsName=EPSG:%d" % PROJECTION_SRID + '&' + "outputFormat=application/json"
             ds = DataSource(url)
+        if len(ds) < 1:
+            self.logger.info(f"{div['name']} has no layers, skipping.")
+            return
         lyr = ds[0]
         assert len(ds) == 1
         with AdministrativeDivision.objects.delay_mptt_updates():
