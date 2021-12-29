@@ -109,7 +109,7 @@ class HelsinkiImporter(Importer):
                 lang_dict[attr] = d
             else:
                 val = feat[field].as_string()
-                attr_dict[attr] = val.strip()
+                attr_dict[attr] = val.strip() if val else ''
 
         origin_id = attr_dict['origin_id']
         del attr_dict['origin_id']
