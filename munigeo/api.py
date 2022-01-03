@@ -488,6 +488,16 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
                 queryset = queryset.filter(location__distance_lte=(query_point, D(m=distance)))
             queryset = queryset.annotate(distance=Distance('location', query_point)).order_by('distance')
 
+        if "bbox" in filters:
+            val = filters.get("bbox", None)
+            if "bbox_srid" in filters:
+                ref = SpatialReference(filters.get("bbox_srid", None))
+            else:
+                ref = self.srs
+            if val:
+                bbox_filter = build_bbox_filter(ref, val, "location")
+                queryset = queryset.filter(Q(**bbox_filter))
+
         return queryset
 
 
