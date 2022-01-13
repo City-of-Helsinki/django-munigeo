@@ -379,6 +379,12 @@ class HelsinkiImporter(Importer):
                 letter = ''
             return '%s-%s-%s' % (num, num_end, letter)
 
+        def get_full_address_name(street_name, num, num_end, letter):
+            separator = "-" if num_end else ""
+            if letter:
+                letter = " " + letter
+            return f"{street_name} {num}{separator}{num_end}{letter}"
+
         for muni in muni_list:
             muni_dict[muni.name_fi] = muni
 
@@ -422,7 +428,7 @@ class HelsinkiImporter(Importer):
                     continue
 
             num2 = feat.get('osoitenumero2')
-            if num2 == 0 or num2 == None:
+            if num2 == 0 or num2 is None:
                 num2 = ''
             letter_raw = feat.get('osoitekirjain')
             letter = letter_raw.strip() if letter_raw else ''
@@ -454,6 +460,8 @@ class HelsinkiImporter(Importer):
             if not addr:
                 self.logger.debug("Street {} did not have address {}. Creating".format(street.name, addr_id))
                 addr = Address(street=street, number=num, number_end=num2, letter=letter)
+                addr.full_name_fi = get_full_address_name(street_name, num, num2, letter)
+                addr.full_name_sv = get_full_address_name(street_name_sv, num, num2, letter)
                 addr.location = location.wkb
                 bulk_addr_list.append(addr)
                 street.addrs[addr_id] = addr
@@ -466,6 +474,8 @@ class HelsinkiImporter(Importer):
                 location = GEOSGeometry(location.ewkt)
                 if addr.location.distance(location) >= 1:
                     self.logger.info("%s: Location changed" % addr)
+                    addr.full_name_fi = get_full_address_name(street_name, num, num2, letter)
+                    addr.full_name_sv = get_full_address_name(street_name_sv, num, num2, letter)
                     addr.location = location
                     addr.save()
             addr._found = True

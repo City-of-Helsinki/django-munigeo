@@ -3,7 +3,10 @@
 from django.utils.translation import gettext as _
 from django.contrib.gis.db import models
 from django.db.models.query import QuerySet, Q
-from django.conf import settings
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import (
+    GinIndex,  # add the Postgres recommended GIN index
+)
 from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
 
@@ -82,6 +85,7 @@ class AdministrativeDivision(MPTTModel):
                                        help_text='Time when the information was last changed')
 
     extra = models.JSONField(default=dict, null=True)
+    search_column = SearchVectorField(null=True)
 
     objects = AdministrativeDivisionManager()
 
@@ -93,6 +97,20 @@ class AdministrativeDivision(MPTTModel):
 
     class Meta:
         unique_together = (('origin_id', 'type', 'parent'),)
+        indexes = (GinIndex(fields=["search_column"]),)
+
+    @classmethod
+    def get_search_column_indexing(cls):
+        """
+        Defines the columns to be indexed to the search_column
+        ,config language and weight.
+        """
+        return [
+            ("name_fi", "finnish", "A"),
+            ("name_sv", "swedish", "A"),
+            ("name_en", "english", "A"),
+            ("extra", None, "B"),
+        ]
 
 
 class AdministrativeDivisionGeometry(models.Model):
@@ -106,7 +124,6 @@ class Municipality(models.Model):
     division = models.OneToOneField(AdministrativeDivision, null=True, db_index=True,
                                     related_name='muni', on_delete=models.CASCADE)
 
-
     def __str__(self):
         return self.name
 
@@ -116,7 +133,6 @@ class Plan(models.Model):
     geometry = models.MultiPolygonField(srid=PROJECTION_SRID)
     origin_id = models.CharField(max_length=20)
     in_effect = models.BooleanField(default=False)
-
 
     def __str__(self):
         effect = "in effect"
@@ -151,9 +167,10 @@ class Address(models.Model):
                               help_text="Building letter if applicable")
     location = models.PointField(srid=PROJECTION_SRID,
                                  help_text="Coordinates of the address")
-
     modified_at = models.DateTimeField(auto_now=True,
                                        help_text='Time when the information was last changed')
+    full_name = models.CharField(max_length=256, db_index=True, null=True, help_text='Full address name. Used for generating search_column')
+    search_column = SearchVectorField(null=True)
 
     def __str__(self):
         s = '%s %s' % (self.street, self.number)
@@ -167,6 +184,19 @@ class Address(models.Model):
     class Meta:
         unique_together = (('street', 'number', 'number_end', 'letter'),)
         ordering = ['street', 'number']
+        indexes = (GinIndex(fields=["search_column"]),)
+
+    @classmethod
+    def get_search_column_indexing(cls):
+        """
+        Defines the columns to be indexed to the search_column
+        ,config language and weight.
+        """
+        return [
+            ("full_name_fi", "finnish", "A"),
+            ("full_name_sv", "swedish", "A"),
+            ("full_name_en", "english", "A"),
+        ]
 
 
 class Building(models.Model):
@@ -203,7 +233,6 @@ class POI(models.Model):
     street_address = models.CharField(max_length=100, null=True, blank=True)
     zip_code = models.CharField(max_length=10, null=True, blank=True)
     origin_id = models.CharField(max_length=40, db_index=True, unique=True)
-
 
     def __str__(self):
         return "%s (%s, %s)" % (self.name, self.category.type, self.municipality)
