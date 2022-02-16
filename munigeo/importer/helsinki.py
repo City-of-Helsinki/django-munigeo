@@ -122,7 +122,13 @@ class HelsinkiImporter(Importer):
             else:
                 val = feat[field].as_string()
                 if val:
-                    attr_dict[attr] = val.strip()
+                    if 'fields_type_conversions' in div and attr in div['fields_type_conversions']:
+                        field_type = div['fields_type_conversions'][attr]
+                        # We only support csv to list conversions at this moment
+                        if field_type == 'csv_to_list':
+                            attr_dict[attr] = val.strip().split(',')
+                    else:
+                        attr_dict[attr] = val.strip()
                 else:
                     attr_dict[attr] = None
 

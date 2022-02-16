@@ -273,34 +273,71 @@ divisions:
 
   - type: preschool_education_fi
     name: Oppilaaksiottoalue, esikoulu
-    validity:
-        start: '2021-07-01'
-        end: '2022-08-01'
     ocd_id: esiopetuksen_oppilaaksiottoalue_fi
-    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
-    wfs_layer: 'hel:Vaka_paivakotialueet'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Esiopetusalue_suomi'
     fields:
-        origin_id: oppilaaksiottoalue_id
-        ocd_id: oppilaaksiottoalue_id
-        service_point_id: toimipiste_id
+        origin_id: id
+        ocd_id: id
+        units: toimipiste_id
         name:
-            fi: toimipiste
+            fi: nimi_fi
+            sv: nimi_se
+    fields_type_conversions:
+        units: csv_to_list
+    extra_fields:
+        schoolyear: lukuvuosi
+
+  - type: preschool_education_fi
+    name: Oppilaaksiottoalue, esikoulu
+    ocd_id: esiopetuksen_oppilaaksiottoalue_fi
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Esiopetusalue_suomi_tuleva'
+    fields:
+        origin_id: id
+        ocd_id: id
+        units: toimipiste_id
+        name:
+            fi: nimi_fi
+            sv: nimi_se
+    fields_type_conversions:
+        units: csv_to_list
+    extra_fields:
+        schoolyear: lukuvuosi
 
   - type: preschool_education_sv
     name: Oppilaaksiottoalue, esikoulu (ruotsi)
-    validity:
-        start: '2021-07-01'
-        end: '2022-08-01'
     ocd_id: esiopetuksen_oppilaaksiottoalue_sv
-    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
-    wfs_layer: 'hel:Esiopetusalue_ruotsi'
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Esiopetusalue_ruotsi'
     fields:
-        origin_id: toimipiste_id
-        ocd_id: toimipiste_id
-        service_point_id: toimipiste_id
+        origin_id: id
+        ocd_id: id
+        units: toimipiste_id
         name:
-            sv: nimi_se
             fi: nimi_fi
+            sv: nimi_se
+    fields_type_conversions:
+        units: csv_to_list
+    extra_fields:
+        schoolyear: lukuvuosi
+
+  - type: preschool_education_sv
+    name: Oppilaaksiottoalue, esikoulu (ruotsi)
+    ocd_id: esiopetuksen_oppilaaksiottoalue_sv
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Esiopetusalue_ruotsi_tuleva'
+    fields:
+        origin_id: id
+        ocd_id: id
+        units: toimipiste_id
+        name:
+            fi: nimi_fi
+            sv: nimi_se
+    fields_type_conversions:
+        units: csv_to_list
+    extra_fields:
+        schoolyear: lukuvuosi
 
   - type: nature_reserve
     name: Luonnonsuojelualue
