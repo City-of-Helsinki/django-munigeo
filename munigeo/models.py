@@ -87,7 +87,9 @@ class AdministrativeDivision(MPTTModel):
                                        help_text='Time when the information was last changed')
 
     extra = models.JSONField(default=dict, null=True)
-    search_column = SearchVectorField(null=True)
+    search_column_fi = SearchVectorField(null=True)
+    search_column_sv = SearchVectorField(null=True)
+    search_column_en = SearchVectorField(null=True)
 
     objects = AdministrativeDivisionManager()
 
@@ -99,20 +101,33 @@ class AdministrativeDivision(MPTTModel):
 
     class Meta:
         unique_together = (('origin_id', 'type', 'parent'),)
-        indexes = (GinIndex(fields=["search_column"]),)
+        indexes = (GinIndex(fields=["search_column_fi"]),
+                   GinIndex(fields=["search_column_sv"]),
+                   GinIndex(fields=["search_column_en"]))
 
     @classmethod
-    def get_search_column_indexing(cls):
+    def get_search_column_indexing(cls, lang):
         """
         Defines the columns to be indexed to the search_column
         ,config language and weight.
         """
-        return [
-            ("name_fi", "finnish", "A"),
-            ("name_sv", "swedish", "A"),
-            ("name_en", "english", "A"),
-            ("extra", None, "B"),
-        ]
+        if lang == "fi":
+            return [
+                ("name_fi", "finnish", "A"),
+                ("extra", None, "B"),
+            ]
+        elif lang == "sv":
+            return [
+                ("name_sv", "swedish", "A"),
+                ("extra", None, "B"),
+            ]
+        elif lang == "en":
+            return [
+                ("name_en", "english", "A"),
+                ("extra", None, "B"),
+            ]
+        else:
+            return []
 
 
 class AdministrativeDivisionGeometry(models.Model):
@@ -171,8 +186,11 @@ class Address(models.Model):
                                  help_text="Coordinates of the address")
     modified_at = models.DateTimeField(auto_now=True,
                                        help_text='Time when the information was last changed')
-    full_name = models.CharField(max_length=256, db_index=True, null=True, help_text='Full address name. Used for generating search_column')
-    search_column = SearchVectorField(null=True)
+    full_name = models.CharField(max_length=256, db_index=True, null=True,
+                                 help_text='Full address name. Used for generating search_column')
+    search_column_fi = SearchVectorField(null=True)
+    search_column_sv = SearchVectorField(null=True)
+    search_column_en = SearchVectorField(null=True)
 
     def __str__(self):
         s = '%s %s' % (self.street, self.number)
@@ -186,19 +204,30 @@ class Address(models.Model):
     class Meta:
         unique_together = (('street', 'number', 'number_end', 'letter'),)
         ordering = ['street', 'number']
-        indexes = (GinIndex(fields=["search_column"]),)
+        indexes = (GinIndex(fields=["search_column_fi"]),
+                   GinIndex(fields=["search_column_sv"]),
+                   GinIndex(fields=["search_column_en"]))
 
     @classmethod
-    def get_search_column_indexing(cls):
+    def get_search_column_indexing(cls, lang):
         """
         Defines the columns to be indexed to the search_column
         ,config language and weight.
         """
-        return [
-            ("full_name_fi", "finnish", "A"),
-            ("full_name_sv", "swedish", "A"),
-            ("full_name_en", "english", "A"),
-        ]
+        if lang == "fi":
+            return [
+                ("full_name_fi", "finnish", "A"),
+            ]
+        elif lang == "sv":
+            return [
+                ("full_name_sv", "swedish", "A"),
+            ]
+        elif lang == "en":
+            return [
+                ("full_name_en", "english", "A"),
+            ]
+        else:
+            return []
 
 
 class Building(models.Model):
