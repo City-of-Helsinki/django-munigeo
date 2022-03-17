@@ -174,6 +174,20 @@ class Street(models.Model):
         unique_together = (('municipality', 'name'),)
 
 
+class PostalCodeArea(models.Model):
+    postal_code = models.CharField(max_length=5, null=True, blank=True)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    area = models.MultiPolygonField(
+        srid=PROJECTION_SRID, null=True, blank=True
+    )
+
+    def __str__(self):
+        return self.postal_code
+
+    class Meta:
+        ordering = ["postal_code"]
+
+
 class Address(models.Model):
     street = models.ForeignKey(Street, db_index=True, related_name='addresses', on_delete=models.CASCADE)
     number = models.CharField(max_length=6, blank=True,
@@ -186,6 +200,13 @@ class Address(models.Model):
                                  help_text="Coordinates of the address")
     modified_at = models.DateTimeField(auto_now=True,
                                        help_text='Time when the information was last changed')
+    postal_code_area = models.ForeignKey(
+        PostalCodeArea,
+        models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="addresses",
+    )
     full_name = models.CharField(max_length=256, db_index=True, null=True,
                                  help_text='Full address name. Used for generating search_column')
     search_column_fi = SearchVectorField(null=True)
