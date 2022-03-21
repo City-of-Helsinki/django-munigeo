@@ -3,7 +3,6 @@ import os
 import csv
 #import unicodecsv
 import requests
-import requests_cache
 import io
 import json
 
@@ -153,7 +152,6 @@ class ManchesterImporter(Importer):
             self._import_citadel(muni, d)
 
     def import_pois(self):
-        requests_cache.install_cache('geo_import_man')
         self.logger.info("Importing POIs from Citadel")
         self.import_pois_from_citadel()
         # self.logger.info("Importing POIs from CSV")
