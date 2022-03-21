@@ -22,7 +22,6 @@ setup(
     install_requires=[
         'Django',
         'requests',
-        'requests_cache',
         'django_mptt',
         'django_modeltranslation',
         'six',
