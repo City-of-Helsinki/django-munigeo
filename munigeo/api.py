@@ -13,7 +13,7 @@ from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis import gdal
 from munigeo.models import AdministrativeDivisionType, AdministrativeDivision,\
-    AdministrativeDivisionGeometry, Municipality, Street, Address
+    AdministrativeDivisionGeometry, Municipality, Street, Address, PostalCodeArea
 from modeltranslation import models as mt_models # workaround for init problem
 from modeltranslation.translator import translator, NotRegistered
 
@@ -360,6 +360,49 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
 register_view(AdministrativeDivisionViewSet, 'administrative_division')
 
 
+class PostlCodeSerializer(TranslatedModelSerializer):
+    class Meta:
+        model = PostalCodeArea
+        fields = '__all__'
+
+
+class PostalCodeAreaViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
+    queryset = PostalCodeArea.objects.all()
+    serializer_class = PostlCodeSerializer
+
+    def get_queryset(self):
+        queryset = super(PostalCodeAreaViewSet, self).get_queryset()
+        filters = self.request.query_params
+        if 'language' in filters:
+            self.lang_code = filters['language']
+            if self.lang_code not in LANG_CODES:
+                raise ParseError("Invalid language supplied. Supported languages: %s" %
+                                    ', '.join([x[0] for x in settings.LANGUAGES]))
+        else:
+            self.lang_code = LANG_CODES[0]
+
+        if 'name' in filters:         
+            name = filters['name'].strip() 
+            args = {'name_%s' % self.lang_code: name}
+            try:
+                postal_code_area = PostalCodeArea.objects.get(**args)
+            except PostalCodeArea.DoesNotExist:
+                raise ParseError("postalcodearea with name '%s' not found" % name)
+            queryset = queryset.filter(id=postal_code_area.id)
+        
+        if 'postal_code' in filters:            
+            postal_code = filters["postal_code"].strip()
+            try:
+                postal_code_area = PostalCodeArea.objects.get(postal_code=postal_code)
+            except PostalCodeArea.DoesNotExist:
+                raise ParseError("postalcode with postal_code '%s' not found" % postal_code)
+            queryset = queryset.filter(id=postal_code_area.id)
+        return queryset
+
+
+register_view(PostalCodeAreaViewSet, 'postalcodearea')
+
+
 class StreetSerializer(TranslatedModelSerializer):
     class Meta:
         model = Street
@@ -421,7 +464,11 @@ class AddressSerializer(GeoModelSerializer):
         div_qs = AdministrativeDivisionGeometry.objects.select_related(
             "division", "division__type"
         ).filter(boundary__contains=obj.location, division__type__type="postcode_area")
-        ret['postal_code'] = div_qs.first().division.name if div_qs else None
+        if obj.postal_code_area:
+            ret['postal_code'] = obj.postal_code_area.postal_code
+        else:
+            ret['postal_code'] = div_qs.first().division.name if div_qs else None
+        ret['postal_code_area'] = PostlCodeSerializer(obj.postal_code_area).data
         return ret
 
     class Meta:
