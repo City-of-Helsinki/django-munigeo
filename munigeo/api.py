@@ -360,7 +360,7 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
 register_view(AdministrativeDivisionViewSet, 'administrative_division')
 
 
-class PostlCodeSerializer(TranslatedModelSerializer):
+class PostalCodeSerializer(TranslatedModelSerializer):
     class Meta:
         model = PostalCodeArea
         fields = '__all__'
@@ -368,7 +368,7 @@ class PostlCodeSerializer(TranslatedModelSerializer):
 
 class PostalCodeAreaViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
     queryset = PostalCodeArea.objects.all()
-    serializer_class = PostlCodeSerializer
+    serializer_class = PostalCodeSerializer
 
     def get_queryset(self):
         queryset = super(PostalCodeAreaViewSet, self).get_queryset()
@@ -468,7 +468,7 @@ class AddressSerializer(GeoModelSerializer):
             ret['postal_code'] = obj.postal_code_area.postal_code
         else:
             ret['postal_code'] = div_qs.first().division.name if div_qs else None
-        ret['postal_code_area'] = PostlCodeSerializer(obj.postal_code_area).data
+        ret['postal_code_area'] = PostalCodeSerializer(obj.postal_code_area).data
         return ret
 
     class Meta:
