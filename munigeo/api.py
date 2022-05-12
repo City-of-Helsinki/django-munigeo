@@ -363,7 +363,7 @@ register_view(AdministrativeDivisionViewSet, 'administrative_division')
 class PostalCodeSerializer(TranslatedModelSerializer):
     class Meta:
         model = PostalCodeArea
-        fields = '__all__'
+        fields = ["postal_code", "name"]
 
 
 class PostalCodeAreaViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
@@ -381,16 +381,16 @@ class PostalCodeAreaViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
         else:
             self.lang_code = LANG_CODES[0]
 
-        if 'name' in filters:         
-            name = filters['name'].strip() 
+        if 'name' in filters:
+            name = filters['name'].strip()
             args = {'name_%s' % self.lang_code: name}
             try:
                 postal_code_area = PostalCodeArea.objects.get(**args)
             except PostalCodeArea.DoesNotExist:
                 raise ParseError("postalcodearea with name '%s' not found" % name)
             queryset = queryset.filter(id=postal_code_area.id)
-        
-        if 'postal_code' in filters:            
+
+        if 'postal_code' in filters:
             postal_code = filters["postal_code"].strip()
             try:
                 postal_code_area = PostalCodeArea.objects.get(postal_code=postal_code)
@@ -406,7 +406,7 @@ register_view(PostalCodeAreaViewSet, 'postalcodearea')
 class StreetSerializer(TranslatedModelSerializer):
     class Meta:
         model = Street
-        fields = '__all__'
+        fields = ["name"]
 
 
 LANG_CODES = [x[0] for x in settings.LANGUAGES]
@@ -461,19 +461,13 @@ class AddressSerializer(GeoModelSerializer):
         if hasattr(obj, 'distance'):
             ret['distance'] = obj.distance.m
         ret['street'] = StreetSerializer(obj.street).data
-        div_qs = AdministrativeDivisionGeometry.objects.select_related(
-            "division", "division__type"
-        ).filter(boundary__contains=obj.location, division__type__type="postcode_area")
-        if obj.postal_code_area:
-            ret['postal_code'] = obj.postal_code_area.postal_code
-        else:
-            ret['postal_code'] = div_qs.first().division.name if div_qs else None
         ret['postal_code_area'] = PostalCodeSerializer(obj.postal_code_area).data
+        ret['municipality'] = MunicipalitySerializer(obj.municipality).data
         return ret
 
     class Meta:
         model = Address
-        exclude = ('id', 'street')
+        exclude = ('id',)
 
 
 class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
@@ -553,4 +547,4 @@ register_view(AddressViewSet, 'address')
 class MunicipalitySerializer(TranslatedModelSerializer):
     class Meta:
         model = Municipality
-        fields = '__all__'
+        fields = ["code", "name"]
