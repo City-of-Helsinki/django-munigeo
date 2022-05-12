@@ -137,6 +137,7 @@ class AdministrativeDivisionGeometry(models.Model):
 
 class Municipality(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
+    code = models.CharField(max_length=3)
     name = models.CharField(max_length=100, null=True, db_index=True)
     division = models.OneToOneField(AdministrativeDivision, null=True, db_index=True,
                                     related_name='muni', on_delete=models.CASCADE)
@@ -189,7 +190,8 @@ class PostalCodeArea(models.Model):
 
 
 class Address(models.Model):
-    street = models.ForeignKey(Street, db_index=True, related_name='addresses', on_delete=models.CASCADE)
+    municipality = models.ForeignKey(Municipality, db_index=True, related_name="addresses", on_delete=models.CASCADE)
+    street = models.ForeignKey(Street, db_index=True, related_name="addresses", on_delete=models.CASCADE)
     number = models.CharField(max_length=6, blank=True,
                               help_text="Building number")
     number_end = models.CharField(max_length=6, blank=True,

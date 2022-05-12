@@ -510,15 +510,14 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
                 muni = Municipality.objects.get(division__ocd_id=ocd_id)
             except Municipality.DoesNotExist:
                 raise ParseError("municipality with ID '%s' not found" % ocd_id)
-
-            queryset = queryset.filter(street__municipality=muni)
+            queryset = queryset.filter(municipality=muni)
         elif 'municipality_name' in filters:
             val = filters['municipality_name'].lower()
             args = {}
             args['name_%s__iexact' % self.lang_code] = val
             try:
                 muni = Municipality.objects.get(**args)
-                queryset = queryset.filter(street__municipality=muni)
+                queryset = queryset.filter(municipality=muni)
             except Municipality.DoesNotExist:
                 queryset = queryset.none()
 

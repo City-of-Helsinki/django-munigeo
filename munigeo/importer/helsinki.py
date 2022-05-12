@@ -367,7 +367,6 @@ class HelsinkiImporter(Importer):
 
     @db.transaction.atomic
     def import_addresses(self):
-
         wfs_url = 'WFS:https://kartta.hel.fi/ws/geoserver/avoindata/wfs?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=avoindata:PKS_osoiteluettelo&SRSNAME=EPSG:3067'
         self.logger.info("Loading master data from WFS datasource")
         ds = DataSource(wfs_url)
@@ -377,6 +376,7 @@ class HelsinkiImporter(Importer):
         muni_names = ('Helsinki', 'Espoo', 'Vantaa', 'Kauniainen')
         muni_list = Municipality.objects.filter(name_fi__in=muni_names)
         muni_dict = {}
+        postal_code_areas = {}
 
         def make_addr_id(num, num_end, letter):
             if num_end is None:
@@ -463,11 +463,21 @@ class HelsinkiImporter(Importer):
             addr_id = make_addr_id(num, num2, letter)
             addr = street.addrs.get(addr_id, None)
             location = convert_from_gk25(coord_n, coord_e)
+
+            postal_code = feat.get("postinumero")
+            if postal_code and postal_code not in postal_code_areas:
+                postal_code_area, _ = PostalCodeArea.objects.get_or_create(
+                    postal_code=postal_code
+                )
+                postal_code_areas[postal_code] = postal_code_area
+
             if not addr:
                 self.logger.debug("Street {} did not have address {}. Creating".format(street.name, addr_id))
                 addr = Address(street=street, number=num, number_end=num2, letter=letter)
                 addr.full_name_fi = get_full_address_name(street_name, num, num2, letter)
                 addr.full_name_sv = get_full_address_name(street_name_sv, num, num2, letter)
+                addr.municipality = muni
+                addr.postal_code_area = postal_code_areas[postal_code]
                 addr.location = location.wkb
                 bulk_addr_list.append(addr)
                 street.addrs[addr_id] = addr
@@ -482,6 +492,8 @@ class HelsinkiImporter(Importer):
                     self.logger.info("%s: Location changed" % addr)
                     addr.full_name_fi = get_full_address_name(street_name, num, num2, letter)
                     addr.full_name_sv = get_full_address_name(street_name_sv, num, num2, letter)
+                    addr.municipality = muni
+                    addr.postal_code_area = postal_code_areas[postal_code]
                     addr.location = location
                     addr.save()
             addr._found = True
