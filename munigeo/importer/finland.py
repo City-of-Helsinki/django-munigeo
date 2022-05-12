@@ -71,6 +71,7 @@ class FinlandImporter(Importer):
             muni = Municipality(division=munidiv)
         muni.name_fi = name_fi
         muni.name_sv = name_sv
+        muni.code = muni_id
         muni.id = munidiv.ocd_id.split('/')[-1].split(':')[-1]
         muni.save()
 
