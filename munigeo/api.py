@@ -400,7 +400,7 @@ class PostalCodeAreaViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
         return queryset
 
 
-register_view(PostalCodeAreaViewSet, 'postalcodearea')
+register_view(PostalCodeAreaViewSet, 'postal_code_area')
 
 
 class StreetSerializer(TranslatedModelSerializer):
