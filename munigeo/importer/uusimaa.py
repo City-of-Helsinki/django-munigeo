@@ -29,7 +29,7 @@ TARGET_SRS = SpatialReference(TARGET_DATA_SRID)
 PAGE_SIZE = 1000
 # Determines how many threads are run simultaneously when importing addresses
 THREAD_POOL_SIZE = 2
-BASE_URL = settings.GEO_SEARCH_LOCATION
+BASE_URL = settings.GEO_SEARCH_LOCATION + "/address/"
 
 # Contains the municipalities to import
 MUNICIPALITIES = {
@@ -360,7 +360,7 @@ class UusimaaImporter(Importer):
             self.streets_imported + self.addresses_imported
         ) / duration.total_seconds()
         self.logger.info(
-            f"Importing of addresses from geo_search finnished in: {duration}"
+            f"Importing of addresses from geo_search finished in: {duration}"
         )
         self.logger.info(
             "Streets and Addresses where (fetched+processed+stored) at a rate of"
