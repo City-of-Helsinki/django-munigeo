@@ -59,7 +59,7 @@ class Importer(object):
         raise FileNotFoundError("Data file '%s' not found" % data_file)
 
     def __init__(self, options):
-        self.logger = logging.getLogger("%s_importer" % self.name)
+        self.logger = logging.getLogger("import")
 
         if hasattr(settings, 'PROJECT_ROOT'):
             root_dir = settings.PROJECT_ROOT
