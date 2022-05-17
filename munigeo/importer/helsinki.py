@@ -477,7 +477,8 @@ class HelsinkiImporter(Importer):
                 addr.full_name_fi = get_full_address_name(street_name, num, num2, letter)
                 addr.full_name_sv = get_full_address_name(street_name_sv, num, num2, letter)
                 addr.municipality = muni
-                addr.postal_code_area = postal_code_areas[postal_code]
+                if postal_code:
+                    addr.postal_code_area = postal_code_areas[postal_code]
                 addr.location = location.wkb
                 bulk_addr_list.append(addr)
                 street.addrs[addr_id] = addr
@@ -493,7 +494,8 @@ class HelsinkiImporter(Importer):
                     addr.full_name_fi = get_full_address_name(street_name, num, num2, letter)
                     addr.full_name_sv = get_full_address_name(street_name_sv, num, num2, letter)
                     addr.municipality = muni
-                    addr.postal_code_area = postal_code_areas[postal_code]
+                    if postal_code:
+                        addr.postal_code_area = postal_code_areas[postal_code]
                     addr.location = location
                     addr.save()
             addr._found = True
