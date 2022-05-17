@@ -3,17 +3,16 @@ import requests
 import json
 import logging
 from django.utils.text import slugify
-from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
+from django.contrib.gis.geos import Point
 from django.conf import settings
+from munigeo.models import POI, POICategory, PROJECTION_SRID
 
-from munigeo.models import *
-from munigeo.importer.sync import ModelSyncher
 
 def convert_from_wgs84(coords):
     pnt = Point(coords[1], coords[0], srid=4326)
     pnt.transform(PROJECTION_SRID)
     return pnt
+
 
 class Importer(object):
     def _import_citadel(self, muni, info):
@@ -72,11 +71,14 @@ class Importer(object):
 
         self.options = options
 
+
 importers = {}
+
 
 def register_importer(klass):
     importers[klass.name] = klass
     return klass
+
 
 def get_importers():
     if importers:
