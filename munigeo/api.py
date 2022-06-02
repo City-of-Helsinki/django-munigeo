@@ -367,11 +367,11 @@ class PostalCodeSerializer(TranslatedModelSerializer):
 
 
 class PostalCodeAreaViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
-    queryset = PostalCodeArea.objects.all()
+    queryset = PostalCodeArea.objects.filter(pk__gte=0)
     serializer_class = PostalCodeSerializer
 
     def get_queryset(self):
-        queryset = super(PostalCodeAreaViewSet, self).get_queryset()
+        queryset = PostalCodeArea.objects.filter(pk__gte=0)
         filters = self.request.query_params
         if 'language' in filters:
             self.lang_code = filters['language']
