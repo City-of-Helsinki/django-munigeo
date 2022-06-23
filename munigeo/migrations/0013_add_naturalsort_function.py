@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("munigeo", "0010_add_postalcodearea"),
+        ("munigeo", "0012_municipality_code"),
     ]
 
     operations = [
