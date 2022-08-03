@@ -450,7 +450,7 @@ class StreetViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
 register_view(StreetViewSet, 'street')
 
 
-class AddressSerializer(GeoModelSerializer):
+class AddressSerializer(GeoModelSerializer, TranslatedModelSerializer):
     # Reverse geocoding
     def to_representation(self, obj):
         ret = super(AddressSerializer, self).to_representation(obj)
@@ -467,7 +467,7 @@ class AddressSerializer(GeoModelSerializer):
 
     class Meta:
         model = Address
-        exclude = ('id',)
+        exclude = ('id', 'search_column_fi', 'search_column_sv', 'search_column_en')
 
 
 class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
