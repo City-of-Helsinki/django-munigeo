@@ -10,6 +10,7 @@ import yaml
 from django import db
 from datetime import datetime
 
+from django.contrib.gis.gdal.srs import AxisOrder # requires django 3.1
 from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
 from django.contrib.gis import gdal
@@ -19,6 +20,8 @@ from munigeo.importer.sync import ModelSyncher
 from munigeo import ocd
 
 from munigeo.importer.base import Importer, register_importer
+
+from django.conf import settings
 
 MUNI_URL = "http://tilastokeskus.fi/meta/luokitukset/kunta/001-2013/tekstitiedosto.txt"
 
@@ -35,15 +38,18 @@ SERVICE_CATEGORY_MAP = {
     25664: ("park", "Park"),
 }
 
+AXIS_ORDER = AxisOrder.TRADITIONAL # default value
+if hasattr(settings, 'AXIS_ORDER'):
+    AXIS_ORDER = settings.AXIS_ORDER
 
 GK25_SRID = 3879
-GK25_SRS = SpatialReference(GK25_SRID)
-PROJECTION_SRS = SpatialReference(PROJECTION_SRID)
-WEB_MERCATOR_SRS = SpatialReference(3857)
+GK25_SRS = SpatialReference(GK25_SRID, axis_order=AXIS_ORDER)
+PROJECTION_SRS = SpatialReference(PROJECTION_SRID, axis_order=AXIS_ORDER)
+WEB_MERCATOR_SRS = SpatialReference(3857, axis_order=AXIS_ORDER)
 
 coord_transform = None
 if GK25_SRS.srid != PROJECTION_SRID:
-    target_srs = SpatialReference(PROJECTION_SRID)
+    target_srs = SpatialReference(PROJECTION_SRID, axis_order=AXIS_ORDER)
     coord_transform = CoordTransform(GK25_SRS, target_srs)
 
 def convert_from_gk25(north, east):
@@ -84,7 +90,7 @@ class HelsinkiImporter(Importer):
         if not geom.srid:
             geom.srid = GK25_SRID
         if geom.srid != PROJECTION_SRID:
-            ct = CoordTransform(SpatialReference(geom.srid), SpatialReference(PROJECTION_SRID))
+            ct = CoordTransform(SpatialReference(geom.srid, axis_order=AXIS_ORDER), SpatialReference(PROJECTION_SRID, axis_order=AXIS_ORDER))
             geom.transform(ct)
         # geom = geom.geos.intersection(parent.geometry.boundary)
         geom = geom.geos
@@ -375,9 +381,14 @@ class HelsinkiImporter(Importer):
                     continue
 
             num2 = feat.get('osoitenumero2')
-            if num2 == 0:
+            if num2 is None or num2 == 0:
                 num2 = ''
-            letter = feat.get('osoitekirjain').strip()
+
+            letter = feat.get('osoitekirjain')
+            if letter is None :
+                letter = ''
+            letter = letter.strip()
+
             coord_n = int(feat.get('n'))
             coord_e = int(feat.get('e'))
             muni_name = feat.get('kaupunki')
