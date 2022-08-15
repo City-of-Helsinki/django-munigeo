@@ -361,8 +361,8 @@ class HelsinkiImporter(Importer):
             if count % 1000 == 0:
                 self.logger.debug("{} processed".format(count))
 
-            street_name = feat.get('katunimi').strip()
-            street_name_sv = feat.get('gatan').strip()
+            street_name = feat.get('katunimi', '').strip()
+            street_name_sv = feat.get('gatan', '').strip()
 
             num = feat.get('osoitenumero')
 
@@ -377,7 +377,7 @@ class HelsinkiImporter(Importer):
             num2 = feat.get('osoitenumero2')
             if num2 == 0:
                 num2 = ''
-            letter = feat.get('osoitekirjain').strip()
+            letter = feat.get('osoitekirjain', '').strip()
             coord_n = int(feat.get('n'))
             coord_e = int(feat.get('e'))
             muni_name = feat.get('kaupunki')
