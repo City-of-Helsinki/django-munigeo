@@ -311,6 +311,8 @@ class HelsinkiImporter(Importer):
 
     @db.transaction.atomic
     def import_addresses(self):
+        none_to_str = lambda s: s or ""
+
         wfs_url = 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?' \
                   'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&' \
                   'TYPENAME=avoindata:PKS_osoiteluettelo&' \
@@ -360,9 +362,8 @@ class HelsinkiImporter(Importer):
             count += 1
             if count % 1000 == 0:
                 self.logger.debug("{} processed".format(count))
-
-            street_name = feat.get('katunimi', '').strip()
-            street_name_sv = feat.get('gatan', '').strip()
+            street_name = none_to_str(feat.get('katunimi')).strip()
+            street_name_sv = none_to_str(feat.get('gatan')).strip()
 
             num = feat.get('osoitenumero')
 
@@ -374,10 +375,10 @@ class HelsinkiImporter(Importer):
                     self.logger.debug("Rejecting {}, due to {} not being valid street number".format(street_name, num))
                     continue
 
-            num2 = feat.get('osoitenumero2')
+            num2 = none_to_str(feat.get('osoitenumero2'))
             if num2 == 0:
                 num2 = ''
-            letter = feat.get('osoitekirjain', '').strip()
+            letter = none_to_str(feat.get('osoitekirjain')).strip()
             coord_n = int(feat.get('n'))
             coord_e = int(feat.get('e'))
             muni_name = feat.get('kaupunki')
