@@ -18,7 +18,7 @@ saying that a timezone-naive date was passed to a `DateTimeField`.
 - helsinki importer: Reverted the change introduced in v0.3.6 which broke Helsinki division import
 - helsinki importer: Fixed empty field value handling
 - helsinki importer: Fixed crash with division types without a layer
-
+- GDAL 3.0 Coordinate transformation backwards compatibility
 
 ## [0.3.6] - 2020-05-08
 
