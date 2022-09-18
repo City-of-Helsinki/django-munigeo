@@ -343,6 +343,15 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
         if 'origin_id' in filters:
             queryset = queryset.filter(origin_id=filters['origin_id'])
 
+        if 'municipality' in filters:
+            args = {}
+            args['name__iexact'] = filters['municipality'].lower()
+            try:
+                municipality = Municipality.objects.get(**args)
+                queryset = queryset.filter(municipality=municipality)
+            except Municipality.DoesNotExist:
+                queryset = queryset.none()
+
         if 'date' in filters:
             try:
                 date = datetime.strptime(filters['date'], '%Y-%m-%d').date()
