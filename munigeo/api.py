@@ -258,7 +258,7 @@ class AdministrativeDivisionSerializer(GeoModelSerializer, TranslatedModelSerial
 
     class Meta:
         model = AdministrativeDivision
-        fields = '__all__'
+        exclude = ('search_column_fi', 'search_column_sv', 'search_column_en')
 
 
 def parse_lat_lon(query_params):
