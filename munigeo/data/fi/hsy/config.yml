@@ -10,7 +10,7 @@ divisions:
     no_parent_division: yes
     parent_ocd_id: 'ocd-division/country:fi'
     wfs_url: 'https://kartta.hsy.fi/geoserver/wfs'
-    wfs_layer: 'taustakartat_ja_aluejaot:kaupunginosat_2020'
+    wfs_layer: 'taustakartat_ja_aluejaot:kaupunginosat_2022'
     fields:
       origin_id: kauposanro
       ocd_id: kauposanro
@@ -25,7 +25,7 @@ divisions:
     no_parent_division: yes
     parent_ocd_id: 'ocd-division/country:fi'
     wfs_url: 'https://kartta.hsy.fi/geoserver/wfs'
-    wfs_layer: 'taustakartat_ja_aluejaot:pks_postinumeroalueet_2020'
+    wfs_layer: 'taustakartat_ja_aluejaot:pks_postinumeroalueet_2022'
     fields:
         origin_id: posno
         ocd_id: posno
