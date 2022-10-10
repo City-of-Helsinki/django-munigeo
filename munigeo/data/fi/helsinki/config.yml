@@ -129,8 +129,8 @@ divisions:
   - type: lower_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, suomenkielinen alakoulu"
     validity:
-        start: '2021-08-01'
-        end: '2022-08-01'
+        start: '2022-08-01'
+        end: '2023-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_alaaste_suomi'
@@ -144,8 +144,8 @@ divisions:
   - type: lower_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, suomenkielinen alakoulu"
     validity:
-        start: '2022-08-01'
-        end: '2023-08-01'
+        start: '2023-08-01'
+        end: '2024-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_alaaste_suomi_tuleva'
@@ -159,8 +159,8 @@ divisions:
   - type: lower_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"
     validity:
-        start: '2021-08-01'
-        end: '2022-08-01'
+        start: '2022-08-01'
+        end: '2023-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu_sv
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_alaaste_ruotsi'
@@ -174,8 +174,8 @@ divisions:
   - type: lower_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"
     validity:
-        start: '2022-08-01'
-        end: '2023-08-01'
+        start: '2023-08-01'
+        end: '2024-08-01'
     ocd_id: oppilaaksiottoalue_alakoulu_sv
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_alaaste_ruotsi_tuleva'
@@ -189,8 +189,8 @@ divisions:
   - type: upper_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, suomenkielinen yläkoulu"
     validity:
-        start: '2021-08-01'
-        end: '2022-08-01'
+        start: '2022-08-01'
+        end: '2023-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_ylaaste_suomi'
@@ -204,8 +204,8 @@ divisions:
   - type: upper_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, suomenkielinen yläkoulu"
     validity:
-        start: '2022-08-01'
-        end: '2023-08-01'
+        start: '2023-08-01'
+        end: '2024-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_ylaaste_suomi_tuleva'
@@ -219,8 +219,8 @@ divisions:
   - type: upper_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"
     validity:
-        start: '2021-08-01'
-        end: '2022-08-01'
+        start: '2022-08-01'
+        end: '2023-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu_sv
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_ylaaste_ruotsi'
@@ -234,8 +234,8 @@ divisions:
   - type: upper_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"
     validity:
-        start: '2022-08-01'
-        end: '2023-08-01'
+        start: '2023-08-01'
+        end: '2024-08-01'
     ocd_id: oppilaaksiottoalue_ylakoulu_sv
     wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
     wfs_layer: 'avoindata:Opev_ooa_ylaaste_ruotsi_tuleva'
