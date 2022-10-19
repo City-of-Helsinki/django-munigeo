@@ -67,7 +67,7 @@ class AdministrativeDivision(MPTTModel):
     parent = TreeForeignKey('self', db_index=True, null=True,
                             related_name='children', on_delete=models.CASCADE)
 
-    origin_id = models.CharField(max_length=50, db_index=True)
+    origin_id = models.CharField(max_length=64, db_index=True)
     ocd_id = models.CharField(max_length=200, unique=True, db_index=True, null=True,
                               help_text=_("Open Civic Data identifier"))
 
