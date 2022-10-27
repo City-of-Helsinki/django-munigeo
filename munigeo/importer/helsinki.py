@@ -476,6 +476,7 @@ class HelsinkiImporter(Importer):
                 addr = Address(street=street, number=num, number_end=num2, letter=letter)
                 addr.full_name_fi = get_full_address_name(street_name, num, num2, letter)
                 addr.full_name_sv = get_full_address_name(street_name_sv, num, num2, letter)
+                addr.full_name_en = get_full_address_name(street_name, num, num2, letter)
                 addr.municipality = muni
                 if postal_code:
                     addr.postal_code_area = postal_code_areas[postal_code]
@@ -493,6 +494,7 @@ class HelsinkiImporter(Importer):
                     self.logger.info("%s: Location changed" % addr)
                     addr.full_name_fi = get_full_address_name(street_name, num, num2, letter)
                     addr.full_name_sv = get_full_address_name(street_name_sv, num, num2, letter)
+                    addr.full_name_en = get_full_address_name(street_name, num, num2, letter)
                     addr.municipality = muni
                     if postal_code:
                         addr.postal_code_area = postal_code_areas[postal_code]
