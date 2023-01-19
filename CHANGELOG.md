@@ -14,8 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Add a `tzinfo` to `Street` and `Address.modified_at` migrations to fix the warning 
-saying that a timezone-naive date was passed to a `DateTimeField`.  
-
+saying that a timezone-naive date was passed to a `DateTimeField`.
+- helsinki importer: Reverted the change introduced in v0.3.6 which broke Helsinki division import
+- helsinki importer: Fixed empty field value handling
+- helsinki importer: Fixed crash with division types without a layer
+- GDAL 3.0 Coordinate transformation backwards compatibility
 
 ## [0.3.6] - 2020-05-08
 

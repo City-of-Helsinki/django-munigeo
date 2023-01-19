@@ -10,6 +10,7 @@ import yaml
 from django import db
 from datetime import datetime
 
+from django.contrib.gis.gdal.srs import AxisOrder # requires django 3.1
 from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
 from django.contrib.gis import gdal
@@ -19,6 +20,8 @@ from munigeo.importer.sync import ModelSyncher
 from munigeo import ocd
 
 from munigeo.importer.base import Importer, register_importer
+
+from django.conf import settings
 
 MUNI_URL = "http://tilastokeskus.fi/meta/luokitukset/kunta/001-2013/tekstitiedosto.txt"
 
@@ -35,15 +38,18 @@ SERVICE_CATEGORY_MAP = {
     25664: ("park", "Park"),
 }
 
+AXIS_ORDER = AxisOrder.TRADITIONAL # default value
+if hasattr(settings, 'AXIS_ORDER'):
+    AXIS_ORDER = settings.AXIS_ORDER
 
 GK25_SRID = 3879
-GK25_SRS = SpatialReference(GK25_SRID)
-PROJECTION_SRS = SpatialReference(PROJECTION_SRID)
-WEB_MERCATOR_SRS = SpatialReference(3857)
+GK25_SRS = SpatialReference(GK25_SRID, axis_order=AXIS_ORDER)
+PROJECTION_SRS = SpatialReference(PROJECTION_SRID, axis_order=AXIS_ORDER)
+WEB_MERCATOR_SRS = SpatialReference(3857, axis_order=AXIS_ORDER)
 
 coord_transform = None
 if GK25_SRS.srid != PROJECTION_SRID:
-    target_srs = SpatialReference(PROJECTION_SRID)
+    target_srs = SpatialReference(PROJECTION_SRID, axis_order=AXIS_ORDER)
     coord_transform = CoordTransform(GK25_SRS, target_srs)
 
 def convert_from_gk25(north, east):
@@ -84,7 +90,7 @@ class HelsinkiImporter(Importer):
         if not geom.srid:
             geom.srid = GK25_SRID
         if geom.srid != PROJECTION_SRID:
-            ct = CoordTransform(SpatialReference(geom.srid), SpatialReference(PROJECTION_SRID))
+            ct = CoordTransform(SpatialReference(geom.srid, axis_order=AXIS_ORDER), SpatialReference(PROJECTION_SRID, axis_order=AXIS_ORDER))
             geom.transform(ct)
         # geom = geom.geos.intersection(parent.geometry.boundary)
         geom = geom.geos
@@ -109,7 +115,7 @@ class HelsinkiImporter(Importer):
                 lang_dict[attr] = d
             else:
                 val = feat[field].as_string()
-                attr_dict[attr] = val.strip()
+                attr_dict[attr] = val.strip() if val else ''
 
         origin_id = attr_dict['origin_id']
         del attr_dict['origin_id']
@@ -127,15 +133,9 @@ class HelsinkiImporter(Importer):
                     if not geom.intersects(parent_geom):
                         continue
                     area = (geom - parent.geometry.boundary).area
-                    # We allow a bit of extension (300 m^2) outside the parent
-                    # as subdivision geometry boundaries don't always match perfectly
-                    # with their parents.
-                    # 300m^2 is a bit more than the largest error in current
-                    # data (254m^2)
-                    if area > 300:
+                    if area > 1e-6:
                         continue
                     parents.append(parent)
-                parents = sorted(parents)
                 if not parents:
                     raise Exception("No parent found for %s" % origin_id)
                 elif len(parents) > 1:
@@ -249,6 +249,9 @@ class HelsinkiImporter(Importer):
                 sep = '?'
             url = wfs_url + sep + 'typeName=' + div['wfs_layer'] + '&' + "srsName=EPSG:%d" % PROJECTION_SRID + '&' + "outputFormat=application/json"
             ds = DataSource(url)
+        if len(ds) < 1:
+            self.logger.info(f"{div['name']} has no layers, skipping.")
+            return
         lyr = ds[0]
         assert len(ds) == 1
         with AdministrativeDivision.objects.delay_mptt_updates():
@@ -314,6 +317,8 @@ class HelsinkiImporter(Importer):
 
     @db.transaction.atomic
     def import_addresses(self):
+        none_to_str = lambda s: s or ""
+
         wfs_url = 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?' \
                   'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&' \
                   'TYPENAME=avoindata:PKS_osoiteluettelo&' \
@@ -363,9 +368,8 @@ class HelsinkiImporter(Importer):
             count += 1
             if count % 1000 == 0:
                 self.logger.debug("{} processed".format(count))
-
-            street_name = feat.get('katunimi').strip()
-            street_name_sv = feat.get('gatan').strip()
+            street_name = none_to_str(feat.get('katunimi')).strip()
+            street_name_sv = none_to_str(feat.get('gatan')).strip()
 
             num = feat.get('osoitenumero')
 
@@ -377,10 +381,11 @@ class HelsinkiImporter(Importer):
                     self.logger.debug("Rejecting {}, due to {} not being valid street number".format(street_name, num))
                     continue
 
-            num2 = feat.get('osoitenumero2')
+            num2 = none_to_str(feat.get('osoitenumero2'))
             if num2 == 0:
                 num2 = ''
-            letter = feat.get('osoitekirjain').strip()
+            letter = none_to_str(feat.get('osoitekirjain')).strip()
+
             coord_n = int(feat.get('n'))
             coord_e = int(feat.get('e'))
             muni_name = feat.get('kaupunki')
