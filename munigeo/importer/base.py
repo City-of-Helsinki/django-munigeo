@@ -88,8 +88,10 @@ def get_importers():
         module, ext = os.path.splitext(fname)
         if ext.lower() != '.py':
             continue
-        if module in ('__init__', 'base'):
+        # Skip athens and manchester modules due to unsolved problems
+        if module in ('__init__', 'base', 'athens', 'manchester'):
             continue
         full_path = "%s.%s" % (module_path, module)
-        ret = __import__(full_path, locals(), globals())
+        importlib = __import__('importlib')
+        ret = importlib.import_module(full_path)
     return importers
