@@ -1,4 +1,4 @@
-Django
+django>=3.2.16
 djangorestframework
 requests
 requests-cache
