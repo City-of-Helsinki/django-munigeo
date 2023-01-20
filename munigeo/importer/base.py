@@ -93,5 +93,5 @@ def get_importers():
             continue
         full_path = "%s.%s" % (module_path, module)
         importlib = __import__('importlib')
-        ret = importlib.import_module(full_path)
+        importlib.import_module(full_path)
     return importers
