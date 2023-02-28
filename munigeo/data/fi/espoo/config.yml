@@ -120,16 +120,3 @@ divisions:
         sv: nimi
       origin_id: Id
       ocd_id: Id
-
-  - type: health_station_district
-    name: "Terveysasemien palvelualueet"
-    ocd_id: terveysasema-alue
-    wfs_url: 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx'
-    wfs_layer: 'GIS:TerveysasemienPalvelualueet'
-    fields:
-        name:
-            fi: Terveysasema
-            sv: Haelsostation
-        origin_id: Id
-        ocd_id: Id
-        service_point_id: Id
