@@ -26,7 +26,7 @@ except ImportError:
 # Disable threaded mode for now
 ThreadPoolExecutor = None
 
-MUNI_DATA_URL = 'http://kartat.kapsi.fi/files/kuntajako/kuntajako_1000k/etrs89/gml/TietoaKuntajaosta_2016_1000k.zip'
+MUNI_DATA_URL = 'https://makasiini.hel.ninja/TietoaKuntajaosta_2016_1000k.zip'
 
 
 @register_importer
