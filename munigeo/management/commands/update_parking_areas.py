@@ -15,6 +15,7 @@ PARKING_CLASS_NAME_MAP = {
     4: "Maksullinen, pysäköinti sallittu 1 h tai 2 h",
     5: "Maksullinen, pysäköinti sallittu 4 h",
     6: "Maksullinen, ei aikarajoitusta",
+    7: "Pysäköintikielto",
 }
 
 

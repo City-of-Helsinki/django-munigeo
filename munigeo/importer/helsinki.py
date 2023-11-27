@@ -158,6 +158,13 @@ class HelsinkiImporter(Importer):
                 else:
                     extra_attr_dict[attr] = None
 
+        #
+        # import "Pysäköintikielto" (No Parking) as "class 7" for PARKING_CLASS_NAME_MAP to map it as specified.
+        #
+        if extra_attr_dict["class"] == "0" and extra_attr_dict["origin_name"] is None:
+            if feat.get("tyyppi") == "Pysäköintikielto":
+                extra_attr_dict["class"] = "7"
+
         attr_dict['extra'] = extra_attr_dict
 
         origin_id = attr_dict['origin_id']
