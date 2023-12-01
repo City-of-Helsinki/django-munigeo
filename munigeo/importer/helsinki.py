@@ -23,7 +23,7 @@ from munigeo.importer.base import Importer, register_importer
 
 from django.conf import settings
 
-MUNI_URL = "http://tilastokeskus.fi/meta/luokitukset/kunta/001-2013/tekstitiedosto.txt"
+MUNI_URL = "https://tilastokeskus.fi/meta/luokitukset/kunta/001-2013/tekstitiedosto.txt"
 
 # The Finnish national grid coordinates in TM35-FIN according to JHS-180
 # specification. We use it as a bounding box.
@@ -319,7 +319,7 @@ class HelsinkiImporter(Importer):
     def import_addresses(self):
         none_to_str = lambda s: s or ""
 
-        wfs_url = 'http://kartta.hel.fi/ws/geoserver/avoindata/wfs?' \
+        wfs_url = 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?' \
                   'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&' \
                   'TYPENAME=avoindata:PKS_osoiteluettelo&' \
                   'SRSNAME=EPSG:3067&outputFormat=application/json'
@@ -463,7 +463,7 @@ class HelsinkiImporter(Importer):
         self.logger.info("synchronization complete")
 
     def import_pois(self):
-        URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v2/unit/?service=%d'
+        URL_BASE = 'https://www.hel.fi/palvelukarttaws/rest/v2/unit/?service=%d'
 
         muni_dict = {}
         for muni in Municipality.objects.all():
