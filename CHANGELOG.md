@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [unreleased]
+## [0.3.10]
 ### Fixed
 - Fix Helsinki importer urls
 
@@ -38,7 +38,8 @@ saying that a timezone-naive date was passed to a `DateTimeField`.
 - helsinki importer: Raised the tolerance for divisions extending past their
   parents (from 1e-6 to 300 m^2). Helsinki data could not be imported previously.
 
-[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.3.9...HEAD
+[unreleased]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.3.10...HEAD
+[0.3.10]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.3.6...v0.3.7
