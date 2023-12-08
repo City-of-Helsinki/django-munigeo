@@ -102,8 +102,10 @@ class HsyImporter(HelsinkiImporter):
         if parent:
             origin_id = "%s-%s" % (parent.origin_id, origin_id)
         obj = syncher.get(origin_id)
+        is_new_obj = False
         if not obj:
             obj = AdministrativeDivision(origin_id=origin_id, type=type_obj)
+            is_new_obj = True
 
         obj.municipality = muni
 
@@ -136,7 +138,23 @@ class HsyImporter(HelsinkiImporter):
                 args = {'parent': div['parent_ocd_id']}
             val = attr_dict['ocd_id']
             args[div['ocd_id']] = val
-            obj.ocd_id = ocd.make_id(**args)
+            try:
+                ocd_id = ocd.make_id(**args)
+            except AttributeError:
+                self.logger.error("Feature: %s is invalid" % feat)
+                return
+
+            # Major and sub-districts from Helsinki import should not be overwritten by HSY import
+            if (
+                AdministrativeDivision.objects.filter(
+                    ocd_id=ocd_id, type__type__in=["major_district", "sub_district"]
+                ).exists()
+                and is_new_obj
+            ):
+                self.logger.info("Major district %s already exists. Skipping..." % ocd_id)
+                return
+
+            obj.ocd_id = ocd_id
             self.logger.debug("%s" % obj.ocd_id)
         obj.save()
         syncher.mark(obj, True)
