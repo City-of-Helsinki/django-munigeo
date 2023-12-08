@@ -46,3 +46,17 @@ divisions:
       origin_id: suur
       ocd_id: nimi
       parent_municipality_id: kunta
+
+  - type: sub_district
+    name: Osa-alue
+    ocd_id: osa-alue
+    no_parent_division: yes
+    parent_ocd_id: 'ocd-division/country:fi'
+    wfs_url: 'https://kartta.hsy.fi/geoserver/wfs'
+    wfs_layer: 'taustakartat_ja_aluejaot:seutukartta_pien_2021'
+    fields:
+      name:
+        fi: nimi
+      origin_id: pien
+      ocd_id: nimi
+      parent_municipality_id: kunta

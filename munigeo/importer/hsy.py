@@ -138,12 +138,16 @@ class HsyImporter(HelsinkiImporter):
                 args = {'parent': div['parent_ocd_id']}
             val = attr_dict['ocd_id']
             args[div['ocd_id']] = val
-            ocd_id = ocd.make_id(**args)
+            try:
+                ocd_id = ocd.make_id(**args)
+            except AttributeError:
+                self.logger.error("Feature: %s is invalid" % feat)
+                return
 
-            # Major districts from Helsinki import should not be overwritten by HSY import
+            # Major and sub-districts from Helsinki import should not be overwritten by HSY import
             if (
                 AdministrativeDivision.objects.filter(
-                    ocd_id=ocd_id, type__type="major_district"
+                    ocd_id=ocd_id, type__type__in=["major_district", "sub_district"]
                 ).exists()
                 and is_new_obj
             ):
