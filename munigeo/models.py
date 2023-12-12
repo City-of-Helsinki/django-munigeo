@@ -73,9 +73,6 @@ class AdministrativeDivision(MPTTModel):
 
     municipality = models.ForeignKey('munigeo.Municipality', null=True, on_delete=models.CASCADE)
 
-    # Service districts might have a related service point id
-    service_point_id = models.CharField(max_length=50, db_index=True, null=True,
-                                        blank=True)
     units = ArrayField(models.IntegerField(), default=list)
 
     # Some divisions might be only valid during some time period.
