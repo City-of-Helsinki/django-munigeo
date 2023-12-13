@@ -66,6 +66,9 @@ divisions:
         origin_id: tunnus
         ocd_id: tunnus
         service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
 
   - type: health_station_district
     name: Terveysasema-aluejako
@@ -78,6 +81,9 @@ divisions:
         name:
             fi: tunnus
         service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
 
   - type: emergency_care_district
     name: Päivystysalue
@@ -140,6 +146,9 @@ divisions:
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+          units: csv_to_list
 
   - type: lower_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, suomenkielinen alakoulu"
@@ -155,6 +164,9 @@ divisions:
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
 
   - type: lower_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"
@@ -170,6 +182,9 @@ divisions:
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
 
   - type: lower_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"
@@ -185,6 +200,9 @@ divisions:
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
 
   - type: upper_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, suomenkielinen yläkoulu"
@@ -200,6 +218,9 @@ divisions:
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
 
   - type: upper_comprehensive_school_district_fi
     name: "Oppilaaksiottoalue, suomenkielinen yläkoulu"
@@ -215,6 +236,9 @@ divisions:
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
 
   - type: upper_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"
@@ -230,6 +254,9 @@ divisions:
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
 
   - type: upper_comprehensive_school_district_sv
     name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"
@@ -245,6 +272,9 @@ divisions:
         origin_id: id
         ocd_id: id
         service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
 
   - type: maternity_clinic_district
     name: Neuvola-alue
@@ -257,6 +287,9 @@ divisions:
         name:
             fi: tunnus
         service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
 
   - type: statistical_district
     name: Tilastoalue
