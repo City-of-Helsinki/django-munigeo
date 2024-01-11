@@ -5,7 +5,7 @@ from time import time
 from typing import List
 
 from django.core.management.base import BaseCommand
-from munigeo.models import AdministrativeDivision
+from munigeo.models import AdministrativeDivision, Municipality
 
 PARKING_CLASS_NAME_MAP = {
     0: "Muu",
@@ -25,7 +25,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options) -> None:
         start_time = time()
         num_parking_areas_updated = 0
-        parking_areas = AdministrativeDivision.objects.filter(type__type="parking_area")
+        municipality = Municipality.objects.get(name_fi="Vantaa")
+        parking_areas = AdministrativeDivision.objects.filter(
+            type__type="parking_area"
+        ).exclude(municipality=municipality)
         for parking_area in parking_areas:
             extra = parking_area.extra
             parking_area.name_fi = PARKING_CLASS_NAME_MAP[int(extra["class"])]
