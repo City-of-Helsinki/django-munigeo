@@ -8,38 +8,56 @@ import parler.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('munigeo', '0004_delete_old_translations'),
+        ("munigeo", "0004_delete_old_translations"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='administrativedivision',
-            name='level',
+            model_name="administrativedivision",
+            name="level",
             field=models.PositiveIntegerField(editable=False),
         ),
         migrations.AlterField(
-            model_name='administrativedivision',
-            name='lft',
+            model_name="administrativedivision",
+            name="lft",
             field=models.PositiveIntegerField(editable=False),
         ),
         migrations.AlterField(
-            model_name='administrativedivision',
-            name='rght',
+            model_name="administrativedivision",
+            name="rght",
             field=models.PositiveIntegerField(editable=False),
         ),
         migrations.AlterField(
-            model_name='administrativedivisiontranslation',
-            name='master',
-            field=parler.fields.TranslationsForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='translations', to='munigeo.AdministrativeDivision'),
+            model_name="administrativedivisiontranslation",
+            name="master",
+            field=parler.fields.TranslationsForeignKey(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="translations",
+                to="munigeo.AdministrativeDivision",
+            ),
         ),
         migrations.AlterField(
-            model_name='municipalitytranslation',
-            name='master',
-            field=parler.fields.TranslationsForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='translations', to='munigeo.Municipality'),
+            model_name="municipalitytranslation",
+            name="master",
+            field=parler.fields.TranslationsForeignKey(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="translations",
+                to="munigeo.Municipality",
+            ),
         ),
         migrations.AlterField(
-            model_name='streettranslation',
-            name='master',
-            field=parler.fields.TranslationsForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='translations', to='munigeo.Street'),
+            model_name="streettranslation",
+            name="master",
+            field=parler.fields.TranslationsForeignKey(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="translations",
+                to="munigeo.Street",
+            ),
         ),
     ]
