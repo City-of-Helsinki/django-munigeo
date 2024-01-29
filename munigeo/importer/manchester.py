@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-import os
 import csv
+import io
+import json
+import os
 
 # import unicodecsv
 import requests
 import requests_cache
-import io
-import json
-
-from django.conf import settings
 from django import db
-from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
+from django.conf import settings
+from django.contrib.gis.gdal import CoordTransform, DataSource, SpatialReference
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
 
-from munigeo.models import *
-from munigeo.importer.sync import ModelSyncher
 from munigeo import ocd
-
 from munigeo.importer.base import Importer, register_importer
+from munigeo.importer.sync import ModelSyncher
+from munigeo.models import *
 
 POI_LIST = [
     {

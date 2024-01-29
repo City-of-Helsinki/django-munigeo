@@ -1,12 +1,13 @@
 import json
+
 import requests
+from django.conf import settings
 from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseNotAllowed,
     HttpResponseNotFound,
 )
-from django.conf import settings
 
 GOOGLE_URL_BASE = "https://maps.googleapis.com/maps/api/place/"
 

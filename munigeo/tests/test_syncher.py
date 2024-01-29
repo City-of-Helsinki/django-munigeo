@@ -1,7 +1,7 @@
 import pytest
 
-from munigeo.models import Municipality
 from munigeo.importer.sync import ModelSyncher
+from munigeo.models import Municipality
 
 
 @pytest.fixture

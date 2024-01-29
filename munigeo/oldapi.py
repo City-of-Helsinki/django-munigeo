@@ -1,18 +1,19 @@
 import json
 import re
 
-from django.db.models import Q
+from django.contrib.gis.gdal import CoordTransform, SpatialReference, SRSException
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
-from django.contrib.gis.gdal import SRSException, SpatialReference, CoordTransform
+from django.db.models import Q
+from modeltranslation.translator import NotRegistered, translator
+from tastypie import fields
+from tastypie.cache import SimpleCache
+from tastypie.constants import ALL, ALL_WITH_RELATIONS
+from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
 from tastypie.http import HttpBadRequest
 from tastypie.resources import ModelResource
-from tastypie.exceptions import InvalidFilterError, ImmediateHttpResponse
-from tastypie.constants import ALL, ALL_WITH_RELATIONS
-from tastypie.cache import SimpleCache
-from tastypie import fields
+
 from munigeo.models import *
-from modeltranslation.translator import translator, NotRegistered
 
 # Use the GPS coordinate system by default
 DEFAULT_SRID = 4326

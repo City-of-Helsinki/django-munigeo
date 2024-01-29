@@ -1,28 +1,30 @@
 import collections
-import re
 import json
-from django.db.models import Q
+import re
 from datetime import datetime
+
 from django.conf import settings
 from django.contrib.gis.db import models
-from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
-from rest_framework import serializers, viewsets, generics
-from rest_framework.exceptions import ParseError
-from django.contrib.gis.gdal import SRSException, CoordTransform, SpatialReference
+from django.contrib.gis.gdal import CoordTransform, SpatialReference, SRSException
 from django.contrib.gis.geos import Point, Polygon
+from django.db.models import Q
+from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
+from rest_framework import generics, serializers, viewsets
+from rest_framework.exceptions import ParseError
 
 try:
     from django.contrib.gis.geos.base import gdal
 except ImportError:
     # Django 1.9 onwards
     from django.contrib.gis import gdal
+
 from munigeo.models import (
-    AdministrativeDivisionType,
+    Address,
     AdministrativeDivision,
     AdministrativeDivisionGeometry,
+    AdministrativeDivisionType,
     Municipality,
     Street,
-    Address,
 )
 
 # Use the GPS coordinate system by default

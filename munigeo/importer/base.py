@@ -1,14 +1,15 @@
-import os
-import requests
 import json
 import logging
-from django.utils.text import slugify
-from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
-from django.conf import settings
+import os
 
-from munigeo.models import *
+import requests
+from django.conf import settings
+from django.contrib.gis.gdal import CoordTransform, DataSource, SpatialReference
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
+from django.utils.text import slugify
+
 from munigeo.importer.sync import ModelSyncher
+from munigeo.models import *
 
 
 def convert_from_wgs84(coords):

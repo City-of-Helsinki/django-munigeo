@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from django.utils.translation import gettext_lazy as _
 from django.contrib.gis.db import models
 from django.db.models.query import Q
-from mptt.models import MPTTModel, TreeForeignKey
+from django.utils.translation import gettext_lazy as _
 from mptt.managers import TreeManager
+from mptt.models import MPTTModel, TreeForeignKey
+from parler.managers import TranslatableManager, TranslatableQuerySet
 from parler.models import TranslatableModel, TranslatedFields
-from parler.managers import TranslatableQuerySet, TranslatableManager
 
 from munigeo.utils import get_default_srid
 

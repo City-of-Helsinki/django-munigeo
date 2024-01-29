@@ -2,16 +2,17 @@
 munigeo importer for Finnish nation-level data
 """
 
-import re
-import os
-import zipfile
-import requests
 import io
+import os
+import re
+import zipfile
 
+import requests
 from django import db
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import MultiPolygon, Polygon
 
+from munigeo import ocd
 from munigeo.importer.base import Importer, register_importer
 from munigeo.importer.sync import ModelSyncher
 from munigeo.models import (
@@ -21,7 +22,7 @@ from munigeo.models import (
     Municipality,
     PROJECTION_SRID,
 )
-from munigeo import ocd
+
 from .helsinki import FIN_GRID, TM35_SRID
 
 try:

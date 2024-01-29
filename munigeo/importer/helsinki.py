@@ -4,24 +4,21 @@ munigeo importer for Helsinki data
 
 import os
 import re
-import requests
-import yaml
-
-from django import db
 from datetime import datetime
 
-from django.contrib.gis.gdal.srs import AxisOrder  # requires django 3.1
-from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
-from django.contrib.gis import gdal
-
-from munigeo.models import *
-from munigeo.importer.sync import ModelSyncher
-from munigeo import ocd
-
-from munigeo.importer.base import Importer, register_importer
-
+import requests
+import yaml
+from django import db
 from django.conf import settings
+from django.contrib.gis import gdal
+from django.contrib.gis.gdal import CoordTransform, DataSource, SpatialReference
+from django.contrib.gis.gdal.srs import AxisOrder  # requires django 3.1
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
+
+from munigeo import ocd
+from munigeo.importer.base import Importer, register_importer
+from munigeo.importer.sync import ModelSyncher
+from munigeo.models import *
 
 MUNI_URL = "https://tilastokeskus.fi/meta/luokitukset/kunta/001-2013/tekstitiedosto.txt"
 
