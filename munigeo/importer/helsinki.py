@@ -133,8 +133,11 @@ class HelsinkiImporter(Importer):
                     parent_geom = parent.geometry.boundary
                     if not geom.intersects(parent_geom):
                         continue
-                    area = (geom - parent.geometry.boundary).area
-                    if area > 1e-6:
+                    # Difference = how much of the area is outside the parent area
+                    area_difference = (geom - parent_geom).area
+                    # The areas must overlap by at least 99.99%,
+                    # i.e. the difference must be less than 0.01%.
+                    if area_difference / geom.area > 0.0001:
                         continue
                     parents.append(parent)
                 if not parents:
