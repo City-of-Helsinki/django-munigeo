@@ -6,14 +6,14 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 def _get_munigeo_models(apps):
-    AD = apps.get_model('munigeo', 'AdministrativeDivision')
-    ADTranslation = apps.get_model('munigeo', 'AdministrativeDivisionTranslation')
+    AD = apps.get_model("munigeo", "AdministrativeDivision")
+    ADTranslation = apps.get_model("munigeo", "AdministrativeDivisionTranslation")
 
-    Municipality = apps.get_model('munigeo', 'Municipality')
-    MunicipalityTranslation = apps.get_model('munigeo', 'MunicipalityTranslation')
+    Municipality = apps.get_model("munigeo", "Municipality")
+    MunicipalityTranslation = apps.get_model("munigeo", "MunicipalityTranslation")
 
-    Street = apps.get_model('munigeo', 'Street')
-    StreetTranslation = apps.get_model('munigeo', 'StreetTranslation')
+    Street = apps.get_model("munigeo", "Street")
+    StreetTranslation = apps.get_model("munigeo", "StreetTranslation")
 
     return [
         (AD, ADTranslation),
@@ -21,10 +21,11 @@ def _get_munigeo_models(apps):
         (Street, StreetTranslation),
     ]
 
+
 def forwards_func(apps, schema_editor):
 
     for lang_code, _ in settings.LANGUAGES:
-        name_field_key = 'name_' + lang_code
+        name_field_key = "name_" + lang_code
 
         for Model, ModelTranslation in _get_munigeo_models(apps):
             for object in Model.objects.all():
@@ -33,18 +34,21 @@ def forwards_func(apps, schema_editor):
                     ModelTranslation.objects.create(
                         master_id=object.pk,
                         language_code=lang_code,
-                        name_parler=translated_name
+                        name_parler=translated_name,
                     )
+
 
 def backwards_func(apps, schema_editor):
 
     for lang_code, _ in settings.LANGUAGES:
-        name_field_key = 'name_' + lang_code
+        name_field_key = "name_" + lang_code
 
         for Model, ModelTranslation in _get_munigeo_models(apps):
             for object in Model.objects.all():
                 try:
-                    translation = ModelTranslation.objects.get(master_id=object.pk, language_code=lang_code)
+                    translation = ModelTranslation.objects.get(
+                        master_id=object.pk, language_code=lang_code
+                    )
                     setattr(object, name_field_key, translation.name_parler)
                     object.save()
                 except ObjectDoesNotExist:
@@ -54,7 +58,7 @@ def backwards_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('munigeo', '0002_add_parler_translations'),
+        ("munigeo", "0002_add_parler_translations"),
     ]
 
     operations = [

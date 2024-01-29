@@ -6,75 +6,75 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('munigeo', '0003_migrate_translations_to_parler'),
+        ("munigeo", "0003_migrate_translations_to_parler"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='administrativedivisiontranslation',
-            old_name='name_parler',
-            new_name='name',
+            model_name="administrativedivisiontranslation",
+            old_name="name_parler",
+            new_name="name",
         ),
         migrations.RenameField(
-            model_name='municipalitytranslation',
-            old_name='name_parler',
-            new_name='name',
+            model_name="municipalitytranslation",
+            old_name="name_parler",
+            new_name="name",
         ),
         migrations.RenameField(
-            model_name='streettranslation',
-            old_name='name_parler',
-            new_name='name',
+            model_name="streettranslation",
+            old_name="name_parler",
+            new_name="name",
         ),
         migrations.RemoveField(
-            model_name='administrativedivision',
-            name='name',
+            model_name="administrativedivision",
+            name="name",
         ),
         migrations.RemoveField(
-            model_name='administrativedivision',
-            name='name_en',
+            model_name="administrativedivision",
+            name="name_en",
         ),
         migrations.RemoveField(
-            model_name='administrativedivision',
-            name='name_fi',
+            model_name="administrativedivision",
+            name="name_fi",
         ),
         migrations.RemoveField(
-            model_name='administrativedivision',
-            name='name_sv',
+            model_name="administrativedivision",
+            name="name_sv",
         ),
         migrations.RemoveField(
-            model_name='municipality',
-            name='name',
+            model_name="municipality",
+            name="name",
         ),
         migrations.RemoveField(
-            model_name='municipality',
-            name='name_en',
+            model_name="municipality",
+            name="name_en",
         ),
         migrations.RemoveField(
-            model_name='municipality',
-            name='name_fi',
+            model_name="municipality",
+            name="name_fi",
         ),
         migrations.RemoveField(
-            model_name='municipality',
-            name='name_sv',
+            model_name="municipality",
+            name="name_sv",
         ),
         migrations.AlterUniqueTogether(
-            name='street',
+            name="street",
             unique_together=set(),
         ),
         migrations.RemoveField(
-            model_name='street',
-            name='name',
+            model_name="street",
+            name="name",
         ),
         migrations.RemoveField(
-            model_name='street',
-            name='name_en',
+            model_name="street",
+            name="name_en",
         ),
         migrations.RemoveField(
-            model_name='street',
-            name='name_fi',
+            model_name="street",
+            name="name_fi",
         ),
         migrations.RemoveField(
-            model_name='street',
-            name='name_sv',
+            model_name="street",
+            name="name_sv",
         ),
     ]
