@@ -214,6 +214,7 @@ class Address(models.Model):
     search_column_fi = SearchVectorField(null=True)
     search_column_sv = SearchVectorField(null=True)
     search_column_en = SearchVectorField(null=True)
+    syllables_fi = ArrayField(models.CharField(max_length=16), default=list)
 
     def __str__(self):
         s = '%s %s' % (self.street, self.number)
@@ -230,6 +231,16 @@ class Address(models.Model):
         indexes = (GinIndex(fields=["search_column_fi"]),
                    GinIndex(fields=["search_column_sv"]),
                    GinIndex(fields=["search_column_en"]))
+        
+    @classmethod
+    def get_syllable_fi_columns(cls):
+        """
+        Defines the columns that will be used when populating
+        finnish syllables to syllables_fi column. The content
+        will be tokenized to lexems(to_tsvector) and added to
+        the search_column.
+        """
+        return ["street__name_fi"]
 
     @classmethod
     def get_search_column_indexing(cls, lang):
@@ -240,6 +251,7 @@ class Address(models.Model):
         if lang == "fi":
             return [
                 ("full_name_fi", "finnish", "A"),
+                ("syllables_fi", "finnish", "A"),
             ]
         elif lang == "sv":
             return [
