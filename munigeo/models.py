@@ -200,7 +200,7 @@ class Address(models.Model):
                               help_text="Building letter if applicable")
     location = models.PointField(srid=PROJECTION_SRID,
                                  help_text="Coordinates of the address")
-    modified_at = models.DateTimeField(help_text='Time when the information was last changed')
+    modified_at = models.DateTimeField(auto_now=True, help_text='Time when the information was last changed')
     postal_code_area = models.ForeignKey(
         PostalCodeArea,
         models.CASCADE,
