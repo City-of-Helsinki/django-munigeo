@@ -231,10 +231,6 @@ class Address(models.Model):
                    GinIndex(fields=["search_column_sv"]),
                    GinIndex(fields=["search_column_en"]))
     
-    def save(self, *args, **kwargs):
-        if not kwargs.pop('skip_modified_at', False):
-            self.modified_at = datetime.now()     
-        super().save(*args, **kwargs)
 
     @classmethod
     def get_syllable_fi_columns(cls):
