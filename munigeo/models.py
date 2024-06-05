@@ -200,7 +200,7 @@ class Address(models.Model):
                               help_text="Building letter if applicable")
     location = models.PointField(srid=PROJECTION_SRID,
                                  help_text="Coordinates of the address")
-    modified_at = models.DateTimeField(help_text='Time when the information was last changed')
+    modified_at = models.DateTimeField(auto_now=True, help_text='Time when the information was last changed')
     postal_code_area = models.ForeignKey(
         PostalCodeArea,
         models.CASCADE,
@@ -231,10 +231,6 @@ class Address(models.Model):
                    GinIndex(fields=["search_column_sv"]),
                    GinIndex(fields=["search_column_en"]))
     
-    def save(self, *args, **kwargs):
-        if not kwargs.pop('skip_modified_at', False):
-            self.modified_at = datetime.now()     
-        super().save(*args, **kwargs)
 
     @classmethod
     def get_syllable_fi_columns(cls):
