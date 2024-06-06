@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
 from django.utils.translation import gettext as _
+from django.utils import timezone
 from django.contrib.gis.db import models
 from django.db.models.query import QuerySet, Q
 from django.contrib.postgres.fields import ArrayField
@@ -233,7 +233,7 @@ class Address(models.Model):
     
     def save(self, *args, **kwargs):
         if not kwargs.pop('skip_modified_at', False):
-            self.modified_at = datetime.now()     
+            self.modified_at = timezone.now()     
         super().save(*args, **kwargs)
 
     @classmethod
