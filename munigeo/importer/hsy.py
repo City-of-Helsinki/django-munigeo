@@ -90,11 +90,15 @@ class HsyImporter(HelsinkiImporter):
         del attr_dict['origin_id']
 
         # Municipality
-        municipality_name = MUNICIPALITY_ID_MAP.get(attr_dict.get('parent_municipality_id'))
+        municipality_id = attr_dict.get('parent_municipality_id')
+        municipality_name = MUNICIPALITY_ID_MAP.get(municipality_id)
         try:
             muni = Municipality.objects.get(name=municipality_name)
         except Municipality.DoesNotExist:
-            self.logger.error("Feature: %s is invalid" % feat)
+            self.logger.warning(
+                "Municipality %s not Helsinki, Vantaa, Espoo, Kauniainen or Kirkkonummi. Skipping..."
+                % municipality_id
+            )
             return None
 
         parent = muni.division
