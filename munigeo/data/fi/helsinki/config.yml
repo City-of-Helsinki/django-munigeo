@@ -88,8 +88,8 @@ divisions:
   - type: emergency_care_district
     name: Päivystysalue
     ocd_id: päivystysalue
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:terke_paivystysalue'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Terke_paivystysalue'
     fields:
         origin_id: id
         ocd_id: tunnus
@@ -99,8 +99,8 @@ divisions:
   - type: rescue_area
     name: Suojelupiiri
     ocd_id: suojelupiiri
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:pel_suojelupiiri'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Pelastus_suojelupiiri'
     fields:
         origin_id: suojelupiiri_tunnus
         ocd_id: suojelupiiri_nimi
@@ -111,8 +111,8 @@ divisions:
   - type: rescue_district
     name: Suojelulohko
     ocd_id: suojelulohko
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:pel_suojelulohko'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Pelastus_suojelulohko'
     fields:
         origin_id: suojelulohko_tunnus
         ocd_id: suojelulohko_nimi
@@ -123,8 +123,8 @@ divisions:
   - type: rescue_sub_district
     name: Suojelulalaohko
     ocd_id: suojelualalohko
-    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:pel_suojelualalohko'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Pelastus_suojelualalohko'
     fields:
         origin_id: suojelualalohko_tunnus
         ocd_id: suojelualalohko_nimi
