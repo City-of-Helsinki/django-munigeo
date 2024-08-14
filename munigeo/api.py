@@ -87,7 +87,7 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
             self.translated_fields = []
             return
 
-        self.translated_fields = trans_opts.fields.keys()
+        self.translated_fields = trans_opts.all_fields.keys()
         lang_codes = [x[0] for x in settings.LANGUAGES]
         remove_fields = []
         # Remove the pre-existing data in the bundle.
