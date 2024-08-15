@@ -13,6 +13,7 @@ from datetime import datetime
 from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
 from django.contrib.gis import gdal
+from django.utils import timezone
 
 from munigeo.models import *
 from munigeo.importer.sync import ModelSyncher
@@ -488,6 +489,7 @@ class HelsinkiImporter(Importer):
                 if postal_code:
                     addr.postal_code_area = postal_code_areas[postal_code]
                 addr.location = location.wkb
+                addr.modified_at = timezone.now()
                 bulk_addr_list.append(addr)
                 street.addrs[addr_id] = addr
             else:
