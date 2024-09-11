@@ -142,6 +142,9 @@ class HsyImporter(HelsinkiImporter):
                 args = {'parent': div['parent_ocd_id']}
             val = attr_dict['ocd_id']
             args[div['ocd_id']] = val
+            if not val:
+                self.logger.warning('ocd_id is None. Skipping division...')
+                return
             try:
                 ocd_id = ocd.make_id(**args)
             except AttributeError:
