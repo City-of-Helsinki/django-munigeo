@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.contrib.gis.geos import Point
 from django.db import transaction
+from django.utils import timezone
 from munigeo.models import Address, PostalCodeArea, Street, Municipality
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -258,7 +259,8 @@ class UusimaaImporter(Importer):
                     full_name_fi=full_name_fi,
                     full_name_sv=full_name_sv,
                     full_name_en=full_name_en,
-                    municipality=municipality
+                    municipality=municipality,
+                    modified_at=timezone.now()
                 )
                 addresses.append(address)
                 self.address_cache[full_name_fi] = address
