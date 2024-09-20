@@ -90,7 +90,7 @@ class UusimaaImporter(Importer):
     http = requests.Session()
     http.mount("https://", adapter)
     http.mount("http://", adapter)
-    headers = {"Authorization": f"Bearer Api-Key {settings.GEO_SEARCH_API_KEY}"}
+    headers = {"Api-Key": f"{settings.GEO_SEARCH_API_KEY}"}
 
     def __init__(self, *args, **kwargs):
         super(UusimaaImporter, self).__init__(*args, **kwargs)
