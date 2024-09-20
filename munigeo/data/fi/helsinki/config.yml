@@ -96,8 +96,8 @@ divisions:
   - type: health_station_district
     name: Terveysasema-aluejako
     ocd_id: terveysasema-alue
-    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:sote_terveysasema_aluejako'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Terveysasemaaluejako'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
@@ -108,8 +108,8 @@ divisions:
   - type: emergency_care_district
     name: Päivystysalue
     ocd_id: päivystysalue
-    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:terke_paivystysalue'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Terke_paivystysalue'
     fields:
         origin_id: id
         ocd_id: tunnus
@@ -119,8 +119,8 @@ divisions:
   - type: rescue_area
     name: Suojelupiiri
     ocd_id: suojelupiiri
-    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:pel_suojelupiiri'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Pelastus_suojelupiiri'
     fields:
         origin_id: suojelupiiri_tunnus
         ocd_id: suojelupiiri_nimi
@@ -131,8 +131,8 @@ divisions:
   - type: rescue_district
     name: Suojelulohko
     ocd_id: suojelulohko
-    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:pel_suojelulohko'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Pelastus_suojelulohko'
     fields:
         origin_id: suojelulohko_tunnus
         ocd_id: suojelulohko_nimi
@@ -143,8 +143,8 @@ divisions:
   - type: rescue_sub_district
     name: Suojelulalaohko
     ocd_id: suojelualalohko
-    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:pel_suojelualalohko'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Pelastus_suojelualalohko'
     fields:
         origin_id: suojelualalohko_tunnus
         ocd_id: suojelualalohko_nimi
@@ -260,8 +260,8 @@ divisions:
   - type: maternity_clinic_district
     name: Neuvola-alue
     ocd_id: neuvola-alue
-    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:sote_neuvola_aluejako'
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Neuvolaaluejako'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
@@ -282,17 +282,54 @@ divisions:
         name:
             fi: nimi
 
-  - type: preschool_education
-    name: Esiopetuksen oppilaaksiottoalue
-    validity:
-        start: '2018-07-01'
-        end: '2019-07-31'
-    ocd_id: esiopetuksen_oppilaaksiottoalue
-    wfs_url: 'https://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:esiopetusalueet_2018'
+  - type: preschool_education_fi
+    name: Oppilaaksiottoalue, esikoulu
+    ocd_id: esiopetuksen_oppilaaksiottoalue_fi
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Esiopetusalue_suomi'
     fields:
-        origin_id: ID
-        ocd_id: ID
-        service_point_id: ID
+        origin_id: id
+        ocd_id: id
+        service_point_id: toimipiste_id
         name:
-            fi: TOIMIPISTE
+            fi: nimi_fi
+            sv: nimi_se
+
+  - type: preschool_education_fi
+    name: Oppilaaksiottoalue, esikoulu
+    ocd_id: esiopetuksen_oppilaaksiottoalue_fi
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Esiopetusalue_suomi_tuleva'
+    fields:
+        origin_id: id
+        ocd_id: id
+        service_point_id: toimipiste_id
+        name:
+            fi: nimi_fi
+            sv: nimi_se
+
+  - type: preschool_education_sv
+    name: Oppilaaksiottoalue, esikoulu (ruotsi)
+    ocd_id: esiopetuksen_oppilaaksiottoalue_sv
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Esiopetusalue_ruotsi'
+    fields:
+        origin_id: id
+        ocd_id: id
+        service_point_id: toimipiste_id
+        name:
+            fi: nimi_fi
+            sv: nimi_se
+
+  - type: preschool_education_sv
+    name: Oppilaaksiottoalue, esikoulu (ruotsi)
+    ocd_id: esiopetuksen_oppilaaksiottoalue_sv
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Esiopetusalue_ruotsi_tuleva'
+    fields:
+        origin_id: id
+        ocd_id: id
+        service_point_id: toimipiste_id
+        name:
+            fi: nimi_fi
+            sv: nimi_se
