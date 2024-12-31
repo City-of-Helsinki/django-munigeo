@@ -105,7 +105,7 @@ class TranslatedModelSerializer(TranslatableModelSerializer):
         for lang_key, trans_dict in ret.pop("translations", {}).items():
 
             for field_name, translation in trans_dict.items():
-                if not field_name in translated_fields:
+                if field_name not in translated_fields:
                     translated_fields[field_name] = {lang_key: translation}
                 else:
                     translated_fields[field_name].update({lang_key: translation})
@@ -238,7 +238,7 @@ class AdministrativeDivisionSerializer(
 ):
     def to_representation(self, obj):
         ret = super(AdministrativeDivisionSerializer, self).to_representation(obj)
-        if not "request" in self.context:
+        if "request" not in self.context:
             return ret
         qparams = self.context["request"].query_params
         if qparams.get("geometry", "").lower() in ("true", "1"):

@@ -3,8 +3,6 @@ import re
 
 from django.contrib.gis.gdal import CoordTransform, SpatialReference, SRSException
 from django.contrib.gis.geos import Point, Polygon
-from django.contrib.gis.measure import D
-from django.db.models import Q
 from modeltranslation.translator import NotRegistered, translator
 from tastypie import fields
 from tastypie.cache import SimpleCache

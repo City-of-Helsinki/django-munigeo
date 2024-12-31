@@ -220,7 +220,7 @@ class HelsinkiImporter(Importer):
                 return obj.origin_id
 
         self.logger.info(div["name"])
-        if not "origin_id" in div["fields"]:
+        if "origin_id" not in div["fields"]:
             raise Exception(
                 "Field 'origin_id' not defined in config section '%s'" % div["name"]
             )
@@ -531,12 +531,12 @@ class HelsinkiImporter(Importer):
                     poi = POI(origin_id=srv_id)
                 poi.name = srv_info["name_fi"]
                 poi.category = cat
-                if not "address_city_fi" in srv_info:
+                if "address_city_fi" not in srv_info:
                     self.logger.info("No city!")
                     self.logger.info(srv_info)
                     continue
                 city_name = srv_info["address_city_fi"]
-                if not city_name in muni_dict:
+                if city_name not in muni_dict:
                     city_name = city_name.encode("utf8")
                     post_code = srv_info.get("address_zip", "")
                     if post_code.startswith("00"):
@@ -568,7 +568,7 @@ class HelsinkiImporter(Importer):
                 poi.municipality = muni_dict[city_name]
                 poi.street_address = srv_info.get("street_address_fi", None)
                 poi.zip_code = srv_info.get("address_zip", None)
-                if not "northing_etrs_gk25" in srv_info:
+                if "northing_etrs_gk25" not in srv_info:
                     self.logger.info("No location!")
                     self.logger.info(srv_info)
                     continue

@@ -4,11 +4,9 @@ import os
 
 import requests
 from django.conf import settings
-from django.contrib.gis.gdal import CoordTransform, DataSource, SpatialReference
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
+from django.contrib.gis.geos import Point
 from django.utils.text import slugify
 
-from munigeo.importer.sync import ModelSyncher
 from munigeo.models import *
 
 
