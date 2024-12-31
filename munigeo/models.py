@@ -32,7 +32,6 @@ class AdministrativeDivisionType(models.Model):
 
 
 class AdministrativeDivisionQuerySet(TranslatableQuerySet):
-
     def by_ancestor(self, ancestor):
         manager = self.model.objects
         max_level = manager.determine_max_level()

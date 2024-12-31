@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("munigeo", "0003_migrate_translations_to_parler"),
     ]
