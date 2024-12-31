@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pinned the `django-parler` version to `>=2` and add a migration required to upgrade it.
 
 ### Fixed
-- Add a `tzinfo` to `Street` and `Address.modified_at` migrations to fix the warning 
+- Add a `tzinfo` to `Street` and `Address.modified_at` migrations to fix the warning
 saying that a timezone-naive date was passed to a `DateTimeField`.
 - helsinki importer: Reverted the change introduced in v0.3.6 which broke Helsinki division import
 - helsinki importer: Fixed empty field value handling
