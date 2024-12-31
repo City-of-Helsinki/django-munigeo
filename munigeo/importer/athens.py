@@ -6,7 +6,7 @@ import requests_cache
 from django.contrib.gis.geos import Point
 
 from munigeo.importer.base import Importer, register_importer
-from munigeo.models import *
+from munigeo.models import PROJECTION_SRID, Municipality
 
 CITADEL_LIST = [
     {
@@ -76,7 +76,7 @@ class AthensImporter(Importer):
         self.muni_data_path = os.path.join(self.data_path, "gr", "athens")
 
     def import_municipalities(self):
-        muni, c = Municipality.objects.get_or_create(id=30001, name="Athens")
+        Municipality.objects.get_or_create(id=30001, name="Athens")
         self.logger.info("Athens municipality added.")
 
     def import_pois_from_citadel(self):

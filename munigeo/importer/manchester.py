@@ -9,7 +9,7 @@ import requests_cache
 from django.contrib.gis.geos import Point
 
 from munigeo.importer.base import Importer, register_importer
-from munigeo.models import *
+from munigeo.models import POI, PROJECTION_SRID, Municipality, POICategory
 
 POI_LIST = [
     {

@@ -1,6 +1,7 @@
 import json
 import re
 
+from django.conf import settings
 from django.contrib.gis.gdal import CoordTransform, SpatialReference, SRSException
 from django.contrib.gis.geos import Point, Polygon
 from modeltranslation.translator import NotRegistered, translator
@@ -11,7 +12,16 @@ from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
 from tastypie.http import HttpBadRequest
 from tastypie.resources import ModelResource
 
-from munigeo.models import *
+from munigeo.models import (
+    POI,
+    PROJECTION_SRID,
+    Address,
+    AdministrativeDivision,
+    AdministrativeDivisionType,
+    Municipality,
+    Plan,
+    POICategory,
+)
 
 # Use the GPS coordinate system by default
 DEFAULT_SRID = 4326

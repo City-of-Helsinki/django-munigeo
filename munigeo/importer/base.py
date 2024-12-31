@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.utils.text import slugify
 
-from munigeo.models import *
+from munigeo.models import POI, PROJECTION_SRID, POICategory
 
 
 def convert_from_wgs84(coords):
