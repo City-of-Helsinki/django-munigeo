@@ -13,7 +13,6 @@ DEFAULT_SRID = get_default_srid()
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ("munigeo", "0001_initial"),
         ("munigeo", "0002_auto_20150608_1607"),

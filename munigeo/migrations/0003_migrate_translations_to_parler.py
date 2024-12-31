@@ -23,7 +23,6 @@ def _get_munigeo_models(apps):
 
 
 def forwards_func(apps, schema_editor):
-
     for lang_code, _ in settings.LANGUAGES:
         name_field_key = "name_" + lang_code
 
@@ -39,7 +38,6 @@ def forwards_func(apps, schema_editor):
 
 
 def backwards_func(apps, schema_editor):
-
     for lang_code, _ in settings.LANGUAGES:
         name_field_key = "name_" + lang_code
 
@@ -56,7 +54,6 @@ def backwards_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("munigeo", "0002_add_parler_translations"),
     ]
