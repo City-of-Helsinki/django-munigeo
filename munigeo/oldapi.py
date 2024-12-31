@@ -100,13 +100,13 @@ class TranslatableCachedResource(ModelResource):
             for lang in LANGUAGES[1:]:
                 key = "%s_%s" % (field_name, lang)
                 val = getattr(bundle.obj, key, None)
-                if val == None:
+                if val is None:
                     continue
                 d[lang] = val
 
             # If no text provided, leave the field as null
-            for key, val in d.items():
-                if val != None:
+            for val in d.values():
+                if val is not None:
                     break
             else:
                 d = None
@@ -213,7 +213,6 @@ class AdministrativeDivisionResource(TranslatableCachedResource):
             "end": ALL,
             "name": ALL,
             "parent": ALL_WITH_RELATIONS,
-            "type": ALL_WITH_RELATIONS,
         }
         excludes = ["lft", "rght", "tree_id"]
         list_allowed_methods = ["get"]

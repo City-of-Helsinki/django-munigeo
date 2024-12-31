@@ -3,7 +3,6 @@ import io
 import json
 import os
 
-# import unicodecsv
 import requests
 import requests_cache
 from django.contrib.gis.geos import Point
@@ -85,6 +84,8 @@ class ManchesterImporter(Importer):
 
             s = resp.text.encode("utf8").decode("utf8")
             f = io.StringIO(s)
+            import unicodecsv
+
             reader = unicodecsv.reader(f, delimiter=",", quotechar='"', encoding="utf8")
             # skip header
             next(reader)
@@ -111,7 +112,7 @@ class ManchesterImporter(Importer):
                 poi.save()
 
     def import_pois_from_rest(self):
-        URL_BASE = "http://www.manchester.gov.uk/site/custom_scripts/getServiceDetailsjs.php?service=%d&postcode=M2+5DB&count=10000&format=json"
+        url_base = "http://www.manchester.gov.uk/site/custom_scripts/getServiceDetailsjs.php?service=%d&postcode=M2+5DB&count=10000&format=json"
 
         muni = Municipality.objects.get(id=44001)
         for srv_id in list(SERVICE_CATEGORY_MAP.keys()):
@@ -121,7 +122,7 @@ class ManchesterImporter(Importer):
             )
 
             self.logger.info("Importing %s" % cat_type)
-            ret = requests.get(URL_BASE % srv_id)
+            ret = requests.get(url_base % srv_id)
             if ret.status_code != 200:
                 raise Exception("HTTP request failed with %d" % ret.status_code)
             # Fix quoting bug

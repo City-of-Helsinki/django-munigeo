@@ -16,11 +16,11 @@ from munigeo import ocd
 from munigeo.importer.base import Importer, register_importer
 from munigeo.importer.sync import ModelSyncher
 from munigeo.models import (
+    PROJECTION_SRID,
     AdministrativeDivision,
     AdministrativeDivisionGeometry,
     AdministrativeDivisionType,
     Municipality,
-    PROJECTION_SRID,
 )
 
 from .helsinki import FIN_GRID, TM35_SRID
@@ -176,7 +176,7 @@ class FinlandImporter(Importer):
                         self._process_muni(syncher, feat)
                 if executor:
                     for f in futures:
-                        res = f.result()
+                        _ = f.result()
                     executor.shutdown()
 
             AdministrativeDivision.objects.rebuild()

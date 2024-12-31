@@ -6,14 +6,14 @@ from django.db import migrations
 
 
 def _get_munigeo_models(apps):
-    AD = apps.get_model("munigeo", "AdministrativeDivision")
-    ADTranslation = apps.get_model("munigeo", "AdministrativeDivisionTranslation")
+    AD = apps.get_model("munigeo", "AdministrativeDivision")  # noqa: N806
+    ADTranslation = apps.get_model("munigeo", "AdministrativeDivisionTranslation")  # noqa: N806
 
-    Municipality = apps.get_model("munigeo", "Municipality")
-    MunicipalityTranslation = apps.get_model("munigeo", "MunicipalityTranslation")
+    Municipality = apps.get_model("munigeo", "Municipality")  # noqa: N806
+    MunicipalityTranslation = apps.get_model("munigeo", "MunicipalityTranslation")  # noqa: N806
 
-    Street = apps.get_model("munigeo", "Street")
-    StreetTranslation = apps.get_model("munigeo", "StreetTranslation")
+    Street = apps.get_model("munigeo", "Street")  # noqa: N806
+    StreetTranslation = apps.get_model("munigeo", "StreetTranslation")  # noqa: N806
 
     return [
         (AD, ADTranslation),
@@ -26,7 +26,7 @@ def forwards_func(apps, schema_editor):
     for lang_code, _ in settings.LANGUAGES:
         name_field_key = "name_" + lang_code
 
-        for Model, ModelTranslation in _get_munigeo_models(apps):
+        for Model, ModelTranslation in _get_munigeo_models(apps):  # noqa: N806
             for object in Model.objects.all():
                 translated_name = getattr(object, name_field_key)
                 if translated_name:
@@ -41,7 +41,7 @@ def backwards_func(apps, schema_editor):
     for lang_code, _ in settings.LANGUAGES:
         name_field_key = "name_" + lang_code
 
-        for Model, ModelTranslation in _get_munigeo_models(apps):
+        for Model, ModelTranslation in _get_munigeo_models(apps):  # noqa: N806
             for object in Model.objects.all():
                 try:
                     translation = ModelTranslation.objects.get(
