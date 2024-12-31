@@ -344,7 +344,7 @@ class HelsinkiImporter(Importer):
         self._import_plans("Lv_rajaus.TAB", True)
         self._import_plans("Kaava_vir_rajaus.TAB", False)
         self.logger.info("Saving")
-        for key, obj in self.plan_map.items():
+        for obj in self.plan_map.values():
             if obj.found:
                 obj.save()
             else:
@@ -352,8 +352,6 @@ class HelsinkiImporter(Importer):
 
     @db.transaction.atomic
     def import_addresses(self):
-        none_to_str = lambda s: s or ""
-
         wfs_url = (
             "https://kartta.hel.fi/ws/geoserver/avoindata/wfs?"
             "SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&"
@@ -399,7 +397,6 @@ class HelsinkiImporter(Importer):
                 street.addrs[make_addr_id(a.number, a.number_end, a.letter)] = a
 
         bulk_addr_list = []
-        bulk_street_list = []
         count = 0
 
         self.logger.info("starting data synchronization")
@@ -407,8 +404,8 @@ class HelsinkiImporter(Importer):
             count += 1
             if count % 1000 == 0:
                 self.logger.debug("{} processed".format(count))
-            street_name = none_to_str(feat.get("katunimi")).strip()
-            street_name_sv = none_to_str(feat.get("gatan")).strip()
+            street_name = (feat.get("katunimi") or "").strip()
+            street_name_sv = (feat.get("gatan") or "").strip()
 
             num = feat.get("osoitenumero")
 
@@ -428,10 +425,8 @@ class HelsinkiImporter(Importer):
                     )
                     continue
 
-            num2 = none_to_str(feat.get("osoitenumero2"))
-            if num2 == 0:
-                num2 = ""
-            letter = none_to_str(feat.get("osoitekirjain")).strip()
+            num2 = feat.get("osoitenumero2") or ""
+            letter = (feat.get("osoitekirjain") or "").strip()
 
             coord_n = int(feat.get("n"))
             coord_e = int(feat.get("e"))
@@ -490,8 +485,6 @@ class HelsinkiImporter(Importer):
                 #    addr.save()
             addr._found = True
 
-            # self.logger.info("%s: %s %d%s N%d E%d (%f,%f)" % (muni_name, street, num, letter, coord_n, coord_e, pnt.y, pnt.x))
-
             if len(bulk_addr_list) >= 10000:
                 self.logger.info("Saving %d new addresses" % len(bulk_addr_list))
 
@@ -520,7 +513,7 @@ class HelsinkiImporter(Importer):
         self.logger.info("synchronization complete")
 
     def import_pois(self):
-        URL_BASE = "https://www.hel.fi/palvelukarttaws/rest/v2/unit/?service=%d"
+        url_base = "https://www.hel.fi/palvelukarttaws/rest/v2/unit/?service=%d"
 
         muni_dict = {}
         for muni in Municipality.objects.all():
@@ -533,7 +526,7 @@ class HelsinkiImporter(Importer):
             )
 
             self.logger.info("Importing %s" % cat_type)
-            ret = requests.get(URL_BASE % srv_id)
+            ret = requests.get(url_base % srv_id)
             for srv_info in ret.json():
                 srv_id = str(srv_info["id"])
                 try:
