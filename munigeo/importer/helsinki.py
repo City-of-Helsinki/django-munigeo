@@ -18,7 +18,18 @@ from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
 from munigeo import ocd
 from munigeo.importer.base import Importer, register_importer
 from munigeo.importer.sync import ModelSyncher
-from munigeo.models import *
+from munigeo.models import (
+    POI,
+    PROJECTION_SRID,
+    Address,
+    AdministrativeDivision,
+    AdministrativeDivisionGeometry,
+    AdministrativeDivisionType,
+    Municipality,
+    Plan,
+    POICategory,
+    Street,
+)
 
 MUNI_URL = "https://tilastokeskus.fi/meta/luokitukset/kunta/001-2013/tekstitiedosto.txt"
 
