@@ -1,15 +1,14 @@
-black
 django>=3.2.16
 django-mptt
 django-parler>=2
 django-parler-rest
 djangorestframework
-isort
 psycopg2
 pytest
 pytest-cov
 pyyaml
 requests
 requests-cache
+ruff
 six
 unicodecsv

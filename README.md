@@ -34,3 +34,18 @@ then
 ```
 python manage.py geo_import helsinki --divisions
 ```
+
+## Code format
+
+This project uses [Ruff](https://docs.astral.sh/ruff/) for code formatting and quality checking.
+
+Basic `ruff` commands:
+
+* lint: `ruff check`
+* apply safe lint fixes: `ruff check --fix`
+* check formatting: `ruff format --check`
+* format: `ruff format`
+
+[`pre-commit`](https://pre-commit.com/) can be used to install and
+run all the formatting tools as git hooks automatically before a
+commit.
