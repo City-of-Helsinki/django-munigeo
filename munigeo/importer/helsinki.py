@@ -110,6 +110,7 @@ class HelsinkiImporter(Importer):
                 for lang, field_name in field.items():
                     val = feat[field_name].as_string()
                     # If the name is in all caps, fix capitalization.
+                    val = val or ""
                     if not re.search("[a-z]", val):
                         val = val.title()
                     d[lang] = val.strip()
