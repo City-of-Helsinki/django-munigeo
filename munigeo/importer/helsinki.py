@@ -193,6 +193,9 @@ class HelsinkiImporter(Importer):
             else:
                 args = {"parent": div["parent_ocd_id"]}
             val = attr_dict["ocd_id"]
+            if not val:
+                self.logger.warning("ocd_id is empty. Skipping division...")
+                return
             args[div["ocd_id"]] = val
             obj.ocd_id = ocd.make_id(**args)
             self.logger.debug("%s" % obj.ocd_id)
