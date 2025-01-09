@@ -9,6 +9,6 @@ pytest-cov
 pyyaml
 requests
 requests-cache
-ruff
+ruff==0.8.4  # Sync with .pre-commit-config.yaml
 six
 unicodecsv
