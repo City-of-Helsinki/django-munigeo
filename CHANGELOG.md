@@ -6,13 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.3.11] - 2025-01-20
 ### Fixed
 - helsinki importer: Make tolerance for divisions extending past their parents relative to parent
   area (from 300 m^2 to 0.1% of parent area)
 - helsinki importer: Update `statistical_district` WFS layer value
 - helsinki importer: Remove unused Helsinki WFS layers
 
-## [0.3.10]
+## [0.3.10] - 2023-12-04
 ### Fixed
 - Fix Helsinki importer urls
 
@@ -46,6 +48,7 @@ saying that a timezone-naive date was passed to a `DateTimeField`.
   parents (from 1e-6 to 300 m^2). Helsinki data could not be imported previously.
 
 [unreleased]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.3.10...HEAD
+[0.3.11]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/City-of-Helsinki/django-munigeo/compare/v0.3.7...v0.3.8
