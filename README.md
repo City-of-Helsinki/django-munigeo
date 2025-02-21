@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/City-of-Helsinki/django-munigeo/branch/master/graph/badge.svg)](https://codecov.io/gh/City-of-Helsinki/django-munigeo)
+[![codecov](https://codecov.io/gh/City-of-Helsinki/django-munigeo/branch/main/graph/badge.svg)](https://codecov.io/gh/City-of-Helsinki/django-munigeo)
 
 munigeo
 =======
