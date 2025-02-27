@@ -1,6 +1,6 @@
-import collections
 import json
 import re
+from collections.abc import Mapping
 from datetime import datetime
 
 from django.conf import settings
@@ -194,7 +194,7 @@ class GeoModelSerializer(serializers.ModelSerializer):
         if obj is None:
             return ret
         for field_name in self.geo_fields:
-            if isinstance(obj, collections.Mapping):
+            if isinstance(obj, Mapping):
                 ret[field_name] = obj
             else:
                 val = getattr(obj, field_name)
