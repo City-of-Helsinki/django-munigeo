@@ -20,9 +20,9 @@ setup(
     author='Juha Yrjölä',
     author_email='juha.yrjola@iki.fi',
     install_requires=[
-        'Django',
+        'Django>=4.2',
         'requests',
-        'django_mptt',
+        'django_mptt>=0.18.0',
         'django_modeltranslation',
         'six',
         'pyyaml',
