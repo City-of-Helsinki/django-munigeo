@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import activate, get_language
@@ -23,7 +21,7 @@ class Command(BaseCommand):
             )
 
     def __init__(self):
-        super(Command, self).__init__()
+        super().__init__()
 
     def handle(self, *args, **options):
         importers = get_importers()
@@ -36,7 +34,7 @@ class Command(BaseCommand):
             )
         if imp_name not in importers:
             raise CommandError(
-                "Importer %s not found. Valid importers: %s" % (args[0], imp_list)
+                f"Importer {args[0]} not found. Valid importers: {imp_list}"
             )
         imp_class = importers[imp_name]
         importer = imp_class(options)
@@ -52,7 +50,9 @@ class Command(BaseCommand):
             if options[imp_type]:
                 if not method:
                     raise CommandError(
-                        "Importer %s does not support importing %s" % (name, imp_type)
+                        "Importer {} does not support importing {}".format(
+                            name, imp_type
+                        )
                     )
             else:
                 if not options["all"]:

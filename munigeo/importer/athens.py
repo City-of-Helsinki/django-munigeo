@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 
 # import unicodecsv
@@ -71,7 +70,7 @@ class AthensImporter(Importer):
     name = "athens"
 
     def __init__(self, *args, **kwargs):
-        super(AthensImporter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.data_path = self.options["data_path"]
         self.muni_data_path = os.path.join(self.data_path, "gr", "athens")
 

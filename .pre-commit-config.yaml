@@ -11,14 +11,24 @@ repos:
       - id: check-yaml
       - id: check-toml
       - id: check-added-large-files
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.4  # Sync with requirements.txt
+  # Run pyupgrade and django-upgrade before ruff, as these two might alter
+  # the code in a way that requires reformatting.
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.21.0
     hooks:
-      - id: ruff
-        name: ruff lint
+      - id: pyupgrade
+        args: ["--py310-plus"]
+  - repo: https://github.com/adamchainz/django-upgrade
+    rev: "1.29.1"
+    hooks:
+      - id: django-upgrade
+        args: [--target-version, "4.2"]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.2
+    hooks:
+      - id: ruff-check
+        args: [ --fix ]
       - id: ruff-format
-        name: ruff format
-        args: [ --check ]
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.13.0
     hooks:

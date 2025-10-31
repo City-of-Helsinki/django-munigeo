@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.contrib.gis.db import models
 from django.db.models.query import Q
 from django.utils.translation import gettext_lazy as _
@@ -28,7 +27,7 @@ class AdministrativeDivisionType(models.Model):
     # lau_level = models.PositiveSmallIntegerField(null=True, db_index=True)
 
     def __str__(self):
-        return "%s (%s)" % (self.name, self.type)
+        return f"{self.name} ({self.type})"
 
 
 class AdministrativeDivisionQuerySet(TranslatableQuerySet):
@@ -110,9 +109,9 @@ class AdministrativeDivision(MPTTModel, TranslatableModel):
         if self.ocd_id:
             ocd_id = "%s / " % self.ocd_id
         if self.name:
-            return "%s (%s%s)" % (self.name, ocd_id, self.type.type)
+            return f"{self.name} ({ocd_id}{self.type.type})"
         else:
-            return "(%s%s)" % (ocd_id, self.type.type)
+            return f"({ocd_id}{self.type.type})"
 
     class Meta:
         unique_together = (("origin_id", "type", "parent"),)
@@ -153,7 +152,7 @@ class Plan(models.Model):
         effect = "in effect"
         if not self.in_effect:
             effect = "not " + effect
-        return "Plan %s (%s, %s)" % (self.origin_id, self.municipality, effect)
+        return f"Plan {self.origin_id} ({self.municipality}, {effect})"
 
     class Meta:
         unique_together = (("municipality", "origin_id"),)
@@ -199,7 +198,7 @@ class Address(models.Model):
     )
 
     def __str__(self):
-        s = "%s %s" % (self.street, self.number)
+        s = f"{self.street} {self.number}"
         if self.number_end:
             s += "-%s" % self.number_end
         if self.letter:
@@ -224,7 +223,7 @@ class Building(models.Model):
     )
 
     def __str__(self):
-        return "%s in %s" % (self.origin_id, self.municipality)
+        return f"{self.origin_id} in {self.municipality}"
 
     class Meta:
         ordering = ["municipality", "origin_id"]
@@ -235,7 +234,7 @@ class POICategory(models.Model):
     description = models.CharField(max_length=100)
 
     def __str__(self):
-        return "%s (%s)" % (self.type, self.description)
+        return f"{self.type} ({self.description})"
 
 
 class POI(models.Model):
@@ -251,4 +250,4 @@ class POI(models.Model):
     origin_id = models.CharField(max_length=40, db_index=True, unique=True)
 
     def __str__(self):
-        return "%s (%s, %s)" % (self.name, self.category.type, self.municipality)
+        return f"{self.name} ({self.category.type}, {self.municipality})"
