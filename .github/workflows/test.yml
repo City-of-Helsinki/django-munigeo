@@ -10,6 +10,28 @@ on:
     branches: [ main ]
 
 jobs:
+  commitlint:
+    name: Check commit messages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run commitlint
+        uses: wagoid/commitlint-github-action@3d28780bbf0365e29b144e272b2121204d5be5f3  # v6.1.2
+
+  pre-commit:
+    name: Run pre-commit hooks
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Setup Python ${{ env.DEFAULT_PYTHON }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.DEFAULT_PYTHON }}
+    - name: Run pre-commit
+      uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+
   test:
     name: Python ${{ matrix.python_version }}
     runs-on: ubuntu-22.04
@@ -45,20 +67,3 @@ jobs:
     - name: Upload Coverage to Codecov
       if: ${{ matrix.python_version == env.DEFAULT_PYTHON }}
       uses: codecov/codecov-action@v4
-
-  commitlint:
-    name: Commitlint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check commitlint
-        uses: wagoid/commitlint-github-action@0d749a1a91d4770e983a7b8f83d4a3f0e7e0874e  # v5.4.4
-
-  ruff:
-    name: Coding style - ruff
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/ruff-action@v3
-      - run: ruff check --fix
-      - run: ruff format
