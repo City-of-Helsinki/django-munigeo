@@ -16,7 +16,7 @@ def convert_from_wgs84(coords):
     return pnt
 
 
-class Importer(object):
+class Importer:
     def _import_citadel(self, muni, info):
         muni_slug = slugify(muni.name)
 
@@ -34,7 +34,7 @@ class Importer(object):
                 defaults={"description": cat_info["category_desc"]},
             )
 
-            origin_id = "%s-%s-%s" % (muni_slug, cat.type, d["id"])
+            origin_id = "{}-{}-{}".format(muni_slug, cat.type, d["id"])
 
             try:
                 poi = POI.objects.get(origin_id=origin_id)
@@ -97,7 +97,7 @@ def get_importers():
         # Skip athens and manchester modules due to unsolved problems
         if module in ("__init__", "base", "athens", "manchester"):
             continue
-        full_path = "%s.%s" % (module_path, module)
+        full_path = f"{module_path}.{module}"
         importlib = __import__("importlib")
         importlib.import_module(full_path)
     return importers

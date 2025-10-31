@@ -73,11 +73,11 @@ LANGUAGES = [x[0] for x in settings.LANGUAGES]
 
 class TranslatableCachedResource(ModelResource):
     def __init__(self, api_name=None):
-        super(TranslatableCachedResource, self).__init__(api_name)
+        super().__init__(api_name)
         self._meta.cache = SimpleCache(timeout=300)
 
     def dehydrate(self, bundle):
-        bundle = super(TranslatableCachedResource, self).dehydrate(bundle)
+        bundle = super().dehydrate(bundle)
         obj = bundle.obj
         try:
             trans_opts = translator.get_options_for_model(type(obj))
@@ -90,7 +90,7 @@ class TranslatableCachedResource(ModelResource):
 
             # Remove the pre-existing data in the bundle.
             for lang in LANGUAGES:
-                key = "%s_%s" % (field_name, lang)
+                key = f"{field_name}_{lang}"
                 if key in bundle.data:
                     del bundle.data[key]
 
@@ -98,7 +98,7 @@ class TranslatableCachedResource(ModelResource):
             default_lang = LANGUAGES[0]
             d[default_lang] = getattr(obj, field_name)
             for lang in LANGUAGES[1:]:
-                key = "%s_%s" % (field_name, lang)
+                key = f"{field_name}_{lang}"
                 val = getattr(bundle.obj, key, None)
                 if val is None:
                     continue
@@ -156,9 +156,7 @@ class AdministrativeDivisionResource(TranslatableCachedResource):
         return data
 
     def apply_filters(self, request, filters):
-        obj_list = super(AdministrativeDivisionResource, self).apply_filters(
-            request, filters
-        )
+        obj_list = super().apply_filters(request, filters)
         if request.GET.get("format") == "geojson":
             obj_list = obj_list.select_related("geometry")
         return obj_list
@@ -176,7 +174,7 @@ class AdministrativeDivisionResource(TranslatableCachedResource):
                 del filters["type"]
                 filters["type__type"] = type_str
 
-        orm_filters = super(AdministrativeDivisionResource, self).build_filters(filters)
+        orm_filters = super().build_filters(filters)
         if filters and "input" in filters:
             orm_filters.update(self.query_to_filters(filters["input"]))
         return orm_filters
@@ -192,12 +190,12 @@ class AdministrativeDivisionResource(TranslatableCachedResource):
             geom_str = geom.geojson
             bundle.data["boundary"] = json.loads(geom_str)
 
-        return super(AdministrativeDivisionResource, self).dehydrate(bundle)
+        return super().dehydrate(bundle)
 
     def determine_format(self, request):
         if request.GET.get("format") == "geojson":
             return "application/json"
-        return super(AdministrativeDivisionResource, self).determine_format(request)
+        return super().determine_format(request)
 
     class Meta:
         queryset = (
@@ -254,16 +252,14 @@ class AddressResource(ModelResource):
             pnt = Point(lon, lat, srid=4326)
             pnt.transform(PROJECTION_SRID)
             objects = objects.distance(pnt).order_by("distance")
-        return super(AddressResource, self).apply_sorting(objects, options)
+        return super().apply_sorting(objects, options)
 
     def apply_filters(self, request, applicable_filters):
         if "distinct_streets" in applicable_filters:
             ds = applicable_filters.pop("distinct_streets")
         else:
             ds = None
-        queryset = super(AddressResource, self).apply_filters(
-            request, applicable_filters
-        )
+        queryset = super().apply_filters(request, applicable_filters)
         if ds:
             queryset = queryset.order_by(*ds["order_by"]).distinct(*ds["distinct"])
         return queryset
@@ -301,7 +297,7 @@ class AddressResource(ModelResource):
         return filters
 
     def build_filters(self, filters=None):
-        orm_filters = super(AddressResource, self).build_filters(filters)
+        orm_filters = super().build_filters(filters)
         if filters:
             if "name" in filters:
                 orm_filters.update(self.query_to_filters(filters["name"]))
@@ -363,7 +359,7 @@ class POIResource(TranslatableCachedResource):
             pnt = Point(lon, lat, srid=4326)
             pnt.transform(PROJECTION_SRID)
             objects = objects.distance(pnt).order_by("distance")
-        return super(POIResource, self).apply_sorting(objects, options)
+        return super().apply_sorting(objects, options)
 
     def dehydrate_location(self, bundle):
         srid = bundle.request.GET.get("srid", None)
@@ -398,7 +394,7 @@ class PlanResource(ModelResource):
     # help_text="ID of the municipality that this plan belongs to")
 
     def build_filters(self, filters=None):
-        orm_filters = super(PlanResource, self).build_filters(filters)
+        orm_filters = super().build_filters(filters)
         if filters and "bbox" in filters:
             bbox_filter = build_bbox_filter(filters["bbox"], "geometry")
             orm_filters.update(bbox_filter)
@@ -407,7 +403,7 @@ class PlanResource(ModelResource):
     def full_dehydrate(self, bundle, for_list=False):
         # Convert to WGS-84 before outputting.
         bundle.obj.geometry.transform(4326)
-        return super(PlanResource, self).full_dehydrate(bundle, for_list)
+        return super().full_dehydrate(bundle, for_list)
 
     class Meta:
         queryset = Plan.objects.all()

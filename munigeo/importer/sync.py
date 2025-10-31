@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class ModelSyncher(object):
+class ModelSyncher:
     def __init__(self, queryset, generate_obj_id):
         d = {}
         self.generate_obj_id = generate_obj_id
@@ -18,7 +18,7 @@ class ModelSyncher(object):
     def mark(self, obj):
         if getattr(obj, "_found", False):
             raise Exception(
-                "Object %s (%s) already marked" % (obj, self.generate_obj_id(obj))
+                f"Object {obj} ({self.generate_obj_id(obj)}) already marked"
             )
 
         obj._found = True

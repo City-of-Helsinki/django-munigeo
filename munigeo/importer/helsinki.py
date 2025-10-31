@@ -62,7 +62,7 @@ if GK25_SRS.srid != PROJECTION_SRID:
 
 
 def convert_from_gk25(north, east):
-    ps = "POINT (%f %f)" % (east, north)
+    ps = f"POINT ({east:f} {north:f})"
     g = gdal.OGRGeometry(ps, GK25_SRS)
     if coord_transform:
         g.transform(coord_transform)
@@ -80,7 +80,7 @@ class HelsinkiImporter(Importer):
     name = "helsinki"
 
     def __init__(self, *args, **kwargs):
-        super(HelsinkiImporter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.muni_data_path = "fi/helsinki"
 
     def _find_parent_division(self, parent_info):
@@ -166,7 +166,7 @@ class HelsinkiImporter(Importer):
             parent = muni.division
 
         if "parent" in div and parent:
-            full_id = "%s-%s" % (parent.origin_id, origin_id)
+            full_id = f"{parent.origin_id}-{origin_id}"
         else:
             full_id = origin_id
         obj = syncher.get(full_id)
@@ -226,7 +226,7 @@ class HelsinkiImporter(Importer):
     def _import_one_division_type(self, muni, div):
         def make_div_id(obj):
             if "parent" in div:
-                return "%s-%s" % (obj.parent.origin_id, obj.origin_id)
+                return f"{obj.parent.origin_id}-{obj.origin_id}"
             else:
                 return obj.origin_id
 
@@ -293,7 +293,7 @@ class HelsinkiImporter(Importer):
 
     def import_divisions(self):
         path = self.find_data_file(os.path.join(self.muni_data_path, "config.yml"))
-        config = yaml.safe_load(open(path, "r"))
+        config = yaml.safe_load(open(path))
         self.division_data_path = os.path.join(
             self.muni_data_path, config["paths"]["division"]
         )
@@ -374,12 +374,12 @@ class HelsinkiImporter(Importer):
                 num_end = ""
             if letter is None:
                 letter = ""
-            return "%s-%s-%s" % (num, num_end, letter)
+            return f"{num}-{num_end}-{letter}"
 
         for muni in muni_list:
             muni_dict[muni.get_translation("fi").name] = muni
 
-            self.logger.info("Loading existing data for {}".format(muni))
+            self.logger.info(f"Loading existing data for {muni}")
 
             streets = Street.objects.filter(municipality=muni)
             muni.streets_by_name = {}
@@ -403,7 +403,7 @@ class HelsinkiImporter(Importer):
         for feat in lyr:
             count += 1
             if count % 1000 == 0:
-                self.logger.debug("{} processed".format(count))
+                self.logger.debug(f"{count} processed")
             street_name = (feat.get("katunimi") or "").strip()
             street_name_sv = (feat.get("gatan") or "").strip()
 
@@ -435,9 +435,7 @@ class HelsinkiImporter(Importer):
             muni = muni_dict[muni_name]
             street = muni.streets_by_name.get(street_name, None)
             if not street:
-                self.logger.info(
-                    "street {} not found in DB, creating it".format(street_name)
-                )
+                self.logger.info(f"street {street_name} not found in DB, creating it")
                 street = Street(municipality=muni)
                 street.set_current_language("fi")
                 street.name = street_name
@@ -451,9 +449,7 @@ class HelsinkiImporter(Importer):
             else:
                 street.set_current_language("sv")
                 if street.name != street_name_sv:
-                    self.logger.warning(
-                        "%s: %s -> %s" % (street, street.name, street_name_sv)
-                    )
+                    self.logger.warning(f"{street}: {street.name} -> {street_name_sv}")
                     street.name = street_name_sv
                     street.save()
             street._found = True
@@ -475,7 +471,7 @@ class HelsinkiImporter(Importer):
                 street.addrs[addr_id] = addr
             else:
                 if addr._found:
-                    self.logger.debug("{}: is duplicate, skipping".format(addr))
+                    self.logger.debug(f"{addr}: is duplicate, skipping")
                     continue
                 # if the location has changed for more than 10cm, save the new one.
                 assert addr.location.srid == location.srid, "SRID changed"
@@ -495,19 +491,19 @@ class HelsinkiImporter(Importer):
                 db.reset_queries()
 
         if bulk_addr_list:
-            self.logger.info("Saving {} new addresses".format(len(bulk_addr_list)))
+            self.logger.info(f"Saving {len(bulk_addr_list)} new addresses")
             Address.objects.bulk_create(bulk_addr_list)
             bulk_addr_list = []
 
         for muni in muni_list:
             for s in muni.streets_by_name.values():
                 if not s._found:
-                    self.logger.info("Street {} removed".format(s))
+                    self.logger.info(f"Street {s} removed")
                     s.delete()
                     continue
                 for a in s.addrs.values():
                     if not a._found:
-                        self.logger.info("Address {} removed".format(a))
+                        self.logger.info(f"Address {a} removed")
                         a.delete()
 
         self.logger.info("synchronization complete")

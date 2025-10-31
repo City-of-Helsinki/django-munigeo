@@ -35,7 +35,7 @@ def google_autocomplete(request):
     ret = r.json()
     s = json.dumps(ret)
     if callback:
-        s = "%s && %s(%s);" % (callback, callback, s)
+        s = f"{callback} && {callback}({s});"
     return HttpResponse(s, content_type="application/json")
 
 
@@ -59,5 +59,5 @@ def google_details(request):
     ret = r.json()
     s = json.dumps(ret)
     if callback:
-        s = "%s && %s(%s);" % (callback, callback, s)
+        s = f"{callback} && {callback}({s});"
     return HttpResponse(s, content_type="application/json")
