@@ -1,3 +1,4 @@
+import os
 import django
 from django.conf import settings
 
@@ -43,6 +44,10 @@ if not settings.configured:
         USE_L10N=True,
         USE_TZ=True,
         STATIC_URL='/static/',
+        PROJECTION_SRID=3067,
+        DEFAULT_SRID=4326,
+        GDAL_LIBRARY_PATH=os.environ.get("GDAL_LIBRARY_PATH"),
+        GEOS_LIBRARY_PATH=os.environ.get("GEOS_LIBRARY_PATH"),
     )
 
     django.setup()

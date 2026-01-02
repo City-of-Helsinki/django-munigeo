@@ -264,10 +264,10 @@ class AdministrativeDivisionSerializer(GeoModelSerializer, TranslatedModelSerial
 def parse_lat_lon(query_params):
     lat = query_params.get('lat', None)
     lon = query_params.get('lon', None)
-    if not lat and not lon:
+    if lat is None and lon is None:
         return None
 
-    if not lat or not lon:
+    if lat is None or lon is None:
         raise ParseError("you must supply both 'lat' and 'lon'")
     try:
         lat = float(lat)
@@ -275,11 +275,29 @@ def parse_lat_lon(query_params):
     except ValueError:
         raise ParseError("'lat' and 'lon' must be floating point numbers")
 
+    # Validate coordinates are within valid ranges for WGS84 (SRID 4326)
+    if not -90 <= lat <= 90:
+        raise ParseError("'lat' must be between -90 and 90")
+    if not -180 <= lon <= 180:
+        raise ParseError("'lon' must be between -180 and 180")
+
+    # Validate coordinates are within valid ranges for Finland if using Finnish SRID
+    if DATABASE_SRID == 3067:
+        if not (59.0 <= lat <= 71.0 and 19.0 <= lon <= 32.0):
+            raise ParseError(
+                "Coordinates (%.6f, %.6f) are outside the valid area for Finland. "
+                "Latitude must be between 59-71°N and longitude between 19-32°E."
+                % (lat, lon)
+            )
+
     point = Point(lon, lat, srid=DEFAULT_SRID)
     if DEFAULT_SRID != DATABASE_SRID:
         ct = CoordTransform(SpatialReference(DEFAULT_SRID),
                             SpatialReference(DATABASE_SRID))
-        point.transform(ct)
+        try:
+            point.transform(ct)
+        except Exception as e:
+            raise ParseError("error transforming coordinates: %s" % str(e))
     return point
 
 
