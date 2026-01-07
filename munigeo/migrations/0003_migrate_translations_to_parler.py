@@ -24,22 +24,22 @@ def _get_munigeo_models(apps):
 
 def forwards_func(apps, schema_editor):
     for lang_code, _ in settings.LANGUAGES:
-        name_field_key = "name_" + lang_code
+        name_field_key = "name_" + lang_code.replace("-", "_")
 
         for Model, ModelTranslation in _get_munigeo_models(apps):  # noqa: N806
             for object in Model.objects.all():
-                translated_name = getattr(object, name_field_key)
+                translated_name = getattr(object, name_field_key, None)
                 if translated_name:
-                    ModelTranslation.objects.create(
+                    ModelTranslation.objects.update_or_create(
                         master_id=object.pk,
                         language_code=lang_code,
-                        name_parler=translated_name,
+                        defaults=dict(name_parler=translated_name),
                     )
 
 
 def backwards_func(apps, schema_editor):
     for lang_code, _ in settings.LANGUAGES:
-        name_field_key = "name_" + lang_code
+        name_field_key = "name_" + lang_code.replace("-", "_")
 
         for Model, ModelTranslation in _get_munigeo_models(apps):  # noqa: N806
             for object in Model.objects.all():
@@ -47,9 +47,12 @@ def backwards_func(apps, schema_editor):
                     translation = ModelTranslation.objects.get(
                         master_id=object.pk, language_code=lang_code
                     )
+
                     setattr(object, name_field_key, translation.name_parler)
                     object.save()
                 except ObjectDoesNotExist:
+                    pass
+                except AttributeError:
                     pass
 
 
