@@ -37,6 +37,18 @@ class Importer(object):
         data_paths.append(app_path)
 
         return data_paths
+    
+    @property
+    def import_data_path(self):
+        """
+        Path for storing temporary data for imports.
+
+        If set, uses IMPORT_DATA_PATH. Otherwise, uses the first data path 
+        set in data_paths (which should be either PROJECT_ROOT or BASE_DIR).
+        """
+        if getattr(settings, "IMPORT_DATA_PATH", None):
+            return settings.IMPORT_DATA_PATH
+        return self.data_paths[0]
 
     def _import_citadel(self, muni, info):
         muni_slug = slugify(muni.name)
