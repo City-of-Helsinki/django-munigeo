@@ -47,3 +47,15 @@ class TestDataPaths:
         settings.BASE_DIR = "base_dir"
 
         assert "base_dir/data" in importer.data_paths
+
+    def test_import_data_path_returns_import_data_path_if_set(self, importer, settings):
+        settings.IMPORT_DATA_PATH = "import_data_path"
+
+        assert importer.import_data_path == "import_data_path"
+
+    def test_import_data_path_returns_first_data_path_by_default(
+        self, importer, settings
+    ):
+        settings.PROJECT_ROOT = "project_root"
+
+        assert importer.import_data_path == "project_root/data"
