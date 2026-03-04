@@ -1,3 +1,8 @@
+[project]
+name = "django-munigeo"
+requires-python = ">=3.10"
+version = "0.3.12"
+
 [tool.ruff]
 target-version = "py310"
 
