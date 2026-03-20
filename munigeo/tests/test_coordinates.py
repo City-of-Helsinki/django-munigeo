@@ -6,7 +6,6 @@ from unittest.mock import patch
 from munigeo.api import parse_lat_lon, DATABASE_SRID
 
 
-@pytest.mark.django_db
 class TestParseLatLon:
     def test_parse_lat_lon_valid_coordinates(self):
         """Test parsing valid latitude and longitude"""
