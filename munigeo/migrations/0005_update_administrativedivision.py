@@ -4,25 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('munigeo', '0004_building'),
+        ("munigeo", "0004_building"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='administrativedivision',
-            name='level',
+            model_name="administrativedivision",
+            name="level",
             field=models.PositiveIntegerField(editable=False),
         ),
         migrations.AlterField(
-            model_name='administrativedivision',
-            name='lft',
+            model_name="administrativedivision",
+            name="lft",
             field=models.PositiveIntegerField(editable=False),
         ),
         migrations.AlterField(
-            model_name='administrativedivision',
-            name='rght',
+            model_name="administrativedivision",
+            name="rght",
             field=models.PositiveIntegerField(editable=False),
         ),
     ]

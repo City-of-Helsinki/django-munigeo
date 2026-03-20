@@ -1,10 +1,12 @@
 """
 This management command updates parking areas according to new desired specification.
 """
+
 from time import time
 from typing import List
 
 from django.core.management.base import BaseCommand
+
 from munigeo.models import AdministrativeDivision, Municipality
 
 PARKING_CLASS_NAME_MAP = {

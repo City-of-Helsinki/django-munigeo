@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('munigeo', '0011_address_municipality'),
+        ("munigeo", "0011_address_municipality"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='municipality',
-            name='code',
+            model_name="municipality",
+            name="code",
             field=models.CharField(default=91, max_length=3),
             preserve_default=False,
         ),

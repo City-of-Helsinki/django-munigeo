@@ -3,16 +3,18 @@ This management command updates postal code areas from geo-search service.
 """
 
 import logging
-import requests
-import urllib3
 from datetime import datetime
 from queue import Empty, Queue
 from threading import Thread
+
+import requests
+import urllib3
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+
 from munigeo.models import PostalCodeArea
 
 PAGE_SIZE = 1000
@@ -43,7 +45,9 @@ class Command(BaseCommand):
         self.http = requests.Session()
         self.http.mount("https://", adapter)
         self.http.mount("http://", adapter)
-        self.headers = {"Authorization": f"Bearer Api-Key {settings.GEO_SEARCH_API_KEY}"}
+        self.headers = {
+            "Authorization": f"Bearer Api-Key {settings.GEO_SEARCH_API_KEY}"
+        }
 
     def get_count(self, url):
         try:
@@ -157,4 +161,6 @@ class Command(BaseCommand):
             f"Importing of postal code area from geo_search finished in: {duration}"
         )
         self.logger.info(f"Created {self.postal_code_areas_created} postal_code_areas.")
-        self.logger.info(f"Enriched {self.postal_code_areas_enriched} postal_code_areas.")
+        self.logger.info(
+            f"Enriched {self.postal_code_areas_enriched} postal_code_areas."
+        )

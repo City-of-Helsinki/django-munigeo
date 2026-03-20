@@ -4,22 +4,20 @@ munigeo importer for Turku data
 
 import os
 import re
-import requests
-import yaml
-
-from django import db
 from datetime import datetime
 
-from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
+import requests
+import yaml
+from django import db
+from django.contrib.gis import gdal
+from django.contrib.gis.gdal import CoordTransform, DataSource, SpatialReference
 from django.contrib.gis.gdal.error import GDALException
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
-from django.contrib.gis import gdal
 
-from munigeo.models import *
-from munigeo.importer.sync import ModelSyncher
 from munigeo import ocd
-
 from munigeo.importer.base import Importer, register_importer
+from munigeo.importer.sync import ModelSyncher
+from munigeo.models import *
 
 MUNI_URL = "http://tilastokeskus.fi/meta/luokitukset/kunta/001-2013/tekstitiedosto.txt"
 
@@ -36,26 +34,26 @@ SERVICE_CATEGORY_MAP = {
     25664: ("park", "Park"),
 }
 
-#Helsinki region koordinates system
-#GK25_SRID = 3879   
-#GK25_SRS = SpatialReference(GK25_SRID)
+# Helsinki region koordinates system
+# GK25_SRID = 3879
+# GK25_SRS = SpatialReference(GK25_SRID)
 
-#Turku regio use EPSG:3877 	ETRS-Gk23 - level koordinates system. NOTE! Turku regio specifig change! 
-GK23_SRID = 3877   
+# Turku regio use EPSG:3877 	ETRS-Gk23 - level koordinates system. NOTE! Turku regio specifig change!
+GK23_SRID = 3877
 GK23_SRS = SpatialReference(GK23_SRID)
 
 PROJECTION_SRS = SpatialReference(PROJECTION_SRID)
 WEB_MERCATOR_SRS = SpatialReference(3857)
 
-#NOTE! Turku regio specifig change! 
+# NOTE! Turku regio specifig change!
 coord_transform = None
 if GK23_SRS.srid != PROJECTION_SRID:
     target_srs = SpatialReference(PROJECTION_SRID)
     coord_transform = CoordTransform(GK23_SRS, target_srs)
 
-    
-#Old code convert use ETRS-GK25 coordinates (Helsinki region)
-'''
+
+# Old code convert use ETRS-GK25 coordinates (Helsinki region)
+"""
 def convert_from_gk25(north, east):
     ps = "POINT (%f %f)" % (east, north)
     g = gdal.OGRGeometry(ps, GK25_SRS)
@@ -68,11 +66,16 @@ def convert_from_gk25(north, east):
         return pnt
     pnt.transform(coord_transform)
     return pnt
-'''
-#This convert eat now ETRS-GK23 coordinates  NOTE! Turku regio specifig change!
+"""
+
+
+# This convert eat now ETRS-GK23 coordinates  NOTE! Turku regio specifig change!
 def convert_from_gk23(north, east):
-    #This input order is not a operationsystem dependant. It's only data source dependant    
-    ps = "POINT (%f %f)" % (north, east)# north, east is diferent positions than original
+    # This input order is not a operationsystem dependant. It's only data source dependant
+    ps = "POINT (%f %f)" % (
+        north,
+        east,
+    )  # north, east is diferent positions than original
     print("POINT PS: " + ps)
     g = gdal.OGRGeometry(ps, GK23_SRS)
     if coord_transform:
@@ -85,9 +88,10 @@ def convert_from_gk23(north, east):
     pnt.transform(coord_transform)
     return pnt
 
+
 def poly_diff(p1, p2):
     # Make sure we calculate the area with a 2d coordinate system
-    if p1.srs.units[1] == 'degree':
+    if p1.srs.units[1] == "degree":
         tf = CoordTransform(p1.srs, WEB_MERCATOR_SRS)
         p1 = p1.clone()
         p1.transform(tf)
@@ -102,13 +106,13 @@ class TurkuImporter(Importer):
 
     def __init__(self, *args, **kwargs):
         super(TurkuImporter, self).__init__(*args, **kwargs)
-        self.muni_data_path = 'fi/turku'
+        self.muni_data_path = "fi/turku"
 
     def _find_parent_division(self, parent_info):
         args = {
-            'type__type': parent_info['type'], 
-            'origin_id': parent_info['id'],
-            'parent__parent': parent_info['parent']
+            "type__type": parent_info["type"],
+            "origin_id": parent_info["id"],
+            "parent__parent": parent_info["parent"],
         }
         return AdministrativeDivision.objects.get(**args)
 
@@ -118,13 +122,15 @@ class TurkuImporter(Importer):
         #
         geom = feat.geom
         if not geom.srid:
-            geom.srid = GK23_SRID #Old code convert use GK25 (Helsinki region) NOTE! Turku regio specifig change!
+            geom.srid = GK23_SRID  # Old code convert use GK25 (Helsinki region) NOTE! Turku regio specifig change!
         if geom.srid != PROJECTION_SRID:
-            ct = CoordTransform(SpatialReference(geom.srid), SpatialReference(PROJECTION_SRID))
+            ct = CoordTransform(
+                SpatialReference(geom.srid), SpatialReference(PROJECTION_SRID)
+            )
             geom.transform(ct)
         # geom = geom.geos.intersection(parent.geometry.boundary)
         geom = geom.geos
-        if geom.geom_type == 'Polygon':
+        if geom.geom_type == "Polygon":
             geom = MultiPolygon(geom, srid=geom.srid)
 
         #
@@ -132,14 +138,14 @@ class TurkuImporter(Importer):
         #
         attr_dict = {}
         lang_dict = {}
-        for attr, field in div['fields'].items():
+        for attr, field in div["fields"].items():
             if isinstance(field, dict):
                 # Languages
                 d = {}
                 for lang, field_name in field.items():
                     val = feat[field_name].as_string()
                     # If the name is in all caps, fix capitalization.
-                    if not re.search('[a-z]', val):
+                    if not re.search("[a-z]", val):
                         val = val.title()
                     d[lang] = val.strip()
                 lang_dict[attr] = d
@@ -147,13 +153,13 @@ class TurkuImporter(Importer):
                 val = feat[field].as_string()
                 attr_dict[attr] = val.strip()
 
-        origin_id = attr_dict['origin_id']
-        del attr_dict['origin_id']
+        origin_id = attr_dict["origin_id"]
+        del attr_dict["origin_id"]
 
-        if 'parent' in div:
-            if 'parent_id' in attr_dict:
-                parent = parent_dict[attr_dict['parent_id']]
-                del attr_dict['parent_id']
+        if "parent" in div:
+            if "parent_id" in attr_dict:
+                parent = parent_dict[attr_dict["parent_id"]]
+                del attr_dict["parent_id"]
             else:
                 # If no parent id is available, we determine the parent
                 # heuristically by choosing the one that we overlap with
@@ -168,15 +174,15 @@ class TurkuImporter(Importer):
                 elif len(parents) > 1:
                     raise Exception("Too many parents for %s" % origin_id)
                 parent = parents[0]
-        elif 'parent_ocd_id' in div:
+        elif "parent_ocd_id" in div:
             try:
-                parent = AdministrativeDivision.objects.get(ocd_id=div['parent_ocd_id'])
+                parent = AdministrativeDivision.objects.get(ocd_id=div["parent_ocd_id"])
             except AdministrativeDivision.DoesNotExist:
                 parent = None
         else:
             parent = muni.division
 
-        if 'parent' in div and parent:
+        if "parent" in div and parent:
             full_id = "%s-%s" % (parent.origin_id, origin_id)
         else:
             full_id = origin_id
@@ -184,16 +190,16 @@ class TurkuImporter(Importer):
         if not obj:
             obj = AdministrativeDivision(origin_id=origin_id, type=type_obj)
 
-        validity_time_period = div.get('validity')
+        validity_time_period = div.get("validity")
         if validity_time_period:
-            obj.start = validity_time_period.get('start')
-            obj.end = validity_time_period.get('end')
+            obj.start = validity_time_period.get("start")
+            obj.end = validity_time_period.get("end")
             if obj.start:
-                obj.start = datetime.strptime(obj.start, '%Y-%m-%d').date()
+                obj.start = datetime.strptime(obj.start, "%Y-%m-%d").date()
             if obj.end:
-                obj.end = datetime.strptime(obj.end, '%Y-%m-%d').date()
+                obj.end = datetime.strptime(obj.end, "%Y-%m-%d").date()
 
-        if div.get('no_parent_division', False):
+        if div.get("no_parent_division", False):
             muni = None
 
         obj.parent = parent
@@ -206,17 +212,17 @@ class TurkuImporter(Importer):
                 key = "%s_%s" % (attr, lang)
                 setattr(obj, key, val)
 
-        if 'ocd_id' in div:
-            assert (parent and parent.ocd_id) or 'parent_ocd_id' in div
+        if "ocd_id" in div:
+            assert (parent and parent.ocd_id) or "parent_ocd_id" in div
             if parent:
-                if div.get('parent_in_ocd_id', False):
-                    args = {'parent': parent.ocd_id}
+                if div.get("parent_in_ocd_id", False):
+                    args = {"parent": parent.ocd_id}
                 else:
-                    args = {'parent': muni.division.ocd_id}
+                    args = {"parent": muni.division.ocd_id}
             else:
-                args = {'parent': div['parent_ocd_id']}
-            val = attr_dict['ocd_id']
-            args[div['ocd_id']] = val
+                args = {"parent": div["parent_ocd_id"]}
+            val = attr_dict["ocd_id"]
+            args[div["ocd_id"]] = val
             obj.ocd_id = ocd.make_id(**args)
             self.logger.debug("%s" % obj.ocd_id)
         obj.save()
@@ -233,31 +239,34 @@ class TurkuImporter(Importer):
     @db.transaction.atomic
     def _import_one_division_type(self, muni, div):
         def make_div_id(obj):
-            if 'parent' in div:
+            if "parent" in div:
                 return "%s-%s" % (obj.parent.origin_id, obj.origin_id)
             else:
                 return obj.origin_id
 
-        self.logger.info(div['name'])
-        if not 'origin_id' in div['fields']:
-            raise Exception("Field 'origin_id' not defined in config section '%s'" % div['name'])
+        self.logger.info(div["name"])
+        if "origin_id" not in div["fields"]:
+            raise Exception(
+                "Field 'origin_id' not defined in config section '%s'" % div["name"]
+            )
         try:
-            type_obj = AdministrativeDivisionType.objects.get(type=div['type'])
+            type_obj = AdministrativeDivisionType.objects.get(type=div["type"])
         except AdministrativeDivisionType.DoesNotExist:
-            type_obj = AdministrativeDivisionType(type=div['type'])
-            type_obj.name = div['name']
+            type_obj = AdministrativeDivisionType(type=div["type"])
+            type_obj.name = div["name"]
             type_obj.save()
 
         div_qs = AdministrativeDivision.objects.filter(type=type_obj)
-        if not div.get('no_parent_division', False):
-            div_qs = div_qs.by_ancestor(muni.division).select_related('parent')
+        if not div.get("no_parent_division", False):
+            div_qs = div_qs.by_ancestor(muni.division).select_related("parent")
         syncher = ModelSyncher(div_qs, make_div_id)
 
         # Cache the list of possible parents. Assumes parents are imported
         # first.
-        if 'parent' in div:
-            parent_list = AdministrativeDivision.objects.\
-                filter(type__type=div['parent']).by_ancestor(muni.division)
+        if "parent" in div:
+            parent_list = AdministrativeDivision.objects.filter(
+                type__type=div["parent"]
+            ).by_ancestor(muni.division)
             parent_dict = {}
             for o in parent_list:
                 assert o.origin_id not in parent_dict
@@ -265,16 +274,27 @@ class TurkuImporter(Importer):
         else:
             parent_dict = None
 
-        if 'file' in div:
-            path = self.find_data_file(os.path.join(self.division_data_path, div['file']))
-            ds = DataSource(path, encoding='iso8859-1')
+        if "file" in div:
+            path = self.find_data_file(
+                os.path.join(self.division_data_path, div["file"])
+            )
+            ds = DataSource(path, encoding="iso8859-1")
         else:
-            wfs_url = 'WFS:' + div['wfs_url']
-            if '?' in wfs_url:
-                sep = '&'
+            wfs_url = "WFS:" + div["wfs_url"]
+            if "?" in wfs_url:
+                sep = "&"
             else:
-                sep = '?'
-            url = wfs_url + sep + 'typeName=' + div['wfs_layer'] + '&' + "srsName=EPSG:%d" % PROJECTION_SRID + '&' + "outputFormat=application/json"
+                sep = "?"
+            url = (
+                wfs_url
+                + sep
+                + "typeName="
+                + div["wfs_layer"]
+                + "&"
+                + "srsName=EPSG:%d" % PROJECTION_SRID
+                + "&"
+                + "outputFormat=application/json"
+            )
             ds = DataSource(url)
         lyr = ds[0]
         assert len(ds) == 1
@@ -283,28 +303,30 @@ class TurkuImporter(Importer):
                 self._import_division(muni, div, type_obj, syncher, parent_dict, feat)
 
     def import_divisions(self):
-        path = self.find_data_file(os.path.join(self.muni_data_path, 'config.yml'))
-        config = yaml.safe_load(open(path, 'r', encoding='utf-8'))
-        self.division_data_path = os.path.join(self.muni_data_path, config['paths']['division'])
+        path = self.find_data_file(os.path.join(self.muni_data_path, "config.yml"))
+        config = yaml.safe_load(open(path, "r", encoding="utf-8"))
+        self.division_data_path = os.path.join(
+            self.muni_data_path, config["paths"]["division"]
+        )
 
-        muni = Municipality.objects.get(division__origin_id=config['origin_id'])
+        muni = Municipality.objects.get(division__origin_id=config["origin_id"])
         self.muni = muni
-        for div in config['divisions']:
+        for div in config["divisions"]:
             try:
                 self._import_one_division_type(muni, div)
             except GDALException as e:
-                self.logger.warning('Skipping division %s : %s' % (div, e))
+                self.logger.warning("Skipping division %s : %s" % (div, e))
 
     def _import_plans(self, fname, in_effect):
-        path = os.path.join(self.data_path, 'kaavahakemisto', fname)
-        ds = DataSource(path, encoding='iso8859-1')
+        path = os.path.join(self.data_path, "kaavahakemisto", fname)
+        ds = DataSource(path, encoding="iso8859-1")
         lyr = ds[0]
 
         for idx, feat in enumerate(lyr):
-            origin_id = feat['kaavatunnus'].as_string()
+            origin_id = feat["kaavatunnus"].as_string()
             geom = feat.geom
 
-            #GK25 changed to KG23. NOTE! Turku regio specifig change! 
+            # GK25 changed to KG23. NOTE! Turku regio specifig change!
             geom.srid = GK23_SRID
             geom.transform(PROJECTION_SRID)
             if origin_id not in self.plan_map:
@@ -335,8 +357,8 @@ class TurkuImporter(Importer):
         for obj in Plan.objects.filter(municipality=self.muni):
             self.plan_map[obj.origin_id] = obj
             obj.found = False
-        self._import_plans('Lv_rajaus.TAB', True)
-        self._import_plans('Kaava_vir_rajaus.TAB', False)
+        self._import_plans("Lv_rajaus.TAB", True)
+        self._import_plans("Kaava_vir_rajaus.TAB", False)
         self.logger.info("Saving")
         for key, obj in self.plan_map.items():
             if obj.found:
@@ -346,29 +368,29 @@ class TurkuImporter(Importer):
 
     @db.transaction.atomic
     def import_addresses(self):
-        #wfs_url = 'WFS:https://kartta.hel.fi/ws/geoserver/avoindata/wfs?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=avoindata:PKS_osoiteluettelo&SRSNAME=EPSG:3067'
-        addressFilePath = r'.\turku_address_fi_sv_001.csv'    
-        #self.logger.info("Loading master data from WFS datasource")
+        # wfs_url = 'WFS:https://kartta.hel.fi/ws/geoserver/avoindata/wfs?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=avoindata:PKS_osoiteluettelo&SRSNAME=EPSG:3067'
+        addressFilePath = r".\turku_address_fi_sv_001.csv"
+        # self.logger.info("Loading master data from WFS datasource")
         self.logger.info("Loading master data from CSV datasource")
-        ds = DataSource(addressFilePath, encoding='iso-8859-1')#encoding='utf-8'
+        ds = DataSource(addressFilePath, encoding="iso-8859-1")  # encoding='utf-8'
         lyr = ds[0]
         assert len(ds) == 1
 
-        #addresses1.csv example (added first line)
-        #kaupunki,katunimi,osoitenumero,n,e,gatan
-        #Turku,Piispankatu,11,6704979,23460330,Biskopsgatan
+        # addresses1.csv example (added first line)
+        # kaupunki,katunimi,osoitenumero,n,e,gatan
+        # Turku,Piispankatu,11,6704979,23460330,Biskopsgatan
 
-        #muni_names = ('Turku', 'Kaarina', 'Raisio', 'Naantali')
-        muni_names = ('Turku',)
+        # muni_names = ('Turku', 'Kaarina', 'Raisio', 'Naantali')
+        muni_names = ("Turku",)
         muni_list = Municipality.objects.filter(name_fi__in=muni_names)
         muni_dict = {}
 
         def make_addr_id(num, num_end, letter):
             if num_end is None:
-                num_end = ''
+                num_end = ""
             if letter is None:
-                letter = ''
-            return '%s-%s-%s' % (num, num_end, letter)
+                letter = ""
+            return "%s-%s-%s" % (num, num_end, letter)
 
         for muni in muni_list:
             muni_dict[muni.name_fi] = muni
@@ -396,88 +418,110 @@ class TurkuImporter(Importer):
 
         self.logger.info("starting data synchronization")
         for feat in lyr:
-            
-            muni_name = feat.get('kaupunki')
+            muni_name = feat.get("kaupunki")
 
-            #print("XXXXXXXXXXXXXX muni_name = " + muni_name) 
-            if muni_name in muni_names: 
-                
+            # print("XXXXXXXXXXXXXX muni_name = " + muni_name)
+            if muni_name in muni_names:
                 count += 1
                 if count % 1000 == 0:
                     self.logger.debug("{} processed".format(count))
 
-                street_name = feat.get('katunimi').strip()
+                street_name = feat.get("katunimi").strip()
 
-                '''
+                """
                 street_name_sv = street_name
-                
+
                 gatan = feat.get('gatan').strip()
                 if gatan != '':
                     street_name_sv = gatan
-                '''
-               
-                street_name_sv = feat.get('gatan').strip()
+                """
 
-                num = feat.get('osoitenumero')
-            
+                street_name_sv = feat.get("gatan").strip()
+
+                num = feat.get("osoitenumero")
+
                 if not num:
-                    self.logger.debug("Rejecting {}, due to {} not being valid street number".format(street_name, num))
+                    self.logger.debug(
+                        "Rejecting {}, due to {} not being valid street number".format(
+                            street_name, num
+                        )
+                    )
                     continue
                 else:
-                    if num == '0':
-                        self.logger.debug("Rejecting {}, due to {} not being valid street number".format(street_name, num))
+                    if num == "0":
+                        self.logger.debug(
+                            "Rejecting {}, due to {} not being valid street number".format(
+                                street_name, num
+                            )
+                        )
                         continue
 
                 letter = ""
                 num2 = ""
 
-                #check is only number
+                # check is only number
                 if not num.isdigit():
                     letter = num[-1]
-                    num = num[:-1]        
+                    num = num[:-1]
 
-                #On Turku region data source has not a address number 2
-                '''
+                # On Turku region data source has not a address number 2
+                """
                 num2 = feat.get('osoitenumero2')
                 if num2 == 0:
                     num2 = ''
                 letter = feat.get('osoitekirjain').strip()
-                '''
-                #This ETRS-GK23 cordinates must convert to ETRS-FIN35 koordinates on later code
-                coord_n = int(feat.get('n'))
-                coord_e = int(feat.get('e'))
-                
-                #muni_name = feat.get('kaupunki')
-                
+                """
+                # This ETRS-GK23 cordinates must convert to ETRS-FIN35 koordinates on later code
+                coord_n = int(feat.get("n"))
+                coord_e = int(feat.get("e"))
+
+                # muni_name = feat.get('kaupunki')
+
                 muni = muni_dict[muni_name]
-                
+
                 street = muni.streets_by_name.get(street_name, None)
-                                
+
                 if not street:
-                    self.logger.info("street {} not found in DB, creating it".format(street_name))
-                    street = Street(name_fi=street_name, name=street_name, municipality=muni)
-                    street.name_sv = street_name_sv# Check this when sv is set in csv file_________________________!
-                    
-                    #bulk_street_list.append(street)
+                    self.logger.info(
+                        "street {} not found in DB, creating it".format(street_name)
+                    )
+                    street = Street(
+                        name_fi=street_name, name=street_name, municipality=muni
+                    )
+                    street.name_sv = street_name_sv  # Check this when sv is set in csv file_________________________!
+
+                    # bulk_street_list.append(street)
                     street.save()
                     muni.streets_by_name[street_name] = street
                     street.addrs = {}
                 else:
                     if street.name_sv != street_name_sv:
-                        self.logger.warning("{}: {} -> {}".format(street, street.name_sv, street_name_sv))
-                        street.name_sv = street_name_sv# Check this when sv is set in csv file_________________________!
+                        self.logger.warning(
+                            "{}: {} -> {}".format(
+                                street, street.name_sv, street_name_sv
+                            )
+                        )
+                        street.name_sv = street_name_sv  # Check this when sv is set in csv file_________________________!
                         street.save()
-                    
+
                 street._found = True
-                
-                #This must be ETRS-GK23 because this is Turku area and it will be back ETRS-FIN35 koordinates
+
+                # This must be ETRS-GK23 because this is Turku area and it will be back ETRS-FIN35 koordinates
                 addr_id = make_addr_id(num, num2, letter)
                 addr = street.addrs.get(addr_id, None)
-                location = convert_from_gk23(coord_n, coord_e)#old code convert use ETRS-GK25 (Helsinki region). NOTE!Check the result
-                        
+                location = convert_from_gk23(
+                    coord_n, coord_e
+                )  # old code convert use ETRS-GK25 (Helsinki region). NOTE!Check the result
+
                 if not addr:
-                    self.logger.debug("Street {} did not have address {}. Creating".format(street.name, addr_id))
-                    addr = Address(street=street, number=num, number_end=num2, letter=letter)
+                    self.logger.debug(
+                        "Street {} did not have address {}. Creating".format(
+                            street.name, addr_id
+                        )
+                    )
+                    addr = Address(
+                        street=street, number=num, number_end=num2, letter=letter
+                    )
                     addr.location = location.wkb
                     bulk_addr_list.append(addr)
                     street.addrs[addr_id] = addr
@@ -487,7 +531,7 @@ class TurkuImporter(Importer):
                         continue
                     # if the location has changed for more than 10cm, save the new one.
                     assert addr.location.srid == location.srid, "SRID changed"
-                    #if addr.location.distance(location) >= 0.10:
+                    # if addr.location.distance(location) >= 0.10:
                     #    self.logger.info("%s: Location changed" % addr)
                     #    addr.location = location
                     #    addr.save()
@@ -523,59 +567,77 @@ class TurkuImporter(Importer):
         self.logger.info("synchronization complete")
 
     def import_pois(self):
-        # This is old Helsinki versions bese url for servise map's units 
-        #URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v2/unit/?service=%d'#NOTE! New is v4 or higher in Helsinki
-        URL_BASE = 'https://palvelukartta.turku.fi/api/v2/unit/?format=json'#This is not a usable on right now!!!!!!! Check!
-        
+        # This is old Helsinki versions bese url for servise map's units
+        # URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v2/unit/?service=%d'#NOTE! New is v4 or higher in Helsinki
+        URL_BASE = "https://palvelukartta.turku.fi/api/v2/unit/?format=json"  # This is not a usable on right now!!!!!!! Check!
+
         muni_dict = {}
         for muni in Municipality.objects.all():
             muni_dict[muni.name] = muni
 
         for srv_id in list(SERVICE_CATEGORY_MAP.keys()):
             cat_type, cat_desc = SERVICE_CATEGORY_MAP[srv_id]
-            cat, c = POICategory.objects.get_or_create(type=cat_type, defaults={'description': cat_desc})
+            cat, c = POICategory.objects.get_or_create(
+                type=cat_type, defaults={"description": cat_desc}
+            )
 
             self.logger.info("Importing %s" % cat_type)
-            ret = requests.get(URL_BASE % srv_id)#NOTE! The service number is not use on Turku!!!!
+            ret = requests.get(
+                URL_BASE % srv_id
+            )  # NOTE! The service number is not use on Turku!!!!
             for srv_info in ret.json():
-                srv_id = str(srv_info['id'])
+                srv_id = str(srv_info["id"])
                 try:
                     poi = POI.objects.get(origin_id=srv_id)
                 except POI.DoesNotExist:
                     poi = POI(origin_id=srv_id)
-                poi.name = srv_info['name_fi']
+                poi.name = srv_info["name_fi"]
                 poi.category = cat
-                if not 'address_city_fi' in srv_info:
+                if "address_city_fi" not in srv_info:
                     self.logger.info("No city!")
                     self.logger.info(srv_info)
                     continue
-                city_name = srv_info['address_city_fi']
-                if not city_name in muni_dict:
-                    city_name = city_name.encode('utf8')
-                    post_code = srv_info.get('address_zip', '')
-                    #Turku region municipalities who is joined to services (Linked Events/Servise map) Check postal code start!
-                    if post_code.startswith('20,21'):
-                        self.logger.info("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
+                city_name = srv_info["address_city_fi"]
+                if city_name not in muni_dict:
+                    city_name = city_name.encode("utf8")
+                    post_code = srv_info.get("address_zip", "")
+                    # Turku region municipalities who is joined to services (Linked Events/Servise map) Check postal code start!
+                    if post_code.startswith("20,21"):
+                        self.logger.info(
+                            "%s: %s (%s)"
+                            % (srv_info["id"], poi.name.encode("utf8"), city_name)
+                        )
                         city_name = "Turku"
-                    elif post_code.startswith('20,21'):
-                        self.logger.info("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
+                    elif post_code.startswith("20,21"):
+                        self.logger.info(
+                            "%s: %s (%s)"
+                            % (srv_info["id"], poi.name.encode("utf8"), city_name)
+                        )
                         city_name = "Kaarina"
-                    elif post_code in ('21'):
-                        self.logger.info("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
+                    elif post_code in ("21"):
+                        self.logger.info(
+                            "%s: %s (%s)"
+                            % (srv_info["id"], poi.name.encode("utf8"), city_name)
+                        )
                         city_name = "Raisio"
-                    elif post_code.startswith('21'):
-                        self.logger.info("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
+                    elif post_code.startswith("21"):
+                        self.logger.info(
+                            "%s: %s (%s)"
+                            % (srv_info["id"], poi.name.encode("utf8"), city_name)
+                        )
                         city_name = "Naantali"
                     else:
                         self.logger.info(srv_info)
                 poi.municipality = muni_dict[city_name]
-                poi.street_address = srv_info.get('street_address_fi', None)
-                poi.zip_code = srv_info.get('address_zip', None)
+                poi.street_address = srv_info.get("street_address_fi", None)
+                poi.zip_code = srv_info.get("address_zip", None)
 
-                #This must be ETRS-GK23 because this is Turku regio (Helsinki was ETRS-GK25)
-                if not 'northing_etrs_gk23' in srv_info:
+                # This must be ETRS-GK23 because this is Turku regio (Helsinki was ETRS-GK25)
+                if "northing_etrs_gk23" not in srv_info:
                     self.logger.info("No location!")
                     self.logger.info(srv_info)
                     continue
-                poi.location = convert_from_gk23(srv_info['northing_etrs_gk23'], srv_info['easting_etrs_gk23'])
+                poi.location = convert_from_gk23(
+                    srv_info["northing_etrs_gk23"], srv_info["easting_etrs_gk23"]
+                )
                 poi.save()

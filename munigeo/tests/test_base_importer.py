@@ -1,5 +1,6 @@
-from munigeo.importer.base import Importer
 import pytest
+
+from munigeo.importer.base import Importer
 
 
 @pytest.fixture

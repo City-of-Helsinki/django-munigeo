@@ -4,14 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('munigeo', '0016_address_modified_at_remove_auto_now'),
+        ("munigeo", "0016_address_modified_at_remove_auto_now"),
     ]
 
     operations = [
         migrations.AddIndex(
-            model_name='administrativedivision',
-            index=models.Index(fields=['tree_id', 'lft'], name='munigeo_administrativedivi8660'),
+            model_name="administrativedivision",
+            index=models.Index(
+                fields=["tree_id", "lft"], name="munigeo_administrativedivi8660"
+            ),
         ),
     ]

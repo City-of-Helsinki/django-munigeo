@@ -4,35 +4,34 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('munigeo', '0005_update_administrativedivision'),
+        ("munigeo", "0005_update_administrativedivision"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='administrativedivision',
-            name='extra',
+            model_name="administrativedivision",
+            name="extra",
             field=models.JSONField(default=dict, null=True),
         ),
         migrations.AlterField(
-            model_name='administrativedivision',
-            name='name',
+            model_name="administrativedivision",
+            name="name",
             field=models.CharField(db_index=True, max_length=200, null=True),
         ),
         migrations.AlterField(
-            model_name='administrativedivision',
-            name='name_en',
+            model_name="administrativedivision",
+            name="name_en",
             field=models.CharField(db_index=True, max_length=200, null=True),
         ),
         migrations.AlterField(
-            model_name='administrativedivision',
-            name='name_fi',
+            model_name="administrativedivision",
+            name="name_fi",
             field=models.CharField(db_index=True, max_length=200, null=True),
         ),
         migrations.AlterField(
-            model_name='administrativedivision',
-            name='name_sv',
+            model_name="administrativedivision",
+            name="name_sv",
             field=models.CharField(db_index=True, max_length=200, null=True),
         ),
     ]
