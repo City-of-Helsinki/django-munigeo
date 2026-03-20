@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('munigeo', '0013_add_naturalsort_function'),
+        ("munigeo", "0013_add_naturalsort_function"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='administrativedivision',
-            name='origin_id',
+            model_name="administrativedivision",
+            name="origin_id",
             field=models.CharField(db_index=True, max_length=64),
         ),
     ]

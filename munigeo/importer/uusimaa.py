@@ -9,11 +9,11 @@ from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.contrib.gis.geos import Point
 from django.db import transaction
 from django.utils import timezone
-from munigeo.models import Address, PostalCodeArea, Street, Municipality
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 from munigeo.importer.base import Importer, register_importer
+from munigeo.models import Address, Municipality, PostalCodeArea, Street
 
 
 def get_municipality(name):
@@ -205,9 +205,9 @@ class UusimaaImporter(Importer):
         for result in results:
             postal_code = result["postal_code_area"]["postal_code"]
             if postal_code not in self.postal_code_areas_cache:
-                self.postal_code_areas_cache[
-                    postal_code
-                ] = self.get_or_create_postal_code_area(postal_code, result)
+                self.postal_code_areas_cache[postal_code] = (
+                    self.get_or_create_postal_code_area(postal_code, result)
+                )
 
             (
                 street_name_fi,
@@ -260,7 +260,7 @@ class UusimaaImporter(Importer):
                     full_name_sv=full_name_sv,
                     full_name_en=full_name_en,
                     municipality=municipality,
-                    modified_at=timezone.now()
+                    modified_at=timezone.now(),
                 )
                 addresses.append(address)
                 self.address_cache[full_name_fi] = address

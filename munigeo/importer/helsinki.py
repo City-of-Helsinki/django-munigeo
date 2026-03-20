@@ -4,22 +4,20 @@ munigeo importer for Helsinki data
 
 import os
 import re
-import requests
-import yaml
-
-from django import db
 from datetime import datetime
 
-from django.contrib.gis.gdal import DataSource, SpatialReference, CoordTransform
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
+import requests
+import yaml
+from django import db
 from django.contrib.gis import gdal
+from django.contrib.gis.gdal import CoordTransform, DataSource, SpatialReference
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
 from django.utils import timezone
 
-from munigeo.models import *
-from munigeo.importer.sync import ModelSyncher
 from munigeo import ocd
-
 from munigeo.importer.base import Importer, register_importer
+from munigeo.importer.sync import ModelSyncher
+from munigeo.models import *
 
 MUNI_URL = "http://tilastokeskus.fi/meta/luokitukset/kunta/001-2013/tekstitiedosto.txt"
 
@@ -47,6 +45,7 @@ if GK25_SRS.srid != PROJECTION_SRID:
     target_srs = SpatialReference(PROJECTION_SRID)
     coord_transform = CoordTransform(GK25_SRS, target_srs)
 
+
 def convert_from_gk25(north, east):
     ps = "POINT (%f %f)" % (east, north)
     g = gdal.OGRGeometry(ps, GK25_SRS)
@@ -60,9 +59,10 @@ def convert_from_gk25(north, east):
     pnt.transform(coord_transform)
     return pnt
 
+
 def poly_diff(p1, p2):
     # Make sure we calculate the area with a 2d coordinate system
-    if p1.srs.units[1] == 'degree':
+    if p1.srs.units[1] == "degree":
         tf = CoordTransform(p1.srs, WEB_MERCATOR_SRS)
         p1 = p1.clone()
         p1.transform(tf)
@@ -78,13 +78,13 @@ class HelsinkiImporter(Importer):
 
     def __init__(self, *args, **kwargs):
         super(HelsinkiImporter, self).__init__(*args, **kwargs)
-        self.muni_data_path = 'fi/helsinki'
+        self.muni_data_path = "fi/helsinki"
 
     def _find_parent_division(self, parent_info):
         args = {
-            'type__type': parent_info['type'],
-            'origin_id': parent_info['id'],
-            'parent__parent': parent_info['parent']
+            "type__type": parent_info["type"],
+            "origin_id": parent_info["id"],
+            "parent__parent": parent_info["parent"],
         }
         return AdministrativeDivision.objects.get(**args)
 
@@ -96,11 +96,13 @@ class HelsinkiImporter(Importer):
         if not geom.srid:
             geom.srid = GK25_SRID
         if geom.srid != PROJECTION_SRID:
-            ct = CoordTransform(SpatialReference(geom.srid), SpatialReference(PROJECTION_SRID))
+            ct = CoordTransform(
+                SpatialReference(geom.srid), SpatialReference(PROJECTION_SRID)
+            )
             geom.transform(ct)
         # geom = geom.geos.intersection(parent.geometry.boundary)
         geom = geom.geos
-        if geom.geom_type == 'Polygon':
+        if geom.geom_type == "Polygon":
             geom = MultiPolygon(geom.buffer(0), srid=geom.srid)
 
         #
@@ -108,26 +110,29 @@ class HelsinkiImporter(Importer):
         #
         attr_dict = {}
         lang_dict = {}
-        for attr, field in div['fields'].items():
+        for attr, field in div["fields"].items():
             if isinstance(field, dict):
                 # Languages
                 d = {}
                 for lang, field_name in field.items():
                     val = feat[field_name].as_string()
                     # If the name is in all caps, fix capitalization.
-                    val = val or ''
-                    if not re.search('[a-z]', val):
+                    val = val or ""
+                    if not re.search("[a-z]", val):
                         val = val.title()
                     d[lang] = val.strip()
                 lang_dict[attr] = d
             else:
                 val = feat[field].as_string()
                 if val:
-                    if 'fields_type_conversions' in div and attr in div['fields_type_conversions']:
-                        field_type = div['fields_type_conversions'][attr]
+                    if (
+                        "fields_type_conversions" in div
+                        and attr in div["fields_type_conversions"]
+                    ):
+                        field_type = div["fields_type_conversions"][attr]
                         # We only support csv to list conversions at this moment
-                        if field_type == 'csv_to_list':
-                            attr_dict[attr] = val.strip().split(',')
+                        if field_type == "csv_to_list":
+                            attr_dict[attr] = val.strip().split(",")
                     else:
                         attr_dict[attr] = val.strip()
                 else:
@@ -137,8 +142,8 @@ class HelsinkiImporter(Importer):
         # Extra attributes
         #
         extra_attr_dict = {}
-        if 'extra_fields' in div:
-            for attr, field in div['extra_fields'].items():
+        if "extra_fields" in div:
+            for attr, field in div["extra_fields"].items():
                 val = feat[field].as_string()
                 if val:
                     extra_attr_dict[attr] = val.strip()
@@ -148,12 +153,12 @@ class HelsinkiImporter(Importer):
         #
         # Extra attribute-mappings
         #
-        if 'extra_fields_mappings' in div:
-            for field_mapping in div['extra_fields_mappings']:
-                mapping = field_mapping['mapping']
+        if "extra_fields_mappings" in div:
+            for field_mapping in div["extra_fields_mappings"]:
+                mapping = field_mapping["mapping"]
                 attr, field = next(iter(mapping.items()))
                 val = str(feat[field].as_string())
-                mapped_val = field_mapping['values'][val]
+                mapped_val = field_mapping["values"][val]
                 if mapped_val:
                     extra_attr_dict[attr] = mapped_val.strip()
                 else:
@@ -162,25 +167,28 @@ class HelsinkiImporter(Importer):
         #
         # import "Pysäköintikielto" (No Parking) as "class 7" for PARKING_CLASS_NAME_MAP to map it as specified.
         #
-        if extra_attr_dict.get("class") == "0" and extra_attr_dict.get("origin_name") is None:
+        if (
+            extra_attr_dict.get("class") == "0"
+            and extra_attr_dict.get("origin_name") is None
+        ):
             if feat.get("tyyppi") == "Pysäköintikielto":
                 extra_attr_dict["class"] = "7"
 
-        attr_dict['extra'] = extra_attr_dict
+        attr_dict["extra"] = extra_attr_dict
 
-        origin_id = attr_dict['origin_id']
+        origin_id = attr_dict["origin_id"]
         # if origin_id is not found, we skip the feature
         if not origin_id:
-            self.logger.info('Division origin_id is None. Skipping division...')
+            self.logger.info("Division origin_id is None. Skipping division...")
             return
-        if 'id_suffix' in div:
-            origin_id = origin_id + div['id_suffix']
-        del attr_dict['origin_id']
+        if "id_suffix" in div:
+            origin_id = origin_id + div["id_suffix"]
+        del attr_dict["origin_id"]
 
-        if 'parent' in div:
-            if 'parent_id' in attr_dict:
-                parent = parent_dict[attr_dict['parent_id']]
-                del attr_dict['parent_id']
+        if "parent" in div:
+            if "parent_id" in attr_dict:
+                parent = parent_dict[attr_dict["parent_id"]]
+                del attr_dict["parent_id"]
             else:
                 # If no parent id is available, we determine the parent
                 # heuristically by choosing the one that we overlap with
@@ -195,15 +203,15 @@ class HelsinkiImporter(Importer):
                 elif len(parents) > 1:
                     raise Exception("Too many parents for %s" % origin_id)
                 parent = parents[0]
-        elif 'parent_ocd_id' in div:
+        elif "parent_ocd_id" in div:
             try:
-                parent = AdministrativeDivision.objects.get(ocd_id=div['parent_ocd_id'])
+                parent = AdministrativeDivision.objects.get(ocd_id=div["parent_ocd_id"])
             except AdministrativeDivision.DoesNotExist:
                 parent = None
         else:
             parent = muni.division
 
-        if 'parent' in div and parent:
+        if "parent" in div and parent:
             full_id = "%s-%s" % (parent.origin_id, origin_id)
         else:
             full_id = origin_id
@@ -211,16 +219,16 @@ class HelsinkiImporter(Importer):
         if not obj:
             obj = AdministrativeDivision(origin_id=origin_id, type=type_obj)
 
-        validity_time_period = div.get('validity')
+        validity_time_period = div.get("validity")
         if validity_time_period:
-            obj.start = validity_time_period.get('start')
-            obj.end = validity_time_period.get('end')
+            obj.start = validity_time_period.get("start")
+            obj.end = validity_time_period.get("end")
             if obj.start:
-                obj.start = datetime.strptime(obj.start, '%Y-%m-%d').date()
+                obj.start = datetime.strptime(obj.start, "%Y-%m-%d").date()
             if obj.end:
-                obj.end = datetime.strptime(obj.end, '%Y-%m-%d').date()
+                obj.end = datetime.strptime(obj.end, "%Y-%m-%d").date()
 
-        if div.get('no_parent_division', False):
+        if div.get("no_parent_division", False):
             muni = None
 
         obj.parent = parent
@@ -233,19 +241,19 @@ class HelsinkiImporter(Importer):
                 key = "%s_%s" % (attr, lang)
                 setattr(obj, key, val)
 
-        if 'ocd_id' in div:
-            assert (parent and parent.ocd_id) or 'parent_ocd_id' in div
+        if "ocd_id" in div:
+            assert (parent and parent.ocd_id) or "parent_ocd_id" in div
             if parent:
-                if div.get('parent_in_ocd_id', False):
-                    args = {'parent': parent.ocd_id}
+                if div.get("parent_in_ocd_id", False):
+                    args = {"parent": parent.ocd_id}
                 else:
-                    args = {'parent': muni.division.ocd_id}
+                    args = {"parent": muni.division.ocd_id}
             else:
-                args = {'parent': div['parent_ocd_id']}
-            val = attr_dict['ocd_id']
-            if 'id_suffix' in div:
-                val = val + div['id_suffix']
-            args[div['ocd_id']] = val
+                args = {"parent": div["parent_ocd_id"]}
+            val = attr_dict["ocd_id"]
+            if "id_suffix" in div:
+                val = val + div["id_suffix"]
+            args[div["ocd_id"]] = val
             obj.ocd_id = ocd.make_id(**args)
             self.logger.debug("%s" % obj.ocd_id)
         obj.save()
@@ -262,31 +270,34 @@ class HelsinkiImporter(Importer):
     @db.transaction.atomic
     def _import_one_division_type(self, muni, div):
         def make_div_id(obj):
-            if 'parent' in div:
+            if "parent" in div:
                 return "%s-%s" % (obj.parent.origin_id, obj.origin_id)
             else:
                 return obj.origin_id
 
-        self.logger.info(div['name'])
-        if not 'origin_id' in div['fields']:
-            raise Exception("Field 'origin_id' not defined in config section '%s'" % div['name'])
+        self.logger.info(div["name"])
+        if "origin_id" not in div["fields"]:
+            raise Exception(
+                "Field 'origin_id' not defined in config section '%s'" % div["name"]
+            )
         try:
-            type_obj = AdministrativeDivisionType.objects.get(type=div['type'])
+            type_obj = AdministrativeDivisionType.objects.get(type=div["type"])
         except AdministrativeDivisionType.DoesNotExist:
-            type_obj = AdministrativeDivisionType(type=div['type'])
-            type_obj.name = div['name']
+            type_obj = AdministrativeDivisionType(type=div["type"])
+            type_obj.name = div["name"]
             type_obj.save()
 
         div_qs = AdministrativeDivision.objects.filter(type=type_obj)
-        if not div.get('no_parent_division', False):
-            div_qs = div_qs.by_ancestor(muni.division).select_related('parent')
+        if not div.get("no_parent_division", False):
+            div_qs = div_qs.by_ancestor(muni.division).select_related("parent")
         syncher = ModelSyncher(div_qs, make_div_id)
 
         # Cache the list of possible parents. Assumes parents are imported
         # first.
-        if 'parent' in div:
-            parent_list = AdministrativeDivision.objects.\
-                filter(type__type=div['parent']).by_ancestor(muni.division)
+        if "parent" in div:
+            parent_list = AdministrativeDivision.objects.filter(
+                type__type=div["parent"]
+            ).by_ancestor(muni.division)
             parent_dict = {}
             for o in parent_list:
                 assert o.origin_id not in parent_dict
@@ -294,18 +305,27 @@ class HelsinkiImporter(Importer):
         else:
             parent_dict = None
 
-        if 'file' in div:
-            path = self.find_data_file(os.path.join(self.division_data_path, div['file']))
-            ds = DataSource(path, encoding='iso8859-1')
+        if "file" in div:
+            path = self.find_data_file(
+                os.path.join(self.division_data_path, div["file"])
+            )
+            ds = DataSource(path, encoding="iso8859-1")
         else:
-            wfs_url = 'WFS:' + div['wfs_url']
-            if '?' in wfs_url:
-                sep = '&'
+            wfs_url = "WFS:" + div["wfs_url"]
+            if "?" in wfs_url:
+                sep = "&"
             else:
-                sep = '?'
-            url = wfs_url + sep + 'typeName=' + div['wfs_layer'] + '&' + "srsName=EPSG:%d" % PROJECTION_SRID
+                sep = "?"
+            url = (
+                wfs_url
+                + sep
+                + "typeName="
+                + div["wfs_layer"]
+                + "&"
+                + "srsName=EPSG:%d" % PROJECTION_SRID
+            )
             if self.wfs_output_format:
-                  url = url + '&' + self.wfs_output_format
+                url = url + "&" + self.wfs_output_format
             ds = DataSource(url)
         lyr = ds[0]
         assert len(ds) == 1
@@ -314,25 +334,27 @@ class HelsinkiImporter(Importer):
                 self._import_division(muni, div, type_obj, syncher, parent_dict, feat)
 
     def import_divisions(self):
-        path = self.find_data_file(os.path.join(self.muni_data_path, 'config.yml'))
-        config = yaml.safe_load(open(path, 'r', encoding='utf-8'))
-        self.division_data_path = os.path.join(self.muni_data_path, config['paths']['division'])
+        path = self.find_data_file(os.path.join(self.muni_data_path, "config.yml"))
+        config = yaml.safe_load(open(path, "r", encoding="utf-8"))
+        self.division_data_path = os.path.join(
+            self.muni_data_path, config["paths"]["division"]
+        )
 
-        muni = Municipality.objects.get(division__origin_id=config['origin_id'])
+        muni = Municipality.objects.get(division__origin_id=config["origin_id"])
         self.muni = muni
-        for div in config['divisions']:
+        for div in config["divisions"]:
             try:
                 self._import_one_division_type(muni, div)
             except Exception as e:
-                self.logger.warning('Skipping division %s : %s' % (div, e))
+                self.logger.warning("Skipping division %s : %s" % (div, e))
 
     def _import_plans(self, fname, in_effect):
-        path = os.path.join(self.data_path, 'kaavahakemisto', fname)
-        ds = DataSource(path, encoding='iso8859-1')
+        path = os.path.join(self.data_path, "kaavahakemisto", fname)
+        ds = DataSource(path, encoding="iso8859-1")
         lyr = ds[0]
 
         for idx, feat in enumerate(lyr):
-            origin_id = feat['kaavatunnus'].as_string()
+            origin_id = feat["kaavatunnus"].as_string()
             geom = feat.geom
             geom.srid = GK25_SRID
             geom.transform(PROJECTION_SRID)
@@ -364,8 +386,8 @@ class HelsinkiImporter(Importer):
         for obj in Plan.objects.filter(municipality=self.muni):
             self.plan_map[obj.origin_id] = obj
             obj.found = False
-        self._import_plans('Lv_rajaus.TAB', True)
-        self._import_plans('Kaava_vir_rajaus.TAB', False)
+        self._import_plans("Lv_rajaus.TAB", True)
+        self._import_plans("Kaava_vir_rajaus.TAB", False)
         self.logger.info("Saving")
         for key, obj in self.plan_map.items():
             if obj.found:
@@ -375,23 +397,23 @@ class HelsinkiImporter(Importer):
 
     @db.transaction.atomic
     def import_addresses(self):
-        wfs_url = 'WFS:https://kartta.hel.fi/ws/geoserver/avoindata/wfs?SERVICE=WFS&VERSION=1.2.0&REQUEST=GetFeature&TYPENAME=avoindata:PKS_osoiteluettelo&SRSNAME=EPSG:3067'
+        wfs_url = "WFS:https://kartta.hel.fi/ws/geoserver/avoindata/wfs?SERVICE=WFS&VERSION=1.2.0&REQUEST=GetFeature&TYPENAME=avoindata:PKS_osoiteluettelo&SRSNAME=EPSG:3067"
         self.logger.info("Loading master data from WFS datasource")
         ds = DataSource(wfs_url)
         lyr = ds[0]
         assert len(ds) == 1
 
-        muni_names = ('Helsinki', 'Espoo', 'Vantaa', 'Kauniainen')
+        muni_names = ("Helsinki", "Espoo", "Vantaa", "Kauniainen")
         muni_list = Municipality.objects.filter(name_fi__in=muni_names)
         muni_dict = {}
         postal_code_areas = {}
 
         def make_addr_id(num, num_end, letter):
             if num_end is None:
-                num_end = ''
+                num_end = ""
             if letter is None:
-                letter = ''
-            return '%s-%s-%s' % (num, num_end, letter)
+                letter = ""
+            return "%s-%s-%s" % (num, num_end, letter)
 
         def get_full_address_name(street_name, num, num_end, letter):
             separator = "-" if num_end else ""
@@ -429,41 +451,55 @@ class HelsinkiImporter(Importer):
             if count % 1000 == 0:
                 self.logger.debug("{} processed".format(count))
 
-            street_name = feat.get('katunimi').strip()
-            street_name_sv = feat.get('gatan').strip()
-            num = feat.get('osoitenumero')
+            street_name = feat.get("katunimi").strip()
+            street_name_sv = feat.get("gatan").strip()
+            num = feat.get("osoitenumero")
 
             if not num:
-                self.logger.debug("Rejecting {}, due to {} not being valid street number".format(street_name, num))
+                self.logger.debug(
+                    "Rejecting {}, due to {} not being valid street number".format(
+                        street_name, num
+                    )
+                )
                 continue
             else:
-                if num == '0':
-                    self.logger.debug("Rejecting {}, due to {} not being valid street number".format(street_name, num))
+                if num == "0":
+                    self.logger.debug(
+                        "Rejecting {}, due to {} not being valid street number".format(
+                            street_name, num
+                        )
+                    )
                     continue
 
-            num2 = feat.get('osoitenumero2')
+            num2 = feat.get("osoitenumero2")
             if num2 == 0 or num2 is None:
-                num2 = ''
-            letter_raw = feat.get('osoitekirjain')
-            letter = letter_raw.strip() if letter_raw else ''
-            coord_n = int(feat.get('n'))
-            coord_e = int(feat.get('e'))
-            muni_name = feat.get('kaupunki')
+                num2 = ""
+            letter_raw = feat.get("osoitekirjain")
+            letter = letter_raw.strip() if letter_raw else ""
+            coord_n = int(feat.get("n"))
+            coord_e = int(feat.get("e"))
+            muni_name = feat.get("kaupunki")
 
             muni = muni_dict[muni_name]
             street = muni.streets_by_name.get(street_name, None)
             if not street:
-                self.logger.info("street {} not found in DB, creating it".format(street_name))
-                street = Street(name_fi=street_name, name=street_name, municipality=muni)
+                self.logger.info(
+                    "street {} not found in DB, creating it".format(street_name)
+                )
+                street = Street(
+                    name_fi=street_name, name=street_name, municipality=muni
+                )
                 street.name_sv = street_name_sv
 
-                #bulk_street_list.append(street)
+                # bulk_street_list.append(street)
                 street.save()
                 muni.streets_by_name[street_name] = street
                 street.addrs = {}
             else:
                 if street.name_sv != street_name_sv:
-                    self.logger.warning("{}: {} -> {}".format(street, street.name_sv, street_name_sv))
+                    self.logger.warning(
+                        "{}: {} -> {}".format(street, street.name_sv, street_name_sv)
+                    )
                     street.name_sv = street_name_sv
                     street.save()
             street._found = True
@@ -480,11 +516,23 @@ class HelsinkiImporter(Importer):
                 postal_code_areas[postal_code] = postal_code_area
 
             if not addr:
-                self.logger.debug("Street {} did not have address {}. Creating".format(street.name, addr_id))
-                addr = Address(street=street, number=num, number_end=num2, letter=letter)
-                addr.full_name_fi = get_full_address_name(street_name, num, num2, letter)
-                addr.full_name_sv = get_full_address_name(street_name_sv, num, num2, letter)
-                addr.full_name_en = get_full_address_name(street_name, num, num2, letter)
+                self.logger.debug(
+                    "Street {} did not have address {}. Creating".format(
+                        street.name, addr_id
+                    )
+                )
+                addr = Address(
+                    street=street, number=num, number_end=num2, letter=letter
+                )
+                addr.full_name_fi = get_full_address_name(
+                    street_name, num, num2, letter
+                )
+                addr.full_name_sv = get_full_address_name(
+                    street_name_sv, num, num2, letter
+                )
+                addr.full_name_en = get_full_address_name(
+                    street_name, num, num2, letter
+                )
                 addr.municipality = muni
                 if postal_code:
                     addr.postal_code_area = postal_code_areas[postal_code]
@@ -501,9 +549,15 @@ class HelsinkiImporter(Importer):
                 location = GEOSGeometry(location.ewkt)
                 if addr.location.distance(location) >= 1:
                     self.logger.info("%s: Location changed" % addr)
-                    addr.full_name_fi = get_full_address_name(street_name, num, num2, letter)
-                    addr.full_name_sv = get_full_address_name(street_name_sv, num, num2, letter)
-                    addr.full_name_en = get_full_address_name(street_name, num, num2, letter)
+                    addr.full_name_fi = get_full_address_name(
+                        street_name, num, num2, letter
+                    )
+                    addr.full_name_sv = get_full_address_name(
+                        street_name_sv, num, num2, letter
+                    )
+                    addr.full_name_en = get_full_address_name(
+                        street_name, num, num2, letter
+                    )
                     addr.municipality = muni
                     if postal_code:
                         addr.postal_code_area = postal_code_areas[postal_code]
@@ -541,7 +595,7 @@ class HelsinkiImporter(Importer):
         self.logger.info("synchronization complete")
 
     def import_pois(self):
-        URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v2/unit/?service=%d'
+        URL_BASE = "http://www.hel.fi/palvelukarttaws/rest/v2/unit/?service=%d"
 
         muni_dict = {}
         for muni in Municipality.objects.all():
@@ -549,46 +603,62 @@ class HelsinkiImporter(Importer):
 
         for srv_id in list(SERVICE_CATEGORY_MAP.keys()):
             cat_type, cat_desc = SERVICE_CATEGORY_MAP[srv_id]
-            cat, c = POICategory.objects.get_or_create(type=cat_type, defaults={'description': cat_desc})
+            cat, c = POICategory.objects.get_or_create(
+                type=cat_type, defaults={"description": cat_desc}
+            )
 
             self.logger.info("Importing %s" % cat_type)
             ret = requests.get(URL_BASE % srv_id)
             for srv_info in ret.json():
-                srv_id = str(srv_info['id'])
+                srv_id = str(srv_info["id"])
                 try:
                     poi = POI.objects.get(origin_id=srv_id)
                 except POI.DoesNotExist:
                     poi = POI(origin_id=srv_id)
-                poi.name = srv_info['name_fi']
+                poi.name = srv_info["name_fi"]
                 poi.category = cat
-                if not 'address_city_fi' in srv_info:
+                if "address_city_fi" not in srv_info:
                     self.logger.info("No city!")
                     self.logger.info(srv_info)
                     continue
-                city_name = srv_info['address_city_fi']
-                if not city_name in muni_dict:
-                    city_name = city_name.encode('utf8')
-                    post_code = srv_info.get('address_zip', '')
-                    if post_code.startswith('00'):
-                        self.logger.info("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
+                city_name = srv_info["address_city_fi"]
+                if city_name not in muni_dict:
+                    city_name = city_name.encode("utf8")
+                    post_code = srv_info.get("address_zip", "")
+                    if post_code.startswith("00"):
+                        self.logger.info(
+                            "%s: %s (%s)"
+                            % (srv_info["id"], poi.name.encode("utf8"), city_name)
+                        )
                         city_name = "Helsinki"
-                    elif post_code.startswith('01'):
-                        self.logger.info("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
+                    elif post_code.startswith("01"):
+                        self.logger.info(
+                            "%s: %s (%s)"
+                            % (srv_info["id"], poi.name.encode("utf8"), city_name)
+                        )
                         city_name = "Vantaa"
-                    elif post_code in ('02700', '02701', '02760'):
-                        self.logger.info("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
+                    elif post_code in ("02700", "02701", "02760"):
+                        self.logger.info(
+                            "%s: %s (%s)"
+                            % (srv_info["id"], poi.name.encode("utf8"), city_name)
+                        )
                         city_name = "Kauniainen"
-                    elif post_code.startswith('02'):
-                        self.logger.info("%s: %s (%s)" % (srv_info['id'], poi.name.encode('utf8'), city_name))
+                    elif post_code.startswith("02"):
+                        self.logger.info(
+                            "%s: %s (%s)"
+                            % (srv_info["id"], poi.name.encode("utf8"), city_name)
+                        )
                         city_name = "Espoo"
                     else:
                         self.logger.info(srv_info)
                 poi.municipality = muni_dict[city_name]
-                poi.street_address = srv_info.get('street_address_fi', None)
-                poi.zip_code = srv_info.get('address_zip', None)
-                if not 'northing_etrs_gk25' in srv_info:
+                poi.street_address = srv_info.get("street_address_fi", None)
+                poi.zip_code = srv_info.get("address_zip", None)
+                if "northing_etrs_gk25" not in srv_info:
                     self.logger.info("No location!")
                     self.logger.info(srv_info)
                     continue
-                poi.location = convert_from_gk25(srv_info['northing_etrs_gk25'], srv_info['easting_etrs_gk25'])
+                poi.location = convert_from_gk25(
+                    srv_info["northing_etrs_gk25"], srv_info["easting_etrs_gk25"]
+                )
                 poi.save()

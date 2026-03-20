@@ -2,7 +2,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("munigeo", "0012_municipality_code"),
     ]
@@ -19,7 +18,7 @@ class Migration(migrations.Migration):
                     length(length(r[1])::text) || length(r[1])::text || r[1]),
                     'SQL_ASCII'),'\\x00')
                     from regexp_matches($1, '0*([0-9]+)|([^0-9]+)', 'g') r;
-                $f$;            
+                $f$;
             """,
             reverse_sql="""
                 drop function naturalsort;
