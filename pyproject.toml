@@ -1,0 +1,129 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django-munigeo"
+version = "0.2.92"
+authors = [{ name = "City of Helsinki", email = "dev@hel.fi" }]
+description = "A Django app for processing municipality-related geospatial data."
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["django", "gis", "geospatial", "municipality"]
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+dependencies = [
+    "django>=4.2",
+    "requests",
+    "django-mptt>=0.18.0",
+    "django-modeltranslation",
+    "pyyaml",
+    "djangorestframework",
+    "unicodecsv",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-django",
+    "pytest-mock",
+    "pytest-randomly",
+    "coverage[toml]",
+    "coverage-enable-subprocess",
+    "psycopg",
+]
+all = ["django-munigeo[test]"]
+
+[project.urls]
+Homepage = "https://github.com/City-of-Helsinki/django-munigeo"
+Issues = "https://github.com/City-of-Helsinki/django-munigeo/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["munigeo"]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "django~=4.2",
+    "pre-commit",
+]
+features = ["all"]
+python = "3.10"
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args}"
+lint = [
+    "pre-commit install",
+    "pre-commit run -a",
+]
+
+[tool.hatch.envs.hatch-test]
+default-args = ["munigeo/tests"]
+features = ["all"]
+matrix-name-format = "dj{value}"
+parallel = false
+randomize = true
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.10", "3.11", "3.12", "3.13"]
+django = ["4.2"]
+
+[tool.hatch.envs.hatch-test.overrides]
+matrix.django.dependencies = [
+    { value = "django~={matrix:django}" },
+]
+
+[tool.hatch.envs.hatch-test.scripts]
+run = "pytest{env:HATCH_TEST_ARGS:} {args}"
+run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
+cov-combine = "coverage combine"
+cov-report = "coverage report"
+
+[tool.pytest.ini_options]
+django_find_project = false
+testpaths = ["munigeo/tests"]
+DJANGO_SETTINGS_MODULE = "munigeo.tests.settings"
+pythonpath = "."
+
+[tool.coverage.run]
+source = ["munigeo"]
+omit = ["**/migrations/*", "**/tests/*"]
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    # Pyflakes
+    "F",
+    # pycodestyle
+    "E",
+    "W",
+    # isort
+    "I",
+    # pep8-naming
+    "N",
+    # flake8-bugbear without opinionated rules
+    "B0",
+    # flake8-pie
+    "PIE",
+    # flake8-print
+    "T20",
+]
