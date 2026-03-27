@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import csv
 import io
 import json
@@ -67,7 +66,7 @@ class ManchesterImporter(Importer):
     name = "manchester"
 
     def __init__(self, *args, **kwargs):
-        super(ManchesterImporter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.data_path = self.options["data_path"]
         self.muni_data_path = os.path.join(self.data_path, "uk", "manchester")
 

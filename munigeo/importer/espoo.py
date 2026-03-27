@@ -12,5 +12,5 @@ class EspooImporter(HelsinkiImporter):
     wfs_output_format = None
 
     def __init__(self, *args, **kwargs):
-        super(EspooImporter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.muni_data_path = "fi/espoo"

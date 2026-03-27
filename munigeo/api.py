@@ -80,7 +80,7 @@ def make_muni_ocd_id(name, rest=None):
     country = getattr(settings, "DEFAULT_COUNTRY", None)
     muni = getattr(settings, "DEFAULT_OCD_MUNICIPALITY", None)
     if country and muni:
-        s = "ocd-division/country:%s/%s:%s" % (
+        s = "ocd-division/country:{}/{}:{}".format(
             settings.DEFAULT_COUNTRY,
             settings.DEFAULT_OCD_MUNICIPALITY,
             name,
@@ -94,7 +94,7 @@ def make_muni_ocd_id(name, rest=None):
 
 class TranslatedModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
-        super(TranslatedModelSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         model = self.Meta.model
         try:
             trans_opts = translator.get_options_for_model(model)
@@ -108,7 +108,7 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
         # Remove the pre-existing data in the bundle.
         for field_name in self.translated_fields:
             for lang in lang_codes:
-                key = "%s_%s" % (field_name, lang)
+                key = f"{field_name}_{lang}"
                 if key in self.fields:
                     del self.fields[key]
             del self.fields[field_name]
@@ -118,7 +118,7 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
                 del self.fields[field_name]
 
     def to_representation(self, obj):
-        ret = super(TranslatedModelSerializer, self).to_representation(obj)
+        ret = super().to_representation(obj)
         if obj is None:
             return ret
         return self.translated_fields_to_representation(obj, ret)
@@ -127,7 +127,7 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
         for field_name in self.translated_fields:
             d = {}
             for lang in [x[0] for x in settings.LANGUAGES]:
-                key = "%s_%s" % (field_name, lang)
+                key = f"{field_name}_{lang}"
                 val = getattr(obj, key, None)
                 if val is None:
                     continue
@@ -146,7 +146,7 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
 
 class MPTTModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
-        super(MPTTModelSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for field_name in "lft", "rght", "tree_id", "level":
             if field_name in self.fields:
                 del self.fields[field_name]
@@ -165,7 +165,7 @@ def geom_to_json(geom, target_srs):
         srs_cache[geom.srid] = srs
 
     if target_srs:
-        ct_id = "%s-%s" % (geom.srid, target_srs.srid)
+        ct_id = f"{geom.srid}-{target_srs.srid}"
         ct = coord_transforms.get(ct_id, None)
         if not ct:
             ct = CoordTransform(srs, target_srs)
@@ -196,7 +196,7 @@ def geom_to_json(geom, target_srs):
 
 class GeoModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
-        super(GeoModelSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         model = self.Meta.model
         self.geo_fields = []
         model_fields = [f.name for f in model._meta.fields]
@@ -215,7 +215,7 @@ class GeoModelSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         # SRS is deduced in ViewSet and passed from there
         self.srs = self.context.get("srs", DEFAULT_SRS)
-        ret = super(GeoModelSerializer, self).to_representation(obj)
+        ret = super().to_representation(obj)
         if obj is None:
             return ret
         for field_name in self.geo_fields:
@@ -229,12 +229,12 @@ class GeoModelSerializer(serializers.ModelSerializer):
 
 class GeoModelAPIView(generics.GenericAPIView):
     def initial(self, request, *args, **kwargs):
-        super(GeoModelAPIView, self).initial(request, *args, **kwargs)
+        super().initial(request, *args, **kwargs)
         srid = request.query_params.get("srid", None)
         self.srs = srid_to_srs(srid)
 
     def get_serializer_context(self):
-        ret = super(GeoModelAPIView, self).get_serializer_context()
+        ret = super().get_serializer_context()
         ret["srs"] = self.srs
         return ret
 
@@ -257,7 +257,7 @@ class AdministrativeDivisionSerializer(
     GeoModelSerializer, TranslatedModelSerializer, MPTTModelSerializer
 ):
     def to_representation(self, obj):
-        ret = super(AdministrativeDivisionSerializer, self).to_representation(obj)
+        ret = super().to_representation(obj)
         if "request" not in self.context:
             return ret
         qparams = self.context["request"].query_params
@@ -324,7 +324,7 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
     serializer_class = AdministrativeDivisionSerializer
 
     def get_queryset(self):
-        queryset = super(AdministrativeDivisionViewSet, self).get_queryset()
+        queryset = super().get_queryset()
         filters = self.request.query_params
 
         if "type" in filters:
@@ -364,7 +364,7 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
                     muni_ocd_id = division_path
                 else:
                     ocd_id_base = r"[\w0-9~_.-]+"
-                    match_re = r"(%s)/([\w_-]+):(%s)" % (ocd_id_base, ocd_id_base)
+                    match_re = rf"({ocd_id_base})/([\w_-]+):({ocd_id_base})"
                     m = re.match(match_re, division_path, re.U)
                     if not m:
                         raise ParseError("'ocd_id' must be of form 'muni/type:id'")
@@ -469,7 +469,7 @@ class StreetViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
     serializer_class = StreetSerializer
 
     def get_queryset(self):
-        queryset = super(StreetViewSet, self).get_queryset()
+        queryset = super().get_queryset()
         default_lang = LANG_CODES[0]
         self.lang_code = self.request.query_params.get("language", default_lang)
         if self.lang_code not in LANG_CODES:
@@ -507,7 +507,7 @@ register_view(StreetViewSet, "street")
 class AddressSerializer(GeoModelSerializer, TranslatedModelSerializer):
     # Reverse geocoding
     def to_representation(self, obj):
-        ret = super(AddressSerializer, self).to_representation(obj)
+        ret = super().to_representation(obj)
         if not ret["number_end"]:
             ret["number_end"] = None
         if not ret["letter"]:
@@ -539,7 +539,7 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
                 % ", ".join([x[0] for x in settings.LANGUAGES])
             )
 
-        queryset = super(AddressViewSet, self).get_queryset()
+        queryset = super().get_queryset()
 
         street = filters.get("street", None)
         if street is not None:

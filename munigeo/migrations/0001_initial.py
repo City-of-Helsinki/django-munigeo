@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import django.contrib.gis.db.models.fields
 import mptt.fields
 from django.db import migrations, models
@@ -303,7 +300,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="street",
-            unique_together=set([("municipality", "name")]),
+            unique_together={("municipality", "name")},
         ),
         migrations.AddField(
             model_name="poi",
@@ -321,7 +318,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="plan",
-            unique_together=set([("municipality", "origin_id")]),
+            unique_together={("municipality", "origin_id")},
         ),
         migrations.AddField(
             model_name="administrativedivision",
@@ -352,7 +349,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="administrativedivision",
-            unique_together=set([("origin_id", "type", "parent")]),
+            unique_together={("origin_id", "type", "parent")},
         ),
         migrations.AddField(
             model_name="address",
@@ -364,6 +361,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="address",
-            unique_together=set([("street", "number", "number_end", "letter")]),
+            unique_together={("street", "number", "number_end", "letter")},
         ),
     ]
