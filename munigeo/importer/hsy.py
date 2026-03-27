@@ -33,12 +33,12 @@ class HsyImporter(HelsinkiImporter):
     name = "hsy"
 
     def __init__(self, *args, **kwargs):
-        super(HsyImporter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.muni_data_path = "fi/hsy"
 
     def import_divisions(self):
         path = self.find_data_file(os.path.join(self.muni_data_path, "config.yml"))
-        config = yaml.safe_load(open(path, "r", encoding="utf-8"))
+        config = yaml.safe_load(open(path, encoding="utf-8"))
         self.division_data_path = os.path.join(
             self.muni_data_path, config["paths"]["division"]
         )
@@ -47,7 +47,7 @@ class HsyImporter(HelsinkiImporter):
             try:
                 self._import_one_division_type(None, div)
             except Exception as e:
-                self.logger.warning("Skipping division %s : %s" % (div, e))
+                self.logger.warning(f"Skipping division {div} : {e}")
 
     def _import_division(self, muni, div, type_obj, syncher, parent_dict, feat):
         #
@@ -111,7 +111,7 @@ class HsyImporter(HelsinkiImporter):
         parent = muni.division
 
         if parent:
-            origin_id = "%s-%s" % (parent.origin_id, origin_id)
+            origin_id = f"{parent.origin_id}-{origin_id}"
         obj = syncher.get(origin_id)
         is_new_obj = False
         if not obj:
@@ -135,7 +135,7 @@ class HsyImporter(HelsinkiImporter):
             setattr(obj, attr, attr_dict[attr])
         for attr in lang_dict.keys():
             for lang, val in lang_dict[attr].items():
-                key = "%s_%s" % (attr, lang)
+                key = f"{attr}_{lang}"
                 setattr(obj, key, val)
 
         if "ocd_id" in div:

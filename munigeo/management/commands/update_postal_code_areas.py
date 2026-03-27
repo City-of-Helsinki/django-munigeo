@@ -27,7 +27,7 @@ class Command(BaseCommand):
     help = "Update postal code areas from geo-search service."
 
     def __init__(self):
-        super(Command, self).__init__()
+        super().__init__()
         self.logger = logging.getLogger("import")
         self.postal_code_areas_enriched = 0
         self.postal_code_areas_created = 0

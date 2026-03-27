@@ -5,7 +5,7 @@ from django.db.models import ProtectedError
 logger = logging.getLogger(__name__)
 
 
-class ModelSyncher(object):
+class ModelSyncher:
     def __init__(self, queryset, generate_obj_id):
         d = {}
         self.generate_obj_id = generate_obj_id
@@ -26,7 +26,9 @@ class ModelSyncher(object):
                 )
             else:
                 raise Exception(
-                    "Object %s (%s) already marked" % (obj, self.generate_obj_id(obj))
+                    "Object {} ({}) already marked".format(
+                        obj, self.generate_obj_id(obj)
+                    )
                 )
 
         obj._found = True

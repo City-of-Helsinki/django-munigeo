@@ -17,7 +17,7 @@ def convert_from_wgs84(coords):
     return pnt
 
 
-class Importer(object):
+class Importer:
     def __init__(self, options):
         self.logger = logging.getLogger("import")
         self.options = options
@@ -69,7 +69,7 @@ class Importer(object):
                 defaults={"description": cat_info["category_desc"]},
             )
 
-            origin_id = "%s-%s-%s" % (muni_slug, cat.type, d["id"])
+            origin_id = "{}-{}-{}".format(muni_slug, cat.type, d["id"])
 
             try:
                 poi = POI.objects.get(origin_id=origin_id)
@@ -117,6 +117,6 @@ def get_importers():
             continue
         if module in ("__init__", "base"):
             continue
-        full_path = "%s.%s" % (module_path, module)
+        full_path = f"{module_path}.{module}"
         ret = __import__(full_path, locals(), globals())
     return importers

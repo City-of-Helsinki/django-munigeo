@@ -93,7 +93,7 @@ class UusimaaImporter(Importer):
     headers = {"Api-Key": f"{settings.GEO_SEARCH_API_KEY}"}
 
     def __init__(self, *args, **kwargs):
-        super(UusimaaImporter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_count(self, url):
         try:
