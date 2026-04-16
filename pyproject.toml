@@ -68,14 +68,13 @@ features = ["all"]
 python = "3.10"
 
 [tool.hatch.envs.default.scripts]
-test = "pytest {args}"
 lint = [
     "pre-commit install",
     "pre-commit run -a",
 ]
 
 [tool.hatch.envs.hatch-test]
-default-args = ["munigeo/tests"]
+default-args = []
 features = ["all"]
 matrix-name-format = "dj{value}"
 parallel = false
@@ -91,15 +90,22 @@ matrix.django.dependencies = [
 ]
 
 [tool.hatch.envs.hatch-test.scripts]
-run = "pytest{env:HATCH_TEST_ARGS:} {args}"
-run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
+check-migrations = "./test_app/manage.py makemigrations --check"
+run = [
+    "check-migrations",
+    "pytest{env:HATCH_TEST_ARGS:} {args}",
+]
+run-cov = [
+    "check-migrations",
+    "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}",
+]
 cov-combine = "coverage combine"
 cov-report = "coverage report"
 
 [tool.pytest.ini_options]
 django_find_project = false
-testpaths = ["munigeo/tests"]
-DJANGO_SETTINGS_MODULE = "munigeo.tests.settings"
+testpaths = ["test_app"]
+DJANGO_SETTINGS_MODULE = "test_app.settings"
 pythonpath = "."
 
 [tool.coverage.run]
