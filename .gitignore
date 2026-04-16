@@ -5,3 +5,5 @@ django_munigeo.egg-info/
 .idea
 .python-version
 .DS_Store
+.vscode/
+db.sqlite3
