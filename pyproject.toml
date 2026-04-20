@@ -141,8 +141,3 @@ ignore = [
     # once branches are merged and the codebase is in a cleaner state.
     "E501",
 ]
-
-[tool.ruff.lint.per-file-ignores]
-# oldapi.py is dead code kept for historical reference. It has broken imports
-# and is not in use. Suppress all checks rather than pollute it with noqa comments.
-"munigeo/oldapi.py" = ["ALL"]
