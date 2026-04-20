@@ -34,7 +34,6 @@ dependencies = [
     "django>=4.2",
     "requests",
     "django-mptt>=0.18.0",
-    "django-modeltranslation",
     "pyyaml",
     "djangorestframework",
     "unicodecsv",
@@ -48,7 +47,8 @@ test = [
     "pytest-randomly",
     "coverage[toml]",
     "coverage-enable-subprocess",
-    "psycopg",
+    "psycopg[binary]",
+    "factory_boy",
 ]
 all = ["django-munigeo[test]"]
 
@@ -72,6 +72,8 @@ lint = [
     "pre-commit install",
     "pre-commit run -a",
 ]
+manage = "./test_app/manage.py {args}"
+makemigrations = "./test_app/manage.py makemigrations {args}"
 
 [tool.hatch.envs.hatch-test]
 default-args = []
