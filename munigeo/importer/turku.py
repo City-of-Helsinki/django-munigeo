@@ -353,7 +353,7 @@ class TurkuImporter(Importer):
 
     def import_plans(self):
         self.plan_map = {}
-        self.muni = Municipality.objects.get(name="Turku")
+        self.muni = Municipality.objects.get(name_fi="Turku")
         for obj in Plan.objects.filter(municipality=self.muni):
             self.plan_map[obj.origin_id] = obj
             obj.found = False
@@ -485,9 +485,7 @@ class TurkuImporter(Importer):
                     self.logger.info(
                         f"street {street_name} not found in DB, creating it"
                     )
-                    street = Street(
-                        name_fi=street_name, name=street_name, municipality=muni
-                    )
+                    street = Street(name_fi=street_name, municipality=muni)
                     street.name_sv = street_name_sv  # Check this when sv is set in csv file_________________________!
 
                     # bulk_street_list.append(street)

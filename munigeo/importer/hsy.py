@@ -100,7 +100,7 @@ class HsyImporter(HelsinkiImporter):
         municipality_id = attr_dict.get("parent_municipality_id")
         municipality_name = MUNICIPALITY_ID_MAP.get(municipality_id)
         try:
-            muni = Municipality.objects.get(name=municipality_name)
+            muni = Municipality.objects.get(name_fi=municipality_name)
         except Municipality.DoesNotExist:
             self.logger.warning(
                 "Municipality %s not Helsinki, Vantaa, Espoo, Kauniainen or Kirkkonummi. Skipping..."

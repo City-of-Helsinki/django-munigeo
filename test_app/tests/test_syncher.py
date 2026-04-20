@@ -6,11 +6,7 @@ from munigeo.models import Municipality
 
 @pytest.fixture
 def municipalities():
-    models = []
-    for x in range(10):
-        m = Municipality(id=str(x), name=str(x), division=None)
-        models.append(m)
-    return models
+    return [Municipality(id=str(x), name_fi=str(x)) for x in range(10)]
 
 
 @pytest.fixture

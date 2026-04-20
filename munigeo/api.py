@@ -11,8 +11,6 @@ from django.contrib.gis.gdal import CoordTransform, SpatialReference, SRSExcepti
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
 from django.db.models import Q
-from modeltranslation import models as mt_models  # workaround for init problem
-from modeltranslation.translator import NotRegistered, translator
 from rest_framework import generics, serializers, viewsets
 from rest_framework.exceptions import ParseError
 
@@ -92,56 +90,34 @@ def make_muni_ocd_id(name, rest=None):
     return s
 
 
+class TranslatedDictField(serializers.Field):
+    def __init__(self, base_field, **kwargs):
+        self.base_field = base_field
+        kwargs.setdefault("read_only", True)
+        super().__init__(**kwargs)
+
+    def get_attribute(self, instance):
+        return instance
+
+    def to_representation(self, obj):
+        d = {}
+        for lang in ("fi", "sv", "en"):
+            val = getattr(obj, f"{self.base_field}_{lang}", None)
+            if val is not None:
+                d[lang] = val
+        return d if d else None
+
+
 class TranslatedModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         model = self.Meta.model
-        try:
-            trans_opts = translator.get_options_for_model(model)
-        except NotRegistered:
-            self.translated_fields = []
-            return
-
-        self.translated_fields = trans_opts.all_fields.keys()
-        lang_codes = [x[0] for x in settings.LANGUAGES]
-        remove_fields = []
-        # Remove the pre-existing data in the bundle.
-        for field_name in self.translated_fields:
-            for lang in lang_codes:
+        translated_fields = getattr(model, "_translated_base_fields", ())
+        for field_name in translated_fields:
+            for lang in ("fi", "sv", "en"):
                 key = f"{field_name}_{lang}"
                 if key in self.fields:
                     del self.fields[key]
-            del self.fields[field_name]
-            remove_fields.append(field_name)
-        for field_name in remove_fields:
-            if field_name in self.fields:
-                del self.fields[field_name]
-
-    def to_representation(self, obj):
-        ret = super().to_representation(obj)
-        if obj is None:
-            return ret
-        return self.translated_fields_to_representation(obj, ret)
-
-    def translated_fields_to_representation(self, obj, ret):
-        for field_name in self.translated_fields:
-            d = {}
-            for lang in [x[0] for x in settings.LANGUAGES]:
-                key = f"{field_name}_{lang}"
-                val = getattr(obj, key, None)
-                if val is None:
-                    continue
-                d[lang] = val
-
-            # If no text provided, leave the field as null
-            for key, val in d.items():
-                if val is not None:
-                    break
-            else:
-                d = None
-            ret[field_name] = d
-
-        return ret
 
 
 class MPTTModelSerializer(serializers.ModelSerializer):
@@ -256,6 +232,8 @@ register_view(AdministrativeDivisionTypeViewSet, "administrative_division_type")
 class AdministrativeDivisionSerializer(
     GeoModelSerializer, TranslatedModelSerializer, MPTTModelSerializer
 ):
+    name = TranslatedDictField("name")
+
     def to_representation(self, obj):
         ret = super().to_representation(obj)
         if "request" not in self.context:
@@ -348,7 +326,7 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
             queryset = queryset.filter(geometry__in=geometries).distinct()
 
         if "input" in filters:
-            queryset = queryset.filter(name__icontains=filters["input"].strip())
+            queryset = queryset.filter(name_fi__icontains=filters["input"].strip())
 
         for filter in filters:
             if filter.startswith("extra__"):
@@ -383,7 +361,7 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
 
         if "municipality" in filters:
             args = {}
-            args["name__iexact"] = filters["municipality"].lower()
+            args["name_fi__iexact"] = filters["municipality"].lower()
             try:
                 municipality = Municipality.objects.get(**args)
                 queryset = queryset.filter(municipality=municipality)
@@ -409,6 +387,8 @@ register_view(AdministrativeDivisionViewSet, "administrative_division")
 
 
 class PostalCodeSerializer(TranslatedModelSerializer):
+    name = TranslatedDictField("name")
+
     class Meta:
         model = PostalCodeArea
         fields = ["postal_code", "name"]
@@ -456,6 +436,8 @@ register_view(PostalCodeAreaViewSet, "postal_code_area")
 
 
 class StreetSerializer(TranslatedModelSerializer):
+    name = TranslatedDictField("name")
+
     class Meta:
         model = Street
         fields = ["name"]
@@ -505,6 +487,8 @@ register_view(StreetViewSet, "street")
 
 
 class AddressSerializer(GeoModelSerializer, TranslatedModelSerializer):
+    full_name = TranslatedDictField("full_name")
+
     # Reverse geocoding
     def to_representation(self, obj):
         ret = super().to_representation(obj)
@@ -605,6 +589,8 @@ register_view(AddressViewSet, "address")
 
 
 class MunicipalitySerializer(TranslatedModelSerializer):
+    name = TranslatedDictField("name")
+
     class Meta:
         model = Municipality
         fields = ["code", "name"]

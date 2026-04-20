@@ -71,7 +71,7 @@ class ManchesterImporter(Importer):
         self.muni_data_path = os.path.join(self.data_path, "uk", "manchester")
 
     def import_municipalities(self):
-        muni, c = Municipality.objects.get_or_create(id=44001, name="Manchester")
+        muni, c = Municipality.objects.get_or_create(id=44001, name_en="Manchester")
         self.logger.info("Manchester municipality added.")
 
     def import_pois_from_csv(self):
