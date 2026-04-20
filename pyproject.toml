@@ -34,7 +34,6 @@ dependencies = [
     "django>=4.2",
     "requests",
     "django-mptt>=0.18.0",
-    "django-modeltranslation",
     "pyyaml",
     "djangorestframework",
     "unicodecsv",

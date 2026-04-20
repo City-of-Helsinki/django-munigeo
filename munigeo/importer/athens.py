@@ -83,7 +83,7 @@ class AthensImporter(Importer):
         self.muni_data_path = os.path.join(self.data_path, "gr", "athens")
 
     def import_municipalities(self):
-        muni, c = Municipality.objects.get_or_create(id=30001, name="Athens")
+        muni, c = Municipality.objects.get_or_create(id=30001, name_en="Athens")
         self.logger.info("Athens municipality added.")
 
     def import_pois_from_citadel(self):

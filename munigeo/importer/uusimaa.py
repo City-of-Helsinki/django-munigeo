@@ -18,7 +18,7 @@ from munigeo.models import Address, Municipality, PostalCodeArea, Street
 
 def get_municipality(name):
     try:
-        return Municipality.objects.get(name=name)
+        return Municipality.objects.get(name_fi=name)
     except Municipality.DoesNotExist:
         return None
 
@@ -216,7 +216,7 @@ class UusimaaImporter(Importer):
             ) = self.get_multilingual_street_names(result)
             if street_name_fi not in self.streets_cache:
                 street_entry = {
-                    "name": street_name_fi,
+                    "name_fi": street_name_fi,
                     "name_sv": street_name_sv,
                     "name_en": street_name_en,
                     "municipality": municipality,

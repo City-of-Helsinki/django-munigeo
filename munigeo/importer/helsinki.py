@@ -382,7 +382,7 @@ class HelsinkiImporter(Importer):
 
     def import_plans(self):
         self.plan_map = {}
-        self.muni = Municipality.objects.get(name="Helsinki")
+        self.muni = Municipality.objects.get(name_fi="Helsinki")
         for obj in Plan.objects.filter(municipality=self.muni):
             self.plan_map[obj.origin_id] = obj
             obj.found = False
@@ -484,9 +484,7 @@ class HelsinkiImporter(Importer):
             street = muni.streets_by_name.get(street_name, None)
             if not street:
                 self.logger.info(f"street {street_name} not found in DB, creating it")
-                street = Street(
-                    name_fi=street_name, name=street_name, municipality=muni
-                )
+                street = Street(name_fi=street_name, municipality=muni)
                 street.name_sv = street_name_sv
 
                 # bulk_street_list.append(street)
