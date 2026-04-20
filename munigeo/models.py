@@ -64,10 +64,14 @@ class AdministrativeDivisionManager(TreeManager):
 
 
 class AdministrativeDivision(MPTTModel):
+    _translated_base_fields = ("name",)
+
     type = models.ForeignKey(
         AdministrativeDivisionType, db_index=True, on_delete=models.CASCADE
     )
-    name = models.CharField(max_length=200, null=True, db_index=True)
+    name_fi = models.CharField(max_length=200, null=True, db_index=True)
+    name_sv = models.CharField(max_length=200, null=True, db_index=True)
+    name_en = models.CharField(max_length=200, null=True, db_index=True)
     parent = TreeForeignKey(
         "self",
         db_index=True,
@@ -115,7 +119,8 @@ class AdministrativeDivision(MPTTModel):
         ocd_id = ""
         if self.ocd_id:
             ocd_id = "%s / " % self.ocd_id
-        return f"{self.name} ({ocd_id}{self.type.type})"
+        name = self.name_fi or self.name_sv or self.name_en or ""
+        return f"{name} ({ocd_id}{self.type.type})"
 
     class Meta:
         unique_together = (("origin_id", "type", "parent"),)
@@ -158,9 +163,13 @@ class AdministrativeDivisionGeometry(models.Model):
 
 
 class Municipality(models.Model):
+    _translated_base_fields = ("name",)
+
     id = models.CharField(max_length=100, primary_key=True)
     code = models.CharField(max_length=3)
-    name = models.CharField(max_length=100, null=True, db_index=True)
+    name_fi = models.CharField(max_length=100, null=True, db_index=True)
+    name_sv = models.CharField(max_length=100, null=True, db_index=True)
+    name_en = models.CharField(max_length=100, null=True, db_index=True)
     division = models.OneToOneField(
         AdministrativeDivision,
         null=True,
@@ -170,7 +179,7 @@ class Municipality(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return self.name_fi or self.name_sv or self.name_en or ""
 
 
 class Plan(models.Model):
@@ -190,7 +199,11 @@ class Plan(models.Model):
 
 
 class Street(models.Model):
-    name = models.CharField(max_length=100, db_index=True)
+    _translated_base_fields = ("name",)
+
+    name_fi = models.CharField(max_length=100, null=True, db_index=True)
+    name_sv = models.CharField(max_length=100, null=True, db_index=True)
+    name_en = models.CharField(max_length=100, null=True, db_index=True)
     municipality = models.ForeignKey(
         Municipality, db_index=True, on_delete=models.CASCADE
     )
@@ -199,15 +212,23 @@ class Street(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return self.name_fi or self.name_sv or self.name_en or ""
 
     class Meta:
-        unique_together = (("municipality", "name"),)
+        unique_together = (
+            ("municipality", "name_fi"),
+            ("municipality", "name_sv"),
+            ("municipality", "name_en"),
+        )
 
 
 class PostalCodeArea(models.Model):
+    _translated_base_fields = ("name",)
+
     postal_code = models.CharField(max_length=5, null=True, blank=True)
-    name = models.CharField(max_length=100, null=True, blank=True)
+    name_fi = models.CharField(max_length=100, null=True, blank=True)
+    name_sv = models.CharField(max_length=100, null=True, blank=True)
+    name_en = models.CharField(max_length=100, null=True, blank=True)
     area = models.MultiPolygonField(srid=PROJECTION_SRID, null=True, blank=True)
 
     def __str__(self):
@@ -218,6 +239,8 @@ class PostalCodeArea(models.Model):
 
 
 class Address(models.Model):
+    _translated_base_fields = ("full_name",)
+
     municipality = models.ForeignKey(
         Municipality, db_index=True, related_name="addresses", on_delete=models.CASCADE
     )
@@ -244,7 +267,19 @@ class Address(models.Model):
         blank=True,
         related_name="addresses",
     )
-    full_name = models.CharField(
+    full_name_fi = models.CharField(
+        max_length=256,
+        db_index=True,
+        null=True,
+        help_text="Full address name. Used for generating search_column",
+    )
+    full_name_sv = models.CharField(
+        max_length=256,
+        db_index=True,
+        null=True,
+        help_text="Full address name. Used for generating search_column",
+    )
+    full_name_en = models.CharField(
         max_length=256,
         db_index=True,
         null=True,

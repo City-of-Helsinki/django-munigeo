@@ -18,7 +18,7 @@ from munigeo.models import Address, Municipality, PostalCodeArea, Street
 
 def get_municipality(name):
     try:
-        return Municipality.objects.get(name=name)
+        return Municipality.objects.get(name_fi=name)
     except Municipality.DoesNotExist:
         return None
 
