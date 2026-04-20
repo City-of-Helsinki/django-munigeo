@@ -53,13 +53,12 @@ TEMPLATES = [
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    },
-    "postgis": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": "servicemap-api",
-        "ATOMIC_REQUESTS": True,
+        "NAME": "munigeo",
+        "USER": "munigeo",
+        "PASSWORD": "munigeo",
+        "HOST": "localhost",
+        "PORT": "5433",
     },
 }
 
