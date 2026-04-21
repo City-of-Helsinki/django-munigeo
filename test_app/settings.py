@@ -75,3 +75,7 @@ DEFAULT_SRID = 3067
 PROJECTION_SRID = 3067
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Required for UusimaaImporter (used at module/class level)
+GEO_SEARCH_LOCATION = "https://geo-search.test"
+GEO_SEARCH_API_KEY = "test-api-key"

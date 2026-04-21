@@ -1,0 +1,75 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nimi_fi": "Eteläinen",
+        "nimi_se": "Södra",
+        "tunnus": "001"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.9,
+              60.15
+            ],
+            [
+              24.98,
+              60.15
+            ],
+            [
+              24.98,
+              60.2
+            ],
+            [
+              24.9,
+              60.2
+            ],
+            [
+              24.9,
+              60.15
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nimi_fi": "Pohjoinen",
+        "nimi_se": "Norra",
+        "tunnus": "002"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              25.0,
+              60.2
+            ],
+            [
+              25.08,
+              60.2
+            ],
+            [
+              25.08,
+              60.25
+            ],
+            [
+              25.0,
+              60.25
+            ],
+            [
+              25.0,
+              60.2
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

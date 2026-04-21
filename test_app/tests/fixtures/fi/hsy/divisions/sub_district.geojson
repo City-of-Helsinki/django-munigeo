@@ -1,0 +1,75 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "pien": "SD01",
+        "kunta": "091",
+        "nimi": "Kluuvi"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.94,
+              60.17
+            ],
+            [
+              24.95,
+              60.17
+            ],
+            [
+              24.95,
+              60.18
+            ],
+            [
+              24.94,
+              60.18
+            ],
+            [
+              24.94,
+              60.17
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "pien": "SD02",
+        "kunta": "092",
+        "nimi": "Hiekkaharju"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              25.04,
+              60.29
+            ],
+            [
+              25.05,
+              60.29
+            ],
+            [
+              25.05,
+              60.3
+            ],
+            [
+              25.04,
+              60.3
+            ],
+            [
+              25.04,
+              60.29
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

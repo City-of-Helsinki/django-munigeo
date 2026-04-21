@@ -47,6 +47,7 @@ test = [
     "pytest-django",
     "pytest-mock",
     "pytest-randomly",
+    "requests-mock",
     "coverage[toml]",
     "coverage-enable-subprocess",
     "psycopg",
