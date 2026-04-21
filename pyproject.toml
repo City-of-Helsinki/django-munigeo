@@ -1,29 +1,147 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django-munigeo"
+version = "0.3.12"
+authors = [{ name = "City of Helsinki", email = "dev@hel.fi" }]
+description = "A Django app for processing municipality-related geospatial data."
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["django", "gis", "geospatial", "municipality"]
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5.2",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+dependencies = [
+    "django>=4.2",
+    "requests",
+    "requests_cache",
+    "django-mptt",
+    "django-parler>=2",
+    "django-parler-rest",
+    "djangorestframework",
+    "pyyaml",
+    "six",
+    "unicodecsv",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-django",
+    "pytest-mock",
+    "pytest-randomly",
+    "coverage[toml]",
+    "coverage-enable-subprocess",
+    "psycopg[binary]",
+    "factory_boy",
+]
+all = ["django-munigeo[test]"]
+
+[project.urls]
+Homepage = "https://github.com/City-of-Helsinki/django-munigeo"
+Issues = "https://github.com/City-of-Helsinki/django-munigeo/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["munigeo"]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "django~=4.2",
+    "pre-commit",
+]
+features = ["all"]
+python = "3.10"
+
+[tool.hatch.envs.default.scripts]
+lint = [
+    "pre-commit install",
+    "pre-commit run -a",
+]
+manage = "./test_app/manage.py {args}"
+makemigrations = "./test_app/manage.py makemigrations {args}"
+
+[tool.hatch.envs.hatch-test]
+default-args = []
+features = ["all"]
+matrix-name-format = "dj{value}"
+parallel = false
+randomize = true
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.10", "3.11", "3.12", "3.13"]
+django = ["4.2", "5.1", "5.2"]
+
+[tool.hatch.envs.hatch-test.overrides]
+matrix.django.dependencies = [
+    { value = "django~={matrix:django}" },
+]
+
+[tool.hatch.envs.hatch-test.scripts]
+check-migrations = "./test_app/manage.py makemigrations --check"
+run = [
+    "check-migrations",
+    "pytest{env:HATCH_TEST_ARGS:} {args}",
+]
+run-cov = [
+    "check-migrations",
+    "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}",
+]
+cov-combine = "coverage combine"
+cov-report = "coverage report"
+
+[tool.pytest.ini_options]
+django_find_project = false
+testpaths = ["test_app"]
+DJANGO_SETTINGS_MODULE = "test_app.settings"
+pythonpath = "."
+
+[tool.coverage.run]
+source = ["munigeo"]
+omit = ["**/migrations/*", "**/tests/*"]
+
 [tool.ruff]
 target-version = "py310"
 
 [tool.ruff.lint]
 select = [
-    # Pyflakes
-    "F",
-    # pycodestyle
+    # pycodestyle - style only
     "E",
     "W",
     # isort
     "I",
-    # pep8-naming
-    "N",
-    # flake8-bugbear without opinionated rules
-    "B0",
-    # flake8-pie
-    "PIE",
-    # flake8-print
-    "T20",
+    # The checks below are intentionally disabled during the 0.2/main branch merge
+    # preparation. Fixing the issues they surface would diverge the branches further,
+    # making the eventual merge harder. Re-enable once the branches are unified.
+    #
+    # "F",    # Pyflakes - undefined names, unused imports/variables (real bugs)
+    # "N",    # pep8-naming - naming convention violations
+    # "B0",   # flake8-bugbear (non-opinionated) - likely bugs and design issues
+    # "PIE",  # flake8-pie - misc code style improvements
+    # "T20",  # flake8-print - print() statements
 ]
-extend-per-file-ignores = { "*/migrations/*" = ["E501"], "*/tests/*" = ["E501"] }
-
-[tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "helusers.tests.settings"
-
-[tool.coverage.run]
-source = ["helusers"]
-omit = ["helusers/migrations/*", "*/tests/*"]
+ignore = [
+    # Long lines are not auto-fixable and too noisy on legacy code; re-evaluate
+    # once branches are merged and the codebase is in a cleaner state.
+    "E501",
+]

@@ -1,8 +1,7 @@
 *~
 *.pyc
-.eggs/
 __pycache__
 django_munigeo.egg-info/
-/build
-/dist
 .idea
+.vscode/
+data/
