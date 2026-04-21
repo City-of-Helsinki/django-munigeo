@@ -8,7 +8,7 @@ from munigeo.models import Municipality
 def municipalities():
     models = []
     for x in range(10):
-        m = Municipality(id=str(x), name=str(x), division=None)
+        m = Municipality(id=str(x), division=None)
         models.append(m)
     return models
 

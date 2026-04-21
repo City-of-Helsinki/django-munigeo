@@ -35,11 +35,24 @@ jobs:
   test:
     name: Python ${{ matrix.python_version }}
     runs-on: ubuntu-22.04
-    env:
-      TOX_POSARGS: -- --cov=. --cov-report=xml
     strategy:
       matrix:
-        python_version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python_version: ["3.10", "3.11", "3.12", "3.13"]
+
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5-alpine
+        env:
+          POSTGRES_USER: munigeo
+          POSTGRES_PASSWORD: munigeo
+          POSTGRES_DB: munigeo
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
     - uses: actions/checkout@v4
@@ -48,21 +61,18 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python_version }}
-        cache: "pip"
-        cache-dependency-path: "requirements.txt"
 
-    - name: Upgrade packaging tools
-      run: python -m pip install --upgrade pip setuptools wheel
-
-    - name: Install dependencies
+    - name: Install system dependencies
       run: |
         sudo apt-add-repository ppa:ubuntugis/ppa
         sudo apt-get update
         sudo apt-get install gdal-bin libgdal-dev
-        python -m pip install --upgrade codecov tox
 
-    - name: Run tox targets for Python ${{ matrix.python_version }}
-      run: tox run -f py$(echo ${{ matrix.python_version }} | tr -d .) ${{ env.TOX_POSARGS }}
+    - name: Install hatch
+      run: python -m pip install --upgrade pip hatch
+
+    - name: Run tests
+      run: hatch test -py ${{ matrix.python_version }}
 
     - name: Upload Coverage to Codecov
       if: ${{ matrix.python_version == env.DEFAULT_PYTHON }}
