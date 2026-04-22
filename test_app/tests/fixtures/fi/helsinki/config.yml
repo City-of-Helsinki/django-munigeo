@@ -1,0 +1,213 @@
+name: Helsinki
+origin_id: 91
+
+paths:
+    division: divisions
+
+divisions:
+  - type: major_district
+    name: Suurpiiri
+    ocd_id: suurpiiri
+    file: major_district.geojson
+    fields:
+        name:
+            fi: nimi_fi
+            sv: nimi_se
+        origin_id: tunnus
+        ocd_id: nimi_fi
+
+  - type: district
+    name: Peruspiiri
+    parent: major_district
+    ocd_id: peruspiiri
+    file: district.geojson
+    fields:
+        name:
+            fi: nimi_fi
+            sv: nimi_se
+        origin_id: tunnus
+        ocd_id: nimi_fi
+
+  - type: sub_district
+    name: Osa-alue
+    parent: district
+    ocd_id: osa-alue
+    file: sub_district.geojson
+    fields:
+        name:
+            fi: nimi_fi
+            sv: nimi_se
+        origin_id: tunnus
+        ocd_id: nimi_fi
+
+  - type: small_district
+    name: Pienalue
+    parent: sub_district
+    parent_in_ocd_id: true
+    ocd_id: pienalue
+    file: small_district.geojson
+    fields:
+        origin_id: tunnus
+        parent_id: osaalue_tunnus
+        ocd_id: tunnus
+
+  - type: voting_district
+    name: Äänestysalue
+    ocd_id: äänestysalue
+    file: voting_district.geojson
+    fields:
+        name:
+            fi: nimi_fi
+        origin_id: tunnus
+        ocd_id: tunnus
+        service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
+
+  - type: health_station_district
+    name: Terveysasema-aluejako
+    ocd_id: terveysasema-alue
+    file: health_station_district.geojson
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        name:
+            fi: tunnus
+        service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
+
+  - type: emergency_care_district
+    name: Päivystysalue
+    ocd_id: päivystysalue
+    file: emergency_care_district.geojson
+    fields:
+        origin_id: id
+        ocd_id: tunnus
+        name:
+            fi: tunnus
+
+  - type: rescue_area
+    name: Suojelupiiri
+    ocd_id: suojelupiiri
+    file: rescue_area.geojson
+    fields:
+        origin_id: suojelupiiri_tunnus
+        ocd_id: suojelupiiri_nimi
+        name:
+            fi: suojelupiiri_nimi
+            sv: suojelupiiri_nimi_se
+
+  - type: rescue_district
+    name: Suojelulohko
+    ocd_id: suojelulohko
+    file: rescue_district.geojson
+    fields:
+        origin_id: suojelulohko_tunnus
+        ocd_id: suojelulohko_nimi
+        name:
+            fi: suojelulohko_nimi
+            sv: suojelulohko_nimi_se
+
+  - type: rescue_sub_district
+    name: Suojelulalaohko
+    ocd_id: suojelualalohko
+    file: rescue_sub_district.geojson
+    fields:
+        origin_id: suojelualalohko_tunnus
+        ocd_id: suojelualalohko_nimi
+        name:
+            fi: suojelualalohko_nimi
+            sv: suojelualalohko_nimi_se
+
+  - type: maternity_clinic_district
+    name: Neuvola-alue
+    ocd_id: neuvola-alue
+    file: maternity_clinic_district.geojson
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        name:
+            fi: tunnus
+        service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
+
+  - type: statistical_district
+    name: Tilastoalue
+    ocd_id: tilastoalue
+    no_parent_division: yes
+    parent_ocd_id: 'ocd-division/country:fi'
+    file: statistical_district.geojson
+    fields:
+        origin_id: kokotun
+        ocd_id: kokotun
+        name:
+            fi: nimi
+
+  - type: nature_reserve
+    name: Luonnonsuojelualue
+    ocd_id: luonnonsuojelualue
+    file: nature_reserve.geojson
+    fields:
+        name:
+            fi: nimi
+        origin_id: id
+        ocd_id: tunnus
+
+  - type: resident_parking_zone
+    name: Asukaspysäköintivyöhyke
+    ocd_id: asukaspysakointivyohyke
+    file: resident_parking_zone.geojson
+    fields:
+        name:
+            fi: alueen_nimi
+        origin_id: id
+        ocd_id: id
+    extra_fields:
+      area_key: asukaspysakointitunnus
+
+  - type: parking_area
+    name: Pysäköintipaikka-alue
+    ocd_id: pysakointipaikka-alue
+    file: parking_area.geojson
+    fields:
+      origin_id: id
+      ocd_id: id
+    extra_fields:
+      origin_class: luokka
+      origin_name: luokka_nimi
+      max_duration: kesto
+      validity_period: voimassaolo
+    extra_fields_mappings:
+      - mapping:
+          class: luokka
+        values:
+          'None': '0'
+          '0': '0'
+          '1': '1'
+          '2': '2'
+          '3': '4'
+          '4': '4'
+          '5': '5'
+          '6': '6'
+          '7': '4'
+          '8': '1'
+          '9': '3'
+          '10': '6'
+          '11': '0'
+
+  - type: parking_payzone
+    name: Pysäköintimaksuvyöhyke
+    ocd_id: pysakointimaksuvyohyke
+    file: parking_payzone.geojson
+    fields:
+      name:
+        fi: nimi
+      origin_id: id
+      ocd_id: id
+    extra_fields:
+      info: lisatiedot
