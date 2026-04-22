@@ -1,0 +1,75 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nimi_fi": "Kamppi 1",
+        "nimi_se": "Kampen 1",
+        "tunnus": "1001"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.92,
+              60.165
+            ],
+            [
+              24.96,
+              60.165
+            ],
+            [
+              24.96,
+              60.185
+            ],
+            [
+              24.92,
+              60.185
+            ],
+            [
+              24.92,
+              60.165
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nimi_fi": "Malmi 1",
+        "nimi_se": "Malm 1",
+        "tunnus": "2001"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              25.02,
+              60.215
+            ],
+            [
+              25.06,
+              60.215
+            ],
+            [
+              25.06,
+              60.235
+            ],
+            [
+              25.02,
+              60.235
+            ],
+            [
+              25.02,
+              60.215
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

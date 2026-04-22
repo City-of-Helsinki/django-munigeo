@@ -1,0 +1,40 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nimi": "Vyöhyke 1",
+        "id": "PPZ01",
+        "lisatiedot": "Maksullinen arkisin"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.93,
+              60.17
+            ],
+            [
+              24.95,
+              60.17
+            ],
+            [
+              24.95,
+              60.18
+            ],
+            [
+              24.93,
+              60.18
+            ],
+            [
+              24.93,
+              60.17
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
