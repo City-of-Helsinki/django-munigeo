@@ -1,0 +1,75 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nimi_fi": "Äänestysalue 1",
+        "tunnus": "001A",
+        "toimipiste_id": "12345,67890"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.93,
+              60.17
+            ],
+            [
+              24.95,
+              60.17
+            ],
+            [
+              24.95,
+              60.18
+            ],
+            [
+              24.93,
+              60.18
+            ],
+            [
+              24.93,
+              60.17
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nimi_fi": "Äänestysalue 2",
+        "tunnus": "002B",
+        "toimipiste_id": "55555"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.95,
+              60.17
+            ],
+            [
+              24.97,
+              60.17
+            ],
+            [
+              24.97,
+              60.18
+            ],
+            [
+              24.95,
+              60.18
+            ],
+            [
+              24.95,
+              60.17
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

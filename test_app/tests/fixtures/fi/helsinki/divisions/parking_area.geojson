@@ -1,0 +1,79 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "PA01",
+        "luokka": "3",
+        "luokka_nimi": "Lyhytaikainen",
+        "kesto": "2h",
+        "voimassaolo": "Ma-Pe"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.93,
+              60.17
+            ],
+            [
+              24.95,
+              60.17
+            ],
+            [
+              24.95,
+              60.18
+            ],
+            [
+              24.93,
+              60.18
+            ],
+            [
+              24.93,
+              60.17
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "PA02",
+        "luokka": "9",
+        "luokka_nimi": "Invapaikka",
+        "kesto": null,
+        "voimassaolo": "24/7"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.95,
+              60.17
+            ],
+            [
+              24.97,
+              60.17
+            ],
+            [
+              24.97,
+              60.18
+            ],
+            [
+              24.95,
+              60.18
+            ],
+            [
+              24.95,
+              60.17
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
