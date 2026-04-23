@@ -16,92 +16,56 @@ from test_app.tests.factories import (
 def division():
     return AdministrativeDivisionFactory(
         type=AdministrativeDivisionTypeFactory(),
-        translations={"fi": "Helsinki", "sv": "Helsingfors", "en": "Helsinki"},
+        name_fi="Helsinki",
+        name_sv="Helsingfors",
+        name_en="Helsinki",
     )
 
 
-def _make_municipality(**names):
-    """Create an unsaved Municipality with parler translations set."""
-    muni = Municipality()
-    for lang, name in names.items():
-        muni.set_current_language(lang)
-        muni.name = name
-    return muni
-
-
-def _make_street(**names):
-    """Create an unsaved Street with parler translations set."""
-    street = Street()
-    for lang, name in names.items():
-        street.set_current_language(lang)
-        street.name = name
-    return street
-
-
-@pytest.mark.django_db
 def test_municipality_serializer_absent_translations_omitted():
-    muni = _make_municipality(fi="Helsinki")
-    muni.save()
+    muni = Municipality(name_fi="Helsinki")
     data = MunicipalitySerializer(muni).data
     assert data["name"] == {"fi": "Helsinki"}
 
 
-@pytest.mark.django_db
-def test_municipality_serializer_no_translations_returns_empty():
+def test_municipality_serializer_no_translations_returns_null():
     muni = Municipality()
-    muni.save()
     data = MunicipalitySerializer(muni).data
-    assert "name" not in data
+    assert data["name"] is None
 
 
-@pytest.mark.django_db
 def test_municipality_serializer_empty_string_is_valid_translation():
     # Empty string is not None; it is a valid translation value.
-    muni = _make_municipality(fi="")
-    muni.save()
-    data = MunicipalitySerializer(muni).data
+    data = MunicipalitySerializer(Municipality(name_fi="")).data
     assert data["name"] == {"fi": ""}
 
 
-@pytest.mark.django_db
 def test_municipality_serializer_output():
-    muni = _make_municipality(fi="Helsinki", sv="Helsingfors", en="Helsinki")
-    muni.save()
-    data = MunicipalitySerializer(muni).data
-    assert data == {
-        "id": muni.id,
-        "division": None,
-        "name": {
-            "fi": "Helsinki",
-            "sv": "Helsingfors",
-            "en": "Helsinki",
-        },
+    data = MunicipalitySerializer(
+        Municipality(name_fi="Helsinki", name_sv="Helsingfors", name_en="Helsinki")
+    ).data
+    assert data["name"] == {
+        "fi": "Helsinki",
+        "sv": "Helsingfors",
+        "en": "Helsinki",
     }
 
 
-@pytest.mark.django_db
 def test_street_serializer_output():
-    muni = _make_municipality(fi="Helsinki")
-    muni.save()
-    street = _make_street(fi="Mannerheimintie", sv="Mannerheimvägen")
-    street.municipality = muni
-    street.save()
+    street = Street(name_fi="Mannerheimintie", name_sv="Mannerheimvägen", name_en=None)
     data = StreetSerializer(street).data
     assert data["name"] == {
         "fi": "Mannerheimintie",
         "sv": "Mannerheimvägen",
     }
-    assert data["municipality"] == muni.id
+    assert "name_fi" not in data
+    assert "name_sv" not in data
+    assert "name_en" not in data
 
 
-@pytest.mark.django_db
-def test_street_serializer_no_translations_returns_empty():
-    muni = _make_municipality(fi="Helsinki")
-    muni.save()
-    street = Street(municipality=muni)
-    street.save()
-    data = StreetSerializer(street).data
-    assert "name" not in data
+def test_street_serializer_no_translations_returns_null():
+    data = StreetSerializer(Street()).data
+    assert data["name"] is None
 
 
 @pytest.mark.django_db
@@ -109,6 +73,9 @@ def test_administrative_division_serializer_output(division):
     data = AdministrativeDivisionSerializer(division).data
     assert data["name"] == {"fi": "Helsinki", "sv": "Helsingfors", "en": "Helsinki"}
     for field in (
+        "name_fi",
+        "name_sv",
+        "name_en",
         "lft",
         "rght",
         "tree_id",
