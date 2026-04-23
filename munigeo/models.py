@@ -1,10 +1,8 @@
 from django.contrib.gis.db import models
-from django.db.models.query import Q
+from django.db.models.query import Q, QuerySet
 from django.utils.translation import gettext_lazy as _
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
-from parler.managers import TranslatableManager, TranslatableQuerySet
-from parler.models import TranslatableModel, TranslatedFields
 
 from munigeo.utils import get_default_srid
 
@@ -30,7 +28,7 @@ class AdministrativeDivisionType(models.Model):
         return f"{self.name} ({self.type})"
 
 
-class AdministrativeDivisionQuerySet(TranslatableQuerySet):
+class AdministrativeDivisionQuerySet(QuerySet):
     def by_ancestor(self, ancestor):
         manager = self.model.objects
         max_level = manager.determine_max_level()
@@ -42,7 +40,7 @@ class AdministrativeDivisionQuerySet(TranslatableQuerySet):
         return self.filter(qs)
 
 
-class AdministrativeDivisionManager(TreeManager, TranslatableManager):
+class AdministrativeDivisionManager(TreeManager):
     def get_queryset(self):
         return AdministrativeDivisionQuerySet(self.model, using=self._db)
 
@@ -59,10 +57,15 @@ class AdministrativeDivisionManager(TreeManager, TranslatableManager):
         return self._max_level
 
 
-class AdministrativeDivision(MPTTModel, TranslatableModel):
+class AdministrativeDivision(MPTTModel):
+    _translated_base_fields = ("name",)
+
     type = models.ForeignKey(
         AdministrativeDivisionType, db_index=True, on_delete=models.CASCADE
     )
+    name_fi = models.CharField(max_length=100, null=True, db_index=True)
+    name_sv = models.CharField(max_length=100, null=True, db_index=True)
+    name_en = models.CharField(max_length=100, null=True, db_index=True)
     parent = TreeForeignKey(
         "self",
         db_index=True,
@@ -98,18 +101,15 @@ class AdministrativeDivision(MPTTModel, TranslatableModel):
         auto_now=True, help_text="Time when the information was last changed"
     )
 
-    translations = TranslatedFields(
-        name=models.CharField(_("Name"), max_length=100, null=True, db_index=True)
-    )
-
     objects = AdministrativeDivisionManager()
 
     def __str__(self):
         ocd_id = ""
         if self.ocd_id:
             ocd_id = "%s / " % self.ocd_id
-        if self.name:
-            return f"{self.name} ({ocd_id}{self.type.type})"
+        name = self.name_fi or self.name_sv or self.name_en or ""
+        if name:
+            return f"{name} ({ocd_id}{self.type.type})"
         else:
             return f"({ocd_id}{self.type.type})"
 
@@ -124,8 +124,13 @@ class AdministrativeDivisionGeometry(models.Model):
     boundary = models.MultiPolygonField(srid=PROJECTION_SRID)
 
 
-class Municipality(TranslatableModel):
+class Municipality(models.Model):
+    _translated_base_fields = ("name",)
+
     id = models.CharField(max_length=100, primary_key=True)
+    name_fi = models.CharField(max_length=100, null=True, db_index=True)
+    name_sv = models.CharField(max_length=100, null=True, db_index=True)
+    name_en = models.CharField(max_length=100, null=True, db_index=True)
     division = models.OneToOneField(
         AdministrativeDivision,
         null=True,
@@ -134,12 +139,8 @@ class Municipality(TranslatableModel):
         on_delete=models.CASCADE,
     )
 
-    translations = TranslatedFields(
-        name=models.CharField(_("Name"), max_length=100, null=True, db_index=True)
-    )
-
     def __str__(self):
-        return self.name
+        return self.name_fi or self.name_sv or self.name_en or ""
 
 
 class Plan(models.Model):
@@ -158,7 +159,12 @@ class Plan(models.Model):
         unique_together = (("municipality", "origin_id"),)
 
 
-class Street(TranslatableModel):
+class Street(models.Model):
+    _translated_base_fields = ("name",)
+
+    name_fi = models.CharField(max_length=100, null=True, db_index=True)
+    name_sv = models.CharField(max_length=100, null=True, db_index=True)
+    name_en = models.CharField(max_length=100, null=True, db_index=True)
     municipality = models.ForeignKey(
         Municipality, db_index=True, on_delete=models.CASCADE
     )
@@ -166,16 +172,15 @@ class Street(TranslatableModel):
         auto_now=True, help_text="Time when the information was last changed"
     )
 
-    translations = TranslatedFields(
-        name=models.CharField(_("Name"), max_length=100, db_index=True)
-    )
-
     def __str__(self):
-        return self.name
+        return self.name_fi or self.name_sv or self.name_en or ""
 
-    # TODO: Find way to implement this, when one of the fields is translated
-    # class Meta:
-    #     unique_together = (('municipality', 'name'),)
+    class Meta:
+        unique_together = (
+            ("municipality", "name_fi"),
+            ("municipality", "name_sv"),
+            ("municipality", "name_en"),
+        )
 
 
 class Address(models.Model):

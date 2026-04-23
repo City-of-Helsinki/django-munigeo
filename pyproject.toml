@@ -37,8 +37,6 @@ dependencies = [
     "requests",
     "requests_cache",
     "django-mptt",
-    "django-parler>=2",
-    "django-parler-rest",
     "djangorestframework",
     "pyyaml",
     "six",

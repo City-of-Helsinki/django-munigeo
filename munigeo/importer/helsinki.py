@@ -192,8 +192,7 @@ class HelsinkiImporter(Importer):
             setattr(obj, attr, attr_dict[attr])
         for attr in lang_dict.keys():
             for lang, val in lang_dict[attr].items():
-                obj.set_current_language(lang)
-                setattr(obj, attr, val)
+                setattr(obj, f"{attr}_{lang}", val)
 
         if "ocd_id" in div:
             assert (parent and parent.ocd_id) or "parent_ocd_id" in div
@@ -364,9 +363,7 @@ class HelsinkiImporter(Importer):
         assert len(ds) == 1
 
         muni_names = ("Helsinki", "Espoo", "Vantaa", "Kauniainen")
-        muni_list = Municipality.objects.filter(
-            translations__language_code="fi", translations__name__in=muni_names
-        )
+        muni_list = Municipality.objects.filter(name_fi__in=muni_names)
         muni_dict = {}
 
         def make_addr_id(num, num_end, letter):
@@ -377,7 +374,7 @@ class HelsinkiImporter(Importer):
             return f"{num}-{num_end}-{letter}"
 
         for muni in muni_list:
-            muni_dict[muni.get_translation("fi").name] = muni
+            muni_dict[muni.name_fi] = muni
 
             self.logger.info(f"Loading existing data for {muni}")
 
@@ -385,7 +382,7 @@ class HelsinkiImporter(Importer):
             muni.streets_by_name = {}
             muni.streets_by_id = {}
             for s in streets:
-                muni.streets_by_name[s.get_translation("fi").name] = s
+                muni.streets_by_name[s.name_fi] = s
                 muni.streets_by_id[s.id] = s
                 s.addrs = {}
                 s._found = False
@@ -437,20 +434,19 @@ class HelsinkiImporter(Importer):
             if not street:
                 self.logger.info(f"street {street_name} not found in DB, creating it")
                 street = Street(municipality=muni)
-                street.set_current_language("fi")
-                street.name = street_name
-                street.set_current_language("sv")
-                street.name = street_name_sv
+                street.name_fi = street_name
+                street.name_sv = street_name_sv
 
                 # bulk_street_list.append(street)
                 street.save()
                 muni.streets_by_name[street_name] = street
                 street.addrs = {}
             else:
-                street.set_current_language("sv")
-                if street.name != street_name_sv:
-                    self.logger.warning(f"{street}: {street.name} -> {street_name_sv}")
-                    street.name = street_name_sv
+                if street.name_sv != street_name_sv:
+                    self.logger.warning(
+                        f"{street}: {street.name_sv} -> {street_name_sv}"
+                    )
+                    street.name_sv = street_name_sv
                     street.save()
             street._found = True
 
@@ -513,7 +509,7 @@ class HelsinkiImporter(Importer):
 
         muni_dict = {}
         for muni in Municipality.objects.all():
-            muni_dict[muni.name] = muni
+            muni_dict[muni.name_fi] = muni
 
         for srv_id in list(SERVICE_CATEGORY_MAP.keys()):
             cat_type, cat_desc = SERVICE_CATEGORY_MAP[srv_id]
