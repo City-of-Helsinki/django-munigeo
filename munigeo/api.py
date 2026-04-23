@@ -8,7 +8,6 @@ from django.contrib.gis.db import models
 from django.contrib.gis.gdal import CoordTransform, SpatialReference, SRSException
 from django.contrib.gis.geos import Point, Polygon
 from django.db.models import Q
-from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
 from rest_framework import generics, serializers, viewsets
 from rest_framework.exceptions import ParseError
 
@@ -90,28 +89,35 @@ def make_muni_ocd_id(name, rest=None):
     return s
 
 
-class TranslatedModelSerializer(TranslatableModelSerializer):
-    translations = TranslatedFieldsField()
+class TranslatedDictField(serializers.Field):
+    def __init__(self, base_field, **kwargs):
+        self.base_field = base_field
+        kwargs.setdefault("read_only", True)
+        super().__init__(**kwargs)
+
+    def get_attribute(self, instance):
+        return instance
 
     def to_representation(self, obj):
-        ret = super().to_representation(obj)
-        if obj is None:
-            return ret
-        return self.translated_fields_to_representation(obj, ret)
+        d = {}
+        for lang in ("fi", "sv", "en"):
+            val = getattr(obj, f"{self.base_field}_{lang}", None)
+            if val is not None:
+                d[lang] = val
+        return d if d else None
 
-    def translated_fields_to_representation(self, obj, ret):
-        translated_fields = {}
 
-        for lang_key, trans_dict in ret.pop("translations", {}).items():
-            for field_name, translation in trans_dict.items():
-                if field_name not in translated_fields:
-                    translated_fields[field_name] = {lang_key: translation}
-                else:
-                    translated_fields[field_name].update({lang_key: translation})
-
-        ret.update(translated_fields)
-
-        return ret
+class TranslatedModelSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        model = self.Meta.model
+        translated_fields = getattr(model, "_translated_base_fields", ())
+        for field_name in translated_fields:
+            self.fields[field_name] = TranslatedDictField(base_field=field_name)
+            for lang in ("fi", "sv", "en"):
+                key = f"{field_name}_{lang}"
+                if key in self.fields:
+                    del self.fields[key]
 
 
 class MPTTModelSerializer(serializers.ModelSerializer):
@@ -217,7 +223,7 @@ class GeoModelAPIView(generics.GenericAPIView):
         return ret
 
 
-class AdministrativeDivisionTypeSerializer(TranslatedModelSerializer):
+class AdministrativeDivisionTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdministrativeDivisionType
         fields = "__all__"
@@ -302,7 +308,12 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
             queryset = queryset.filter(geometry__in=geometries).distinct()
 
         if "input" in filters:
-            queryset = queryset.filter(name__icontains=filters["input"].strip())
+            input_val = filters["input"].strip()
+            queryset = queryset.filter(
+                Q(name_fi__icontains=input_val)
+                | Q(name_sv__icontains=input_val)
+                | Q(name_en__icontains=input_val)
+            )
 
         if "ocd_id" in filters:
             # Divisions can be specified with form:

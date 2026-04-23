@@ -18,14 +18,6 @@ class AdministrativeDivisionFactory(factory.django.DjangoModelFactory):
 
     type = factory.SubFactory(AdministrativeDivisionTypeFactory)
     origin_id = factory.Sequence(lambda n: f"div-{n}")
-
-    @classmethod
-    def _create(cls, model_class, *args, **kwargs):
-        translations = kwargs.pop("translations", {})
-        obj = super()._create(model_class, *args, **kwargs)
-        for lang, name in translations.items():
-            obj.set_current_language(lang)
-            obj.name = name
-        if translations:
-            obj.save()
-        return obj
+    name_fi = factory.Sequence(lambda n: f"Alue {n}")
+    name_sv = None
+    name_en = None
