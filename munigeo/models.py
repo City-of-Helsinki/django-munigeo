@@ -63,9 +63,9 @@ class AdministrativeDivision(MPTTModel):
     type = models.ForeignKey(
         AdministrativeDivisionType, db_index=True, on_delete=models.CASCADE
     )
-    name_fi = models.CharField(max_length=100, null=True, db_index=True)
-    name_sv = models.CharField(max_length=100, null=True, db_index=True)
-    name_en = models.CharField(max_length=100, null=True, db_index=True)
+    name_fi = models.CharField(max_length=200, null=True, db_index=True)
+    name_sv = models.CharField(max_length=200, null=True, db_index=True)
+    name_en = models.CharField(max_length=200, null=True, db_index=True)
     parent = TreeForeignKey(
         "self",
         db_index=True,
