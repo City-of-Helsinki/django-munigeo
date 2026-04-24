@@ -10,7 +10,7 @@ from django.contrib.gis.geos import Point
 from django.db import transaction
 from django.utils import timezone
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from urllib3.util.retry import Retry
 
 from munigeo.importer.base import Importer, register_importer
 from munigeo.models import Address, Municipality, PostalCodeArea, Street
@@ -81,7 +81,7 @@ class UusimaaImporter(Importer):
     retry_strategy = Retry(
         total=10,
         status_forcelist=[400, 408, 429, 500, 502, 503, 504],
-        method_whitelist=[
+        allowed_methods=[
             "GET",
         ],
         backoff_factor=40,  # 20, 40, 80 , 160, 320, 640, 1280...seconds

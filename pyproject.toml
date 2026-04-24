@@ -38,6 +38,7 @@ dependencies = [
     "pyyaml",
     "djangorestframework",
     "unicodecsv",
+    "urllib3>=2",
 ]
 
 [project.optional-dependencies]
