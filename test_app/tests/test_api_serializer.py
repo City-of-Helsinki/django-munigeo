@@ -3,9 +3,10 @@ import pytest
 from munigeo.api import (
     AdministrativeDivisionSerializer,
     MunicipalitySerializer,
+    PostalCodeSerializer,
     StreetSerializer,
 )
-from munigeo.models import Municipality, Street
+from munigeo.models import Municipality, PostalCodeArea, Street
 from test_app.tests.factories import (
     AdministrativeDivisionFactory,
     AdministrativeDivisionTypeFactory,
@@ -44,28 +45,44 @@ def test_municipality_serializer_output():
     data = MunicipalitySerializer(
         Municipality(name_fi="Helsinki", name_sv="Helsingfors", name_en="Helsinki")
     ).data
-    assert data["name"] == {
-        "fi": "Helsinki",
-        "sv": "Helsingfors",
-        "en": "Helsinki",
+    assert data == {
+        "code": "",
+        "name": {
+            "fi": "Helsinki",
+            "sv": "Helsingfors",
+            "en": "Helsinki",
+        },
     }
 
 
 def test_street_serializer_output():
     street = Street(name_fi="Mannerheimintie", name_sv="Mannerheimvägen", name_en=None)
     data = StreetSerializer(street).data
-    assert data["name"] == {
-        "fi": "Mannerheimintie",
-        "sv": "Mannerheimvägen",
+    assert data == {
+        "name": {
+            "fi": "Mannerheimintie",
+            "sv": "Mannerheimvägen",
+        }
     }
-    assert "name_fi" not in data
-    assert "name_sv" not in data
-    assert "name_en" not in data
 
 
 def test_street_serializer_no_translations_returns_null():
     data = StreetSerializer(Street()).data
     assert data["name"] is None
+
+
+def test_postal_code_serializer_output():
+    area = PostalCodeArea(
+        postal_code="00100", name_fi="Helsinki", name_sv="Helsingfors"
+    )
+    data = PostalCodeSerializer(area).data
+    assert data == {
+        "postal_code": "00100",
+        "name": {
+            "fi": "Helsinki",
+            "sv": "Helsingfors",
+        },
+    }
 
 
 @pytest.mark.django_db
@@ -80,5 +97,8 @@ def test_administrative_division_serializer_output(division):
         "rght",
         "tree_id",
         "level",
+        "search_column_fi",
+        "search_column_sv",
+        "search_column_en",
     ):
         assert field not in data
