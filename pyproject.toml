@@ -36,11 +36,11 @@ dependencies = [
     "django>=4.2",
     "requests",
     "requests_cache",
-    "django-mptt",
+    "django-mptt>=0.18.0",
     "djangorestframework",
     "pyyaml",
-    "six",
     "unicodecsv",
+    "urllib3>=2",
 ]
 
 [project.optional-dependencies]
@@ -49,9 +49,10 @@ test = [
     "pytest-django",
     "pytest-mock",
     "pytest-randomly",
+    "requests-mock",
     "coverage[toml]",
     "coverage-enable-subprocess",
-    "psycopg[binary]",
+    "psycopg",
     "factory_boy",
 ]
 all = ["django-munigeo[test]"]

@@ -29,6 +29,7 @@ def helsinki_municipality():
     )
     return Municipality.objects.create(
         id="helsinki",
+        code="091",
         name_fi="Helsinki",
         name_sv="Helsingfors",
         division=division,
@@ -36,10 +37,9 @@ def helsinki_municipality():
 
 
 @pytest.fixture
-def helsinki_importer():
-    importer = HelsinkiImporter(options={})
-    importer.data_paths = [str(FIXTURES_DIR)]
-    return importer
+def helsinki_importer(settings):
+    settings.IMPORT_DATA_PATH = str(FIXTURES_DIR)
+    return HelsinkiImporter(options={})
 
 
 def _get(type_name, **kwargs):
@@ -138,11 +138,13 @@ def test_import_divisions(helsinki_municipality, helsinki_importer, subtests, ca
         voting_1 = _get("voting_district", origin_id="001A")
         assert voting_1.name_fi == "Äänestysalue 1"
         assert voting_1.service_point_id == "12345,67890"
+        assert voting_1.units == [12345, 67890]
         assert voting_1.ocd_id == f"{MUNI_OCD}/\u00e4\u00e4nestysalue:001a"
 
         voting_2 = _get("voting_district", origin_id="002B")
         assert voting_2.name_fi == "Äänestysalue 2"
         assert voting_2.service_point_id == "55555"
+        assert voting_2.units == [55555]
         assert voting_2.ocd_id == f"{MUNI_OCD}/\u00e4\u00e4nestysalue:002b"
 
     with subtests.test(msg="health_station_district"):
@@ -150,6 +152,7 @@ def test_import_divisions(helsinki_municipality, helsinki_importer, subtests, ca
         assert health.origin_id == "ta01"
         assert health.name_fi == "ta01"
         assert health.service_point_id == "11111,22222"
+        assert health.units == [11111, 22222]
         assert health.ocd_id == f"{MUNI_OCD}/terveysasema-alue:ta01"
 
     with subtests.test(msg="maternity_clinic_district"):
@@ -157,6 +160,7 @@ def test_import_divisions(helsinki_municipality, helsinki_importer, subtests, ca
         assert maternity.origin_id == "nv01"
         assert maternity.name_fi == "nv01"
         assert maternity.service_point_id == "33333,44444"
+        assert maternity.units == [33333, 44444]
         assert maternity.ocd_id == f"{MUNI_OCD}/neuvola-alue:nv01"
 
     # --- Simple types ---
@@ -212,18 +216,34 @@ def test_import_divisions(helsinki_municipality, helsinki_importer, subtests, ca
         parking_zone = _get("resident_parking_zone")
         assert parking_zone.origin_id == "RPZ01"
         assert parking_zone.name_fi == "Kamppi"
+        assert parking_zone.extra == {"area_key": "A"}
         assert parking_zone.ocd_id == f"{MUNI_OCD}/asukaspysakointivyohyke:rpz01"
 
     with subtests.test(msg="parking_area"):
         parking_1 = _get("parking_area", origin_id="PA01")
         assert parking_1.name_fi is None
+        assert parking_1.extra == {
+            "origin_class": "3",
+            "origin_name": "Lyhytaikainen",
+            "max_duration": "2h",
+            "validity_period": "Ma-Pe",
+            "class": "4",
+        }
         assert parking_1.ocd_id == f"{MUNI_OCD}/pysakointipaikka-alue:pa01"
 
         parking_2 = _get("parking_area", origin_id="PA02")
+        assert parking_2.extra == {
+            "origin_class": "9",
+            "origin_name": "Invapaikka",
+            "max_duration": None,
+            "validity_period": "24/7",
+            "class": "3",
+        }
         assert parking_2.ocd_id == f"{MUNI_OCD}/pysakointipaikka-alue:pa02"
 
     with subtests.test(msg="parking_payzone"):
         payzone = _get("parking_payzone")
         assert payzone.origin_id == "PPZ01"
         assert payzone.name_fi == "Vyöhyke 1"
+        assert payzone.extra == {"info": "Maksullinen arkisin"}
         assert payzone.ocd_id == f"{MUNI_OCD}/pysakointimaksuvyohyke:ppz01"
