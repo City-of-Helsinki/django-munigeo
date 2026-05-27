@@ -1,5 +1,7 @@
 import logging
 
+from django.db.models import ProtectedError
+
 logger = logging.getLogger(__name__)
 
 
@@ -15,11 +17,19 @@ class ModelSyncher:
 
         self.obj_dict = d
 
-    def mark(self, obj):
+    def mark(self, obj, ignore_duplicates=False):
         if getattr(obj, "_found", False):
-            raise Exception(
-                f"Object {obj} ({self.generate_obj_id(obj)}) already marked"
-            )
+            if ignore_duplicates:
+                logger.warning(
+                    "Object %s (%s) already marked, ignoring duplicate"
+                    % (obj, self.generate_obj_id(obj))
+                )
+            else:
+                raise Exception(
+                    "Object {} ({}) already marked".format(
+                        obj, self.generate_obj_id(obj)
+                    )
+                )
 
         obj._found = True
         obj_id = self.generate_obj_id(obj)
@@ -48,4 +58,10 @@ class ModelSyncher:
             raise Exception("Attempting to delete more than 40% of total items")
         for obj in delete_list:
             logger.debug("Deleting object %s" % obj)
-            obj.delete()
+            try:
+                obj.delete()
+            except ProtectedError:
+                logger.warning("Cannot delete object due to protection rules %s" % obj)
+                if getattr(obj, "soft_delete", None):
+                    logger.warning("Soft-deleting object %s" % obj)
+                    obj.soft_delete()
