@@ -12,13 +12,6 @@ DEFAULT_SRID = get_default_srid()
 
 
 class Migration(migrations.Migration):
-    replaces = [
-        ("munigeo", "0001_initial"),
-        ("munigeo", "0002_auto_20150608_1607"),
-        ("munigeo", "0003_add_modified_time_to_address_and_street"),
-        ("munigeo", "0004_building"),
-    ]
-
     initial = True
 
     dependencies = []
