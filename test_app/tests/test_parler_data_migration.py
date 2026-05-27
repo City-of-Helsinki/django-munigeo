@@ -11,14 +11,12 @@ from pathlib import Path
 
 import pytest
 from django.contrib.gis.geos import MultiPolygon, Polygon
-from django.db import connection
-from django.db.migrations.executor import MigrationExecutor
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
-# Last parler-era migration and final post-parler migration
+# Last parler-era migration
 PARLER_STATE = ("munigeo", "0005_update_translation_foreign_keys")
-POST_PARLER_STATE = ("munigeo", "0008_remove_translation_tables")
+
 
 # Expected translation data (subset) to verify correctness
 EXPECTED_DIVISION_NAMES = {
@@ -102,27 +100,20 @@ def load_fixture_with_historical_models(apps, fixture_path):
         Model.objects.create(**kwargs)
 
 
-@pytest.fixture()
-def migration_executor():
-    executor = MigrationExecutor(connection)
-    yield executor
-    # Restore to latest migration so Django's test teardown can flush properly
-    executor.loader.build_graph()
-    executor.migrate([POST_PARLER_STATE])
-
-
 @pytest.mark.django_db(transaction=True)
 def test_parler_data_migration_forward(migration_executor):
+    executor, latest = migration_executor
+
     # Migrate to the last parler-era state
-    state = migration_executor.migrate([PARLER_STATE])
-    migration_executor.loader.build_graph()
+    state = executor.migrate([PARLER_STATE])
+    executor.loader.build_graph()
     apps = state.apps
 
     # Load fixture using historical models (translation models still exist)
     load_fixture_with_historical_models(apps, FIXTURES_DIR / "parler_test_data.json")
 
     # Migrate forward through our new migrations
-    state = migration_executor.migrate([POST_PARLER_STATE])
+    state = executor.migrate([latest])
     apps = state.apps
 
     # Verify AdministrativeDivision names were copied
@@ -159,16 +150,18 @@ def test_parler_data_migration_forward(migration_executor):
 
 @pytest.mark.django_db(transaction=True)
 def test_parler_data_migration_backward(migration_executor):
+    executor, latest = migration_executor
+
     # Start at the last parler-era state, load data, migrate forward
-    state = migration_executor.migrate([PARLER_STATE])
-    migration_executor.loader.build_graph()
+    state = executor.migrate([PARLER_STATE])
+    executor.loader.build_graph()
     apps = state.apps
     load_fixture_with_historical_models(apps, FIXTURES_DIR / "parler_test_data.json")
-    migration_executor.migrate([POST_PARLER_STATE])
-    migration_executor.loader.build_graph()
+    executor.migrate([latest])
+    executor.loader.build_graph()
 
     # Now reverse back to the parler-era state
-    state = migration_executor.migrate([PARLER_STATE])
+    state = executor.migrate([PARLER_STATE])
     apps = state.apps
 
     # Verify translation rows were recreated
