@@ -1,21 +1,19 @@
 import json
+import logging
 import re
 from collections.abc import Mapping
 from datetime import datetime
 
 from django.conf import settings
+from django.contrib.gis import gdal
 from django.contrib.gis.db import models
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.gdal import CoordTransform, SpatialReference, SRSException
 from django.contrib.gis.geos import Point, Polygon
+from django.contrib.gis.measure import D
 from django.db.models import Q
 from rest_framework import generics, serializers, viewsets
 from rest_framework.exceptions import ParseError
-
-try:
-    from django.contrib.gis.geos.base import gdal
-except ImportError:
-    # Django 1.9 onwards
-    from django.contrib.gis import gdal
 
 from munigeo.models import (
     Address,
@@ -23,6 +21,7 @@ from munigeo.models import (
     AdministrativeDivisionGeometry,
     AdministrativeDivisionType,
     Municipality,
+    PostalCodeArea,
     Street,
 )
 
@@ -30,6 +29,9 @@ from munigeo.models import (
 DEFAULT_SRID = 4326
 DATABASE_SRID = getattr(settings, "PROJECTION_SRID", 4326)
 DEFAULT_SRS = SpatialReference(DEFAULT_SRID)
+ADDRESS_SEARCH_RADIUS = getattr(settings, "ADDRESS_SEARCH_RADIUS", None)
+
+logger = logging.getLogger(__name__)
 
 all_views = []
 
@@ -240,29 +242,37 @@ register_view(AdministrativeDivisionTypeViewSet, "administrative_division_type")
 class AdministrativeDivisionSerializer(
     GeoModelSerializer, TranslatedModelSerializer, MPTTModelSerializer
 ):
+    name = TranslatedDictField("name")
+
     def to_representation(self, obj):
         ret = super().to_representation(obj)
         if "request" not in self.context:
             return ret
         qparams = self.context["request"].query_params
         if qparams.get("geometry", "").lower() in ("true", "1"):
-            geom = obj.geometry.boundary
-            ret["boundary"] = geom_to_json(geom, self.srs)
+            try:
+                geom = obj.geometry.boundary
+                ret["boundary"] = geom_to_json(geom, self.srs)
+            except AdministrativeDivisionGeometry.DoesNotExist:
+                logger.warning(
+                    "AdministrativeDivisionGeometry does not exist for division with ocd_id: %s"
+                    % ret.get("ocd_id")
+                )
         ret["type"] = obj.type.type
         return ret
 
     class Meta:
         model = AdministrativeDivision
-        fields = "__all__"
+        exclude = ("search_column_fi", "search_column_sv", "search_column_en")
 
 
 def parse_lat_lon(query_params):
     lat = query_params.get("lat", None)
     lon = query_params.get("lon", None)
-    if not lat and not lon:
+    if lat is None and lon is None:
         return None
 
-    if not lat or not lon:
+    if lat is None or lon is None:
         raise ParseError("you must supply both 'lat' and 'lon'")
     try:
         lat = float(lat)
@@ -270,12 +280,30 @@ def parse_lat_lon(query_params):
     except ValueError:
         raise ParseError("'lat' and 'lon' must be floating point numbers")
 
+    # Validate coordinates are within valid ranges for WGS84 (SRID 4326)
+    if not -90 <= lat <= 90:
+        raise ParseError("'lat' must be between -90 and 90")
+    if not -180 <= lon <= 180:
+        raise ParseError("'lon' must be between -180 and 180")
+
+    # Validate coordinates are within valid ranges for Finland if using Finnish SRID
+    if DATABASE_SRID == 3067:
+        if not (59.0 <= lat <= 71.0 and 19.0 <= lon <= 32.0):
+            raise ParseError(
+                "Coordinates (%.6f, %.6f) are outside the valid area for Finland. "
+                "Latitude must be between 59-71°N and longitude between 19-32°E."
+                % (lat, lon)
+            )
+
     point = Point(lon, lat, srid=DEFAULT_SRID)
     if DEFAULT_SRID != DATABASE_SRID:
         ct = CoordTransform(
             SpatialReference(DEFAULT_SRID), SpatialReference(DATABASE_SRID)
         )
-        point.transform(ct)
+        try:
+            point.transform(ct)
+        except Exception as e:
+            raise ParseError("error transforming coordinates: %s" % str(e))
     return point
 
 
@@ -315,6 +343,10 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
                 | Q(name_en__icontains=input_val)
             )
 
+        for filter in filters:
+            if filter.startswith("extra__"):
+                queryset = queryset.filter(**{filter: filters[filter].strip()})
+
         if "ocd_id" in filters:
             # Divisions can be specified with form:
             # division=helsinki/kaupunginosa:kallio,vantaa/äänestysalue:5
@@ -342,6 +374,15 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
         if "origin_id" in filters:
             queryset = queryset.filter(origin_id=filters["origin_id"])
 
+        if "municipality" in filters:
+            args = {}
+            args["name_fi__iexact"] = filters["municipality"].lower()
+            try:
+                municipality = Municipality.objects.get(**args)
+                queryset = queryset.filter(municipality=municipality)
+            except Municipality.DoesNotExist:
+                queryset = queryset.none()
+
         if "date" in filters:
             try:
                 date = datetime.strptime(filters["date"], "%Y-%m-%d").date()
@@ -360,10 +401,61 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
 register_view(AdministrativeDivisionViewSet, "administrative_division")
 
 
+class PostalCodeSerializer(TranslatedModelSerializer):
+    name = TranslatedDictField("name")
+
+    class Meta:
+        model = PostalCodeArea
+        fields = ["postal_code", "name"]
+
+
+class PostalCodeAreaViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
+    queryset = PostalCodeArea.objects.filter(pk__gte=0)
+    serializer_class = PostalCodeSerializer
+
+    def get_queryset(self):
+        queryset = PostalCodeArea.objects.filter(pk__gte=0)
+        filters = self.request.query_params
+        if "language" in filters:
+            self.lang_code = filters["language"]
+            if self.lang_code not in LANG_CODES:
+                raise ParseError(
+                    "Invalid language supplied. Supported languages: %s"
+                    % ", ".join([x[0] for x in settings.LANGUAGES])
+                )
+        else:
+            self.lang_code = LANG_CODES[0]
+
+        if "name" in filters:
+            name = filters["name"].strip()
+            args = {"name_%s" % self.lang_code: name}
+            try:
+                postal_code_area = PostalCodeArea.objects.get(**args)
+            except PostalCodeArea.DoesNotExist:
+                raise ParseError("postalcodearea with name '%s' not found" % name)
+            queryset = queryset.filter(id=postal_code_area.id)
+
+        if "postal_code" in filters:
+            postal_code = filters["postal_code"].strip()
+            try:
+                postal_code_area = PostalCodeArea.objects.get(postal_code=postal_code)
+            except PostalCodeArea.DoesNotExist:
+                raise ParseError(
+                    "postalcode with postal_code '%s' not found" % postal_code
+                )
+            queryset = queryset.filter(id=postal_code_area.id)
+        return queryset
+
+
+register_view(PostalCodeAreaViewSet, "postal_code_area")
+
+
 class StreetSerializer(TranslatedModelSerializer):
+    name = TranslatedDictField("name")
+
     class Meta:
         model = Street
-        fields = "__all__"
+        fields = ["name"]
 
 
 LANG_CODES = [x[0] for x in settings.LANGUAGES]
@@ -409,7 +501,9 @@ class StreetViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
 register_view(StreetViewSet, "street")
 
 
-class AddressSerializer(GeoModelSerializer):
+class AddressSerializer(GeoModelSerializer, TranslatedModelSerializer):
+    full_name = TranslatedDictField("full_name")
+
     # Reverse geocoding
     def to_representation(self, obj):
         ret = super().to_representation(obj)
@@ -420,11 +514,13 @@ class AddressSerializer(GeoModelSerializer):
         if hasattr(obj, "distance"):
             ret["distance"] = obj.distance.m
         ret["street"] = StreetSerializer(obj.street).data
+        ret["postal_code_area"] = PostalCodeSerializer(obj.postal_code_area).data
+        ret["municipality"] = MunicipalitySerializer(obj.municipality).data
         return ret
 
     class Meta:
         model = Address
-        exclude = ("id", "street")
+        exclude = ("id", "search_column_fi", "search_column_sv", "search_column_en")
 
 
 class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
@@ -446,7 +542,7 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
 
         street = filters.get("street", None)
         if street is not None:
-            if street[0].isnumeric():
+            if street.isnumeric():
                 queryset = queryset.filter(street=street)
             else:
                 args = {}
@@ -463,15 +559,14 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
                 muni = Municipality.objects.get(division__ocd_id=ocd_id)
             except Municipality.DoesNotExist:
                 raise ParseError("municipality with ID '%s' not found" % ocd_id)
-
-            queryset = queryset.filter(street__municipality=muni)
+            queryset = queryset.filter(municipality=muni)
         elif "municipality_name" in filters:
             val = filters["municipality_name"].lower()
             args = {}
             args["name_%s__iexact" % self.lang_code] = val
             try:
                 muni = Municipality.objects.get(**args)
-                queryset = queryset.filter(street__municipality=muni)
+                queryset = queryset.filter(municipality=muni)
             except Municipality.DoesNotExist:
                 queryset = queryset.none()
 
@@ -479,9 +574,28 @@ class AddressViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
         if number is not None:
             queryset = queryset.filter(number=number)
 
-        point = parse_lat_lon(self.request.query_params)
-        if point:
-            queryset = queryset.distance(point).order_by("distance")
+        query_point = parse_lat_lon(self.request.query_params)
+        if query_point:
+            distance = filters.get("distance", None)
+            if distance is None and ADDRESS_SEARCH_RADIUS:
+                distance = ADDRESS_SEARCH_RADIUS
+            if distance:
+                queryset = queryset.filter(
+                    location__distance_lte=(query_point, D(m=distance))
+                )
+            queryset = queryset.annotate(
+                distance=Distance("location", query_point)
+            ).order_by("distance")
+
+        if "bbox" in filters:
+            val = filters.get("bbox", None)
+            if "bbox_srid" in filters:
+                ref = SpatialReference(filters.get("bbox_srid", None))
+            else:
+                ref = self.srs
+            if val:
+                bbox_filter = build_bbox_filter(ref, val, "location")
+                queryset = queryset.filter(Q(**bbox_filter))
 
         return queryset
 
@@ -490,6 +604,8 @@ register_view(AddressViewSet, "address")
 
 
 class MunicipalitySerializer(TranslatedModelSerializer):
+    name = TranslatedDictField("name")
+
     class Meta:
         model = Municipality
-        fields = "__all__"
+        fields = ["code", "name"]
