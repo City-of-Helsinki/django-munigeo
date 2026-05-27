@@ -67,23 +67,14 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-LANGUAGE_CODE = "en"
+LANGUAGE_CODE = "fi"
 language_map = dict(django.conf.global_settings.LANGUAGES)
 LANGUAGES = tuple((lang, language_map[lang]) for lang in ["fi", "sv", "en"])
-
-PARLER_LANGUAGES = {
-    None: (
-        {"code": "fi"},
-        {"code": "sv"},
-        {"code": "en"},
-    ),
-    "default": {
-        "fallbacks": ["fi"],
-        "hide_untranslated": False,
-    },
-}
-
 DEFAULT_SRID = 3067
 PROJECTION_SRID = 3067
 
-DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Required for UusimaaImporter (used at module/class level)
+GEO_SEARCH_LOCATION = "https://geo-search.test"
+GEO_SEARCH_API_KEY = "test-api-key"

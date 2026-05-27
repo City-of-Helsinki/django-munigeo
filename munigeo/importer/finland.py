@@ -77,6 +77,7 @@ class FinlandImporter(Importer):
             muni = Municipality(division=munidiv)
         muni.name_fi = name_fi
         muni.name_sv = name_sv
+        muni.code = muni_id
         muni.id = munidiv.ocd_id.split("/")[-1].split(":")[-1]
         muni.save()
 
@@ -101,7 +102,9 @@ class FinlandImporter(Importer):
                     break
             else:
                 raise Exception("XML file not found in %s" % MUNI_DATA_URL)
-            out_path = os.path.join(self.data_paths[0], "fi")
+            # https://github.com/City-of-Helsinki/django-munigeo/pull/89
+            # https://github.com/City-of-Helsinki/django-munigeo/pull/90
+            out_path = os.path.join(self.import_data_path, "fi")
             try:
                 os.makedirs(out_path)
             except OSError:

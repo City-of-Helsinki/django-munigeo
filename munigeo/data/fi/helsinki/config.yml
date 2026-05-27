@@ -55,18 +55,6 @@ divisions:
         parent_id: osaalue_tunnus
         ocd_id: tunnus
 
-  - type: neighborhood
-    name: Kaupunginosa
-    ocd_id: kaupunginosa
-    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
-    wfs_layer: 'avoindata:Kaupunginosajako'
-    fields:
-        name:
-            fi: nimi_fi
-            sv: nimi_se
-        origin_id: tunnus
-        ocd_id: nimi_fi
-
   - type: voting_district
     name: Äänestysalue
     ocd_id: äänestysalue
@@ -78,30 +66,163 @@ divisions:
         origin_id: tunnus
         ocd_id: tunnus
         service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
 
-  - type: postcode_area
-    name: Postinumeroalue
-    ocd_id: postinumero
-    no_parent_division: yes
-    parent_ocd_id: 'ocd-division/country:fi'
-    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
-    wfs_layer: 'avoindata:Postinumeroalue'
+  - type: health_station_district
+    name: Terveysasema-aluejako
+    ocd_id: terveysasema-alue
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Terveysasemaaluejako'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
         name:
             fi: tunnus
-            sv: tunnus
+        service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
+
+  - type: emergency_care_district
+    name: Päivystysalue
+    ocd_id: päivystysalue
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Terke_paivystysalue'
+    fields:
+        origin_id: id
+        ocd_id: tunnus
+        name:
+            fi: tunnus
+
+  - type: rescue_area
+    name: Suojelupiiri
+    ocd_id: suojelupiiri
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Pelastus_suojelupiiri'
+    fields:
+        origin_id: suojelupiiri_tunnus
+        ocd_id: suojelupiiri_nimi
+        name:
+            fi: suojelupiiri_nimi
+            sv: suojelupiiri_nimi_se
+
+  - type: rescue_district
+    name: Suojelulohko
+    ocd_id: suojelulohko
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Pelastus_suojelulohko'
+    fields:
+        origin_id: suojelulohko_tunnus
+        ocd_id: suojelulohko_nimi
+        name:
+            fi: suojelulohko_nimi
+            sv: suojelulohko_nimi_se
+
+  - type: rescue_sub_district
+    name: Suojelulalaohko
+    ocd_id: suojelualalohko
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Pelastus_suojelualalohko'
+    fields:
+        origin_id: suojelualalohko_tunnus
+        ocd_id: suojelualalohko_nimi
+        name:
+            fi: suojelualalohko_nimi
+            sv: suojelualalohko_nimi_se
+
+  - type: maternity_clinic_district
+    name: Neuvola-alue
+    ocd_id: neuvola-alue
+    wfs_url: 'http://apila.platta-net.hel.fi/geoserver/hel/wfs'
+    wfs_layer: 'hel:Neuvolaaluejako'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        name:
+            fi: tunnus
+        service_point_id: toimipiste_id
+        units: toimipiste_id
+    fields_type_conversions:
+      units: csv_to_list
 
   - type: statistical_district
     name: Tilastoalue
     ocd_id: tilastoalue
     no_parent_division: yes
     parent_ocd_id: 'ocd-division/country:fi'
-    wfs_url: 'https://kartta.hsy.fi/geoserver/wfs?CQL_FILTER=kunta%20in%20(%27091%27,%27092%27,%27049%27,%27235%27)'
     wfs_layer: 'taustakartat_ja_aluejaot:seutukartta_pien_2021'
     fields:
         origin_id: kokotun
         ocd_id: kokotun
         name:
             fi: nimi
+
+  - type: nature_reserve
+    name: Luonnonsuojelualue
+    ocd_id: luonnonsuojelualue
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs?sortBy=tunnus'
+    wfs_layer: 'avoindata:LTJ_avoin_rauhoitettu_luonnonsuojelualueet'
+    fields:
+        name:
+            fi: nimi
+        origin_id: id
+        ocd_id: tunnus
+
+  - type: resident_parking_zone
+    name: Asukaspysäköintivyöhyke
+    ocd_id: asukaspysakointivyohyke
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Asukas_ja_yrityspysakointivyohykkeet_alue'
+    fields:
+        name:
+            fi: alueen_nimi
+        origin_id: id
+        ocd_id: id
+    extra_fields:
+      area_key: asukaspysakointitunnus
+
+  - type: parking_area
+    name: Pysäköintipaikka-alue
+    ocd_id: pysakointipaikka-alue
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Pysakointipaikat_alue'
+    fields:
+      origin_id: id
+      ocd_id: id
+    extra_fields:
+      origin_class: luokka
+      origin_name: luokka_nimi
+      max_duration: kesto
+      validity_period: voimassaolo
+    extra_fields_mappings:
+      - mapping:
+          class: luokka
+        values:
+          'None': '0'
+          '0': '0'
+          '1': '1'
+          '2': '2'
+          '3': '4'
+          '4': '4'
+          '5': '5'
+          '6': '6'
+          '7': '4'
+          '8': '1'
+          '9': '3'
+          '10': '6'
+          '11': '0'
+
+  - type: parking_payzone
+    name: Pysäköintimaksuvyöhyke
+    ocd_id: pysakointimaksuvyohyke
+    wfs_url: 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs'
+    wfs_layer: 'avoindata:Pysakoinnin_maksuvyohykkeet_alue'
+    fields:
+      name:
+        fi: nimi
+      origin_id: id
+      ocd_id: id
+    extra_fields:
+      info: lisatiedot

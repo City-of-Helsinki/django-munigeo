@@ -4,4 +4,3 @@ __pycache__
 django_munigeo.egg-info/
 .idea
 .vscode/
-data/
