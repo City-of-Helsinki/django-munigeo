@@ -29,6 +29,7 @@ from munigeo.models import (
     Municipality,
     Plan,
     POICategory,
+    PostalCodeArea,
     Street,
 )
 
