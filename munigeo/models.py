@@ -218,9 +218,10 @@ class Street(models.Model):
 
     class Meta:
         unique_together = (
-            ("municipality", "name_fi"),
-            ("municipality", "name_sv"),
-            ("municipality", "name_en"),
+            (
+                "municipality",
+                "name_fi",
+            ),
         )
 
 
