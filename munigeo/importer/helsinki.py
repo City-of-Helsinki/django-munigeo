@@ -537,7 +537,7 @@ class HelsinkiImporter(Importer):
             if not addr:
                 self.logger.debug(
                     "Street {} did not have address {}. Creating".format(
-                        street.name, addr_id
+                        street.name_fi, addr_id
                     )
                 )
                 addr = Address(
