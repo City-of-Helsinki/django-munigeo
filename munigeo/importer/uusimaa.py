@@ -30,7 +30,6 @@ TARGET_SRS = SpatialReference(TARGET_DATA_SRID)
 PAGE_SIZE = 1000
 # Determines how many threads are run simultaneously when importing addresses
 THREAD_POOL_SIZE = 2
-BASE_URL = settings.GEO_SEARCH_LOCATION + "/address/"
 
 # Contains the municipalities to import
 MUNICIPALITIES = {
@@ -90,10 +89,11 @@ class UusimaaImporter(Importer):
     http = requests.Session()
     http.mount("https://", adapter)
     http.mount("http://", adapter)
-    headers = {"Api-Key": f"{settings.GEO_SEARCH_API_KEY}"}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.base_url = settings.GEO_SEARCH_LOCATION + "/address/"
+        self.headers = {"Api-Key": f"{settings.GEO_SEARCH_API_KEY}"}
 
     def get_count(self, url):
         try:
@@ -288,7 +288,7 @@ class UusimaaImporter(Importer):
         results_queue = Queue()
         self.streets_cache = {}
         self.address_cache = {}
-        url = f"{BASE_URL}?municipalitycode={municipality_code}&page_size={1}"
+        url = f"{self.base_url}?municipalitycode={municipality_code}&page_size={1}"
 
         count = self.get_count(url)
         max_page = int(count / PAGE_SIZE) + 1
@@ -297,7 +297,7 @@ class UusimaaImporter(Importer):
             f"Source data for municipality contains {count} items and {max_page} pages(page_size={PAGE_SIZE})."
         )
 
-        url = f"{BASE_URL}?municipalitycode={municipality_code}&page_size={PAGE_SIZE}"
+        url = f"{self.base_url}?municipalitycode={municipality_code}&page_size={PAGE_SIZE}"
         for pool in range(0, max_page, THREAD_POOL_SIZE):
             threads = []
             # Create threads to the pool

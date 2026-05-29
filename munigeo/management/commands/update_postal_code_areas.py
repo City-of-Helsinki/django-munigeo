@@ -20,7 +20,6 @@ from munigeo.models import PostalCodeArea
 PAGE_SIZE = 1000
 # Determines how many threads are run simultaneously when importing postal code areas
 THREAD_POOL_SIZE = 2
-BASE_URL = settings.GEO_SEARCH_LOCATION + "/postal_code_area/"
 
 
 class Command(BaseCommand):
@@ -45,6 +44,7 @@ class Command(BaseCommand):
         self.http = requests.Session()
         self.http.mount("https://", adapter)
         self.http.mount("http://", adapter)
+        self.base_url = settings.GEO_SEARCH_LOCATION + "/postal_code_area/"
         self.headers = {
             "Authorization": f"Bearer Api-Key {settings.GEO_SEARCH_API_KEY}"
         }
@@ -114,7 +114,7 @@ class Command(BaseCommand):
         page_queue = Queue()
         # contains the results fetched
         results_queue = Queue()
-        url = BASE_URL
+        url = self.base_url
 
         self.logger.info(f"Fetching postal code areas...")
         count = self.get_count(url)
