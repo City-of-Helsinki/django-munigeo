@@ -26,8 +26,6 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name="street",
             unique_together={
-                ("municipality", "name_sv"),
-                ("municipality", "name_en"),
                 ("municipality", "name_fi"),
             },
         ),
