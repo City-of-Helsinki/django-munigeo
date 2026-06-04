@@ -100,6 +100,7 @@ class UusimaaImporter(Importer):
             response = self.http.get(url, headers=self.headers)
         except urllib3.exceptions.MaxRetryError as ex:
             self.logger.error(ex)
+            raise
 
         count = response.json()["count"]
         return count
@@ -110,6 +111,7 @@ class UusimaaImporter(Importer):
             response = self.http.get(request_url, headers=self.headers)
         except urllib3.exceptions.MaxRetryError as ex:
             self.logger.error(ex)
+            raise
 
         json = response.json()
         results = json["results"]

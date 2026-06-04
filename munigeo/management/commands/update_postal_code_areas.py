@@ -54,6 +54,7 @@ class Command(BaseCommand):
             response = self.http.get(url, headers=self.headers)
         except urllib3.exceptions.MaxRetryError as ex:
             self.logger.error(ex)
+            raise
 
         count = response.json()["count"]
         return count
@@ -64,6 +65,7 @@ class Command(BaseCommand):
             response = self.http.get(request_url, headers=self.headers)
         except urllib3.exceptions.MaxRetryError as ex:
             self.logger.error(ex)
+            raise
 
         results = response.json()["results"]
         self.logger.info(
