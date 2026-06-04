@@ -157,9 +157,9 @@ class UusimaaImporter(Importer):
             full_name_sv += f" {number}"
             full_name_en += f" {number}"
         if number_end:
-            full_name_fi += f"-{number}"
-            full_name_sv += f"-{number}"
-            full_name_en += f"-{number}"
+            full_name_fi += f"-{number_end}"
+            full_name_sv += f"-{number_end}"
+            full_name_en += f"-{number_end}"
         if letter:
             full_name_fi += letter
             full_name_sv += letter
@@ -192,7 +192,7 @@ class UusimaaImporter(Importer):
             postal_code_area.name_sv = result["postal_code_area"]["name"]["sv"]
             name_added = True
         if name_added:
-            self.postal_code_areas_enriched + 1
+            self.postal_code_areas_enriched += 1
             postal_code_area.save()
         return postal_code_area
 
