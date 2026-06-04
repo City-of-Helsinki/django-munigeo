@@ -79,7 +79,7 @@ class UusimaaImporter(Importer):
     # The import source may fail, create import_strategy
     retry_strategy = Retry(
         total=10,
-        status_forcelist=[400, 408, 429, 500, 502, 503, 504],
+        status_forcelist=[408, 429, 500, 502, 503, 504],
         allowed_methods=[
             "GET",
         ],
