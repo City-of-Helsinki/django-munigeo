@@ -5,9 +5,13 @@ env:
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - RATY-306/1.0  # TODO: remove after RATY-306/1.0 is merged to main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - RATY-306/1.0  # TODO: remove after RATY-306/1.0 is merged to main
 
 jobs:
   commitlint:
