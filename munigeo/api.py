@@ -343,9 +343,9 @@ class AdministrativeDivisionViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewS
                 | Q(name_en__icontains=input_val)
             )
 
-        for filter in filters:
-            if filter.startswith("extra__"):
-                queryset = queryset.filter(**{filter: filters[filter].strip()})
+        for filter_key in filters:
+            if filter_key.startswith("extra__"):
+                queryset = queryset.filter(**{filter_key: filters[filter_key].strip()})
 
         if "ocd_id" in filters:
             # Divisions can be specified with form:
