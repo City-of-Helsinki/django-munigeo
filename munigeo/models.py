@@ -6,7 +6,7 @@ from django.contrib.postgres.indexes import (
 from django.contrib.postgres.search import SearchVectorField
 from django.db.models.query import Q, QuerySet
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
 
