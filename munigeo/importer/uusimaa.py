@@ -61,37 +61,39 @@ MUNICIPALITIES = {
 @register_importer
 class UusimaaImporter(Importer):
     name = "uusimaa"
-    addresses_imported = 0
-    streets_imported = 0
-    streets_enriched_with_swedish_translation = 0
-    postal_code_areas_enriched = 0
-    postal_code_areas_added_to_addresses = 0
-    postal_code_areas_created = 0
-    duplicate_addresses = 0
     coord_transform = CoordTransform(SOURCE_SRS, TARGET_SRS)
-
-    # Contains the streets of the current municipality, used for caching
-    streets_cache = {}
-    # Contains the addresses of the current municipality, as the source contains
-    # duplicates, the address_cache is used to lookup if the address is already saved.
-    address_cache = {}
-    postal_code_areas_cache = {}
-    # The import source may fail, create import_strategy
-    retry_strategy = Retry(
-        total=10,
-        status_forcelist=[408, 429, 500, 502, 503, 504],
-        allowed_methods=[
-            "GET",
-        ],
-        backoff_factor=40,  # 20, 40, 80 , 160, 320, 640, 1280...seconds
-    )
-    adapter = HTTPAdapter(max_retries=retry_strategy)
-    http = requests.Session()
-    http.mount("https://", adapter)
-    http.mount("http://", adapter)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.addresses_imported = 0
+        self.streets_imported = 0
+        self.streets_enriched_with_swedish_translation = 0
+        self.postal_code_areas_enriched = 0
+        self.postal_code_areas_added_to_addresses = 0
+        self.postal_code_areas_created = 0
+        self.duplicate_addresses = 0
+
+        # Contains the streets of the current municipality, used for caching
+        self.streets_cache = {}
+        # Contains the addresses of the current municipality, as the source contains
+        # duplicates, the address_cache is used to lookup if the address is already saved.
+        self.address_cache = {}
+        self.postal_code_areas_cache = {}
+
+        # The import source may fail, create import_strategy
+        retry_strategy = Retry(
+            total=10,
+            status_forcelist=[408, 429, 500, 502, 503, 504],
+            allowed_methods=[
+                "GET",
+            ],
+            backoff_factor=40,  # 20, 40, 80 , 160, 320, 640, 1280...seconds
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        self.http = requests.Session()
+        self.http.mount("https://", adapter)
+        self.http.mount("http://", adapter)
+
         self.base_url = settings.GEO_SEARCH_LOCATION + "/address/"
         self.headers = {"Api-Key": f"{settings.GEO_SEARCH_API_KEY}"}
 
