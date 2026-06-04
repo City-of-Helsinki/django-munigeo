@@ -195,8 +195,7 @@ def test_import_municipality_creates_streets_and_addresses(
     with subtests.test(msg="Address Rihkamatori 2-4 (number_end)"):
         addr = Address.objects.get(street__name_fi="Rihkamatori", number="2")
         assert addr.number_end == "4"
-        # number_end appends "-{number}" to full name
-        assert addr.full_name_fi == "Rihkamatori 2-2"
+        assert addr.full_name_fi == "Rihkamatori 2-4"
 
 
 @pytest.mark.django_db
