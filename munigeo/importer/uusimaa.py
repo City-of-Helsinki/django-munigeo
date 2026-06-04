@@ -115,8 +115,8 @@ class UusimaaImporter(Importer):
             self.logger.error(ex)
             raise
 
-        json = response.json()
-        results = json["results"]
+        data = response.json()
+        results = data["results"]
         self.logger.info(
             f"Fetched page {page} from {request_url} with {len(results)} items."
         )
