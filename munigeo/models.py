@@ -235,7 +235,7 @@ class PostalCodeArea(models.Model):
     area = models.MultiPolygonField(srid=PROJECTION_SRID, null=True, blank=True)
 
     def __str__(self):
-        return self.postal_code
+        return self.postal_code or ""
 
     class Meta:
         ordering = ["postal_code"]
