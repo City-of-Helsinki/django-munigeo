@@ -70,12 +70,6 @@ def convert_from_gk25(north, east):
         g.transform(coord_transform)
     return g
 
-    pnt = Point(east, north, srid=GK25_SRID)
-    if PROJECTION_SRID == GK25_SRID:
-        return pnt
-    pnt.transform(coord_transform)
-    return pnt
-
 
 @register_importer
 class HelsinkiImporter(Importer):
