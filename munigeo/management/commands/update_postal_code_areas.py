@@ -118,7 +118,7 @@ class Command(BaseCommand):
         results_queue = Queue()
         url = self.base_url
 
-        self.logger.info(f"Fetching postal code areas...")
+        self.logger.info("Fetching postal code areas...")
         count = self.get_count(url)
         max_page = int(count / PAGE_SIZE) + 1
         self.logger.info(

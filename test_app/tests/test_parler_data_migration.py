@@ -40,7 +40,7 @@ def _fixture_sort_key(obj):
     - Then municipalities (which reference those divisions)
     - Then divisions with a municipality FK (sub-divisions)
     """
-    MODEL_ORDER = {
+    model_order = {
         "munigeo.administrativedivisiontype": 0,
         "munigeo.administrativedivision": 10,  # refined below
         "munigeo.municipality": 20,
@@ -49,7 +49,7 @@ def _fixture_sort_key(obj):
         "munigeo.municipalitytranslation": 40,
         "munigeo.streettranslation": 40,
     }
-    order = MODEL_ORDER.get(obj["model"], 99)
+    order = model_order.get(obj["model"], 99)
 
     # Within divisions, those without municipality FK must come before
     # municipalities, and those with municipality FK must come after.
@@ -117,7 +117,7 @@ def test_parler_data_migration_forward(migration_executor):
     apps = state.apps
 
     # Verify AdministrativeDivision names were copied
-    Division = apps.get_model("munigeo", "AdministrativeDivision")
+    Division = apps.get_model("munigeo", "AdministrativeDivision")  # noqa: N806
     for origin_id, (expected_fi, expected_sv) in EXPECTED_DIVISION_NAMES.items():
         div = Division.objects.get(origin_id=origin_id)
         assert div.name_fi == expected_fi, (
@@ -128,7 +128,7 @@ def test_parler_data_migration_forward(migration_executor):
         )
 
     # Verify Municipality names were copied
-    Municipality = apps.get_model("munigeo", "Municipality")
+    Municipality = apps.get_model("munigeo", "Municipality")  # noqa: N806
     for pk, (expected_fi, expected_sv) in EXPECTED_MUNICIPALITY_NAMES.items():
         muni = Municipality.objects.get(pk=pk)
         assert muni.name_fi == expected_fi, (
@@ -165,9 +165,9 @@ def test_parler_data_migration_backward(migration_executor):
     apps = state.apps
 
     # Verify translation rows were recreated
-    DivisionTranslation = apps.get_model("munigeo", "AdministrativeDivisionTranslation")
+    DivisionTranslation = apps.get_model("munigeo", "AdministrativeDivisionTranslation")  # noqa: N806
     for origin_id, (expected_fi, expected_sv) in EXPECTED_DIVISION_NAMES.items():
-        Division = apps.get_model("munigeo", "AdministrativeDivision")
+        Division = apps.get_model("munigeo", "AdministrativeDivision")  # noqa: N806
         div = Division.objects.get(origin_id=origin_id)
 
         fi_trans = DivisionTranslation.objects.get(master_id=div.pk, language_code="fi")
@@ -176,7 +176,7 @@ def test_parler_data_migration_backward(migration_executor):
         sv_trans = DivisionTranslation.objects.get(master_id=div.pk, language_code="sv")
         assert sv_trans.name == expected_sv
 
-    MuniTranslation = apps.get_model("munigeo", "MunicipalityTranslation")
+    MuniTranslation = apps.get_model("munigeo", "MunicipalityTranslation")  # noqa: N806
     for pk, (expected_fi, expected_sv) in EXPECTED_MUNICIPALITY_NAMES.items():
         fi_trans = MuniTranslation.objects.get(master_id=pk, language_code="fi")
         assert fi_trans.name == expected_fi
