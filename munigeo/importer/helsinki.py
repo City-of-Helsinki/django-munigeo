@@ -13,7 +13,7 @@ from django.conf import settings
 from django.contrib.gis import gdal
 from django.contrib.gis.gdal import CoordTransform, DataSource, SpatialReference
 from django.contrib.gis.gdal.srs import AxisOrder  # requires django 3.1
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.utils import timezone
 
 from munigeo import ocd

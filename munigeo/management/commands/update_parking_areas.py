@@ -3,7 +3,6 @@ This management command updates parking areas according to new desired specifica
 """
 
 from time import time
-from typing import List
 
 from django.core.management.base import BaseCommand
 

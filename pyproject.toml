@@ -124,20 +124,21 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = [
-    # pycodestyle - style only
+    # Pyflakes
+    "F",
+    # pycodestyle
     "E",
     "W",
     # isort
     "I",
-    # The checks below are intentionally disabled during the 0.2/main branch merge
-    # preparation. Fixing the issues they surface would diverge the branches further,
-    # making the eventual merge harder. Re-enable once the branches are unified.
-    #
-    # "F",    # Pyflakes - undefined names, unused imports/variables (real bugs)
-    # "N",    # pep8-naming - naming convention violations
-    # "B0",   # flake8-bugbear (non-opinionated) - likely bugs and design issues
-    # "PIE",  # flake8-pie - misc code style improvements
-    # "T20",  # flake8-print - print() statements
+    # pep8-naming
+    "N",
+    # flake8-bugbear without opinionated rules
+    "B0",
+    # flake8-pie
+    "PIE",
+    # flake8-print
+    "T20",
 ]
 ignore = [
     # Long lines are not auto-fixable and too noisy on legacy code; re-evaluate
