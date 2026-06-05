@@ -23,11 +23,11 @@ def test_address_municipality_populated_from_street(migration_executor):
     apps = state.apps
 
     # Create test data using historical models (pre-0010: no municipality on Address)
-    DivisionType = apps.get_model("munigeo", "AdministrativeDivisionType")
-    Division = apps.get_model("munigeo", "AdministrativeDivision")
-    Municipality = apps.get_model("munigeo", "Municipality")
-    Street = apps.get_model("munigeo", "Street")
-    Address = apps.get_model("munigeo", "Address")
+    DivisionType = apps.get_model("munigeo", "AdministrativeDivisionType")  # noqa: N806
+    Division = apps.get_model("munigeo", "AdministrativeDivision")  # noqa: N806
+    Municipality = apps.get_model("munigeo", "Municipality")  # noqa: N806
+    Street = apps.get_model("munigeo", "Street")  # noqa: N806
+    Address = apps.get_model("munigeo", "Address")  # noqa: N806
 
     div_type = DivisionType.objects.create(type="muni", name="Municipality")
     div = Division.objects.create(
@@ -95,11 +95,11 @@ def test_address_municipality_multiple_municipalities(migration_executor):
     executor.loader.build_graph()
     apps = state.apps
 
-    DivisionType = apps.get_model("munigeo", "AdministrativeDivisionType")
-    Division = apps.get_model("munigeo", "AdministrativeDivision")
-    Municipality = apps.get_model("munigeo", "Municipality")
-    Street = apps.get_model("munigeo", "Street")
-    Address = apps.get_model("munigeo", "Address")
+    DivisionType = apps.get_model("munigeo", "AdministrativeDivisionType")  # noqa: N806
+    Division = apps.get_model("munigeo", "AdministrativeDivision")  # noqa: N806
+    Municipality = apps.get_model("munigeo", "Municipality")  # noqa: N806
+    Street = apps.get_model("munigeo", "Street")  # noqa: N806
+    Address = apps.get_model("munigeo", "Address")  # noqa: N806
 
     div_type = DivisionType.objects.create(type="muni", name="Municipality")
 

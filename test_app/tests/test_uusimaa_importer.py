@@ -271,7 +271,7 @@ def test_missing_sv_name_falls_back_to_fi(porvoo, uusimaa_importer):
 def test_missing_municipality_is_skipped(uusimaa_importer, caplog):
     """import_addresses skips municipalities not in DB."""
     # Don't create any Municipality objects - all should be skipped
-    with rm.Mocker() as m:
+    with rm.Mocker():
         uusimaa_importer.import_addresses()
 
     assert Street.objects.count() == 0
