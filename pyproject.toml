@@ -52,6 +52,7 @@ test = [
     "requests-mock",
     "coverage[toml]",
     "coverage-enable-subprocess",
+    "django-environ",
     "psycopg",
     "factory_boy",
 ]

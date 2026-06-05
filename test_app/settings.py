@@ -1,6 +1,9 @@
 from pathlib import Path
 
 import django.conf.global_settings
+import environ
+
+env = environ.Env()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -51,14 +54,7 @@ TEMPLATES = [
 ]
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": "munigeo",
-        "USER": "munigeo",
-        "PASSWORD": "munigeo",
-        "HOST": "localhost",
-        "PORT": "5433",
-    },
+    "default": env.db(default="postgis://munigeo:munigeo@localhost:5433/munigeo"),
 }
 
 
