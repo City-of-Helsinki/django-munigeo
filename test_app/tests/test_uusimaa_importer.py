@@ -3,6 +3,7 @@ from datetime import datetime
 import pytest
 import requests_mock as rm
 
+from munigeo.importer import uusimaa
 from munigeo.importer.uusimaa import PAGE_SIZE, UusimaaImporter, get_municipality
 from munigeo.models import (
     Address,
@@ -12,6 +13,7 @@ from munigeo.models import (
     PostalCodeArea,
     Street,
 )
+from test_app.tests.factories import AddressFactory, StreetFactory
 
 GEO_SEARCH_BASE = "https://geo-search.test/address/"
 
@@ -280,6 +282,62 @@ def test_missing_municipality_is_skipped(uusimaa_importer, caplog):
 
 
 @pytest.mark.django_db
+def test_import_addresses_replaces_existing_municipality_data(
+    porvoo, uusimaa_importer, monkeypatch
+):
+    old_street = StreetFactory(municipality=porvoo)
+    old_address = AddressFactory(street=old_street, municipality=porvoo)
+    monkeypatch.setattr(
+        uusimaa,
+        "MUNICIPALITIES",
+        {PORVOO_CODE: ("Porvoo", "Borgå")},
+    )
+
+    with rm.Mocker() as m:
+        _mock_geo_search(m, PORVOO_CODE, SAMPLE_RESULTS)
+        uusimaa_importer.import_addresses()
+
+    assert not Street.objects.filter(pk=old_street.pk).exists()
+    assert not Address.objects.filter(pk=old_address.pk).exists()
+    assert set(
+        Street.objects.filter(municipality=porvoo).values_list("name_fi", flat=True)
+    ) == {"Mannerheimintie", "Rihkamatori"}
+    assert Address.objects.filter(municipality=porvoo).count() == 3
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason="Atomic municipality refresh is deferred to a separate PR.",
+)
+@pytest.mark.django_db
+def test_import_addresses_keeps_existing_data_when_fetch_fails(
+    porvoo, uusimaa_importer, monkeypatch
+):
+    old_street = StreetFactory(municipality=porvoo)
+    old_address = AddressFactory(street=old_street, municipality=porvoo)
+    monkeypatch.setattr(
+        uusimaa,
+        "MUNICIPALITIES",
+        {PORVOO_CODE: ("Porvoo", "Borgå")},
+    )
+
+    with rm.Mocker() as m:
+        m.get(
+            f"{GEO_SEARCH_BASE}?municipalitycode={PORVOO_CODE}&page_size=1",
+            json={"count": 1},
+        )
+        m.get(
+            f"{GEO_SEARCH_BASE}?municipalitycode={PORVOO_CODE}&page_size={PAGE_SIZE}&page=1",
+            exc=RuntimeError("page fetch failed"),
+        )
+        with pytest.raises(RuntimeError, match="page fetch failed"):
+            uusimaa_importer.import_addresses()
+
+    assert Street.objects.filter(pk=old_street.pk).exists()
+    assert Address.objects.filter(pk=old_address.pk).exists()
+
+
+@pytest.mark.django_db
 def test_import_is_idempotent(porvoo, uusimaa_importer):
     """Running import twice does not duplicate data (streets are deleted first)."""
     with rm.Mocker() as m:
@@ -291,7 +349,7 @@ def test_import_is_idempotent(porvoo, uusimaa_importer):
 
     # Reset caches (normally done in import_municipality, but we need to
     # simulate what import_addresses does: delete streets then re-import)
-    Street.objects.filter(municipality_id=porvoo).delete()
+    Street.objects.filter(municipality=porvoo).delete()
 
     # Reset importer state for second run
     uusimaa_importer.streets_cache = {}
