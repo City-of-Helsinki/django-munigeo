@@ -87,12 +87,14 @@ def test_import_divisions(municipalities, hsy_importer, subtests, caplog):
     espoo = municipalities["espoo"]
     vantaa = municipalities["vantaa"]
 
-    with caplog.at_level(logging.WARNING, logger="import"):
+    with caplog.at_level(logging.WARNING, logger=hsy_importer.logger.name):
         hsy_importer.import_divisions()
 
     # No division types should have been skipped
     import_warnings = [
-        r for r in caplog.records if r.name == "import" and r.levelno >= logging.WARNING
+        r
+        for r in caplog.records
+        if r.name == hsy_importer.logger.name and r.levelno >= logging.WARNING
     ]
     assert not import_warnings, (
         f"Import warnings: {[r.message for r in import_warnings]}"
