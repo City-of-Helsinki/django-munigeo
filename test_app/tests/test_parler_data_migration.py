@@ -7,15 +7,20 @@ running the Finland and Helsinki importers at commit 0cad137).
 """
 
 import json
+from importlib import import_module
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from django.contrib.gis.geos import MultiPolygon, Polygon
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
 # Last parler-era migration
 PARLER_STATE = ("munigeo", "0005_update_translation_foreign_keys")
+DIRECT_FIELDS_STATE = ("munigeo", "0006_add_name_fields")
 
 
 # Expected translation data (subset) to verify correctness
@@ -100,6 +105,58 @@ def load_fixture_with_historical_models(apps, fixture_path):
         Model.objects.create(**kwargs)
 
 
+def add_edge_case_translations(apps):
+    Division = apps.get_model("munigeo", "AdministrativeDivision")  # noqa: N806
+    DivisionTranslation = apps.get_model(  # noqa: N806
+        "munigeo", "AdministrativeDivisionTranslation"
+    )
+    helsinki = Division.objects.get(origin_id="91")
+    espoo = Division.objects.get(origin_id="49")
+    next_pk = (
+        DivisionTranslation.objects.order_by("-pk").values_list("pk", flat=True).first()
+        + 1
+    )
+
+    DivisionTranslation.objects.create(
+        pk=next_pk,
+        master_id=helsinki.pk,
+        language_code="en",
+        name="Helsinki",
+    )
+    DivisionTranslation.objects.create(
+        pk=next_pk + 1,
+        master_id=espoo.pk,
+        language_code="de",
+        name="Espoo",
+    )
+    DivisionTranslation.objects.create(
+        pk=next_pk + 2,
+        master_id=None,
+        language_code="en",
+        name="Orphaned translation",
+    )
+
+
+def add_street_translations(apps, count):
+    Street = apps.get_model("munigeo", "Street")  # noqa: N806
+    StreetTranslation = apps.get_model("munigeo", "StreetTranslation")  # noqa: N806
+    streets = [
+        Street(pk=index + 1, municipality_id="helsinki") for index in range(count)
+    ]
+    Street.objects.bulk_create(streets)
+    StreetTranslation.objects.bulk_create(
+        [
+            StreetTranslation(
+                pk=index + 1,
+                master_id=street.pk,
+                language_code="fi",
+                name=f"Test street {index}",
+            )
+            for index, street in enumerate(streets)
+        ]
+    )
+
+
 @pytest.mark.django_db(transaction=True)
 def test_parler_data_migration_forward(migration_executor):
     executor, latest = migration_executor
@@ -111,6 +168,7 @@ def test_parler_data_migration_forward(migration_executor):
 
     # Load fixture using historical models (translation models still exist)
     load_fixture_with_historical_models(apps, FIXTURES_DIR / "parler_test_data.json")
+    add_edge_case_translations(apps)
 
     # Migrate forward through our new migrations
     state = executor.migrate([latest])
@@ -126,6 +184,8 @@ def test_parler_data_migration_forward(migration_executor):
         assert div.name_sv == expected_sv, (
             f"Division {origin_id}: expected name_sv={expected_sv!r}, got {div.name_sv!r}"
         )
+    assert Division.objects.get(origin_id="91").name_en == "Helsinki"
+    assert Division.objects.get(origin_id="49").name_en is None
 
     # Verify Municipality names were copied
     Municipality = apps.get_model("munigeo", "Municipality")  # noqa: N806
@@ -149,6 +209,39 @@ def test_parler_data_migration_forward(migration_executor):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_parler_data_migration_forward_uses_single_update(migration_executor):
+    executor, _latest = migration_executor
+    state = executor.migrate([PARLER_STATE])
+    executor.loader.build_graph()
+    apps = state.apps
+    load_fixture_with_historical_models(apps, FIXTURES_DIR / "parler_test_data.json")
+    add_street_translations(apps, count=5)
+
+    state = executor.migrate([DIRECT_FIELDS_STATE])
+    apps = state.apps
+    migration = import_module("munigeo.migrations.0007_migrate_translation_data")
+
+    with CaptureQueriesContext(connection) as queries:
+        migration.copy_translations_forward(
+            apps,
+            SimpleNamespace(connection=connection),
+        )
+
+    Street = apps.get_model("munigeo", "Street")  # noqa: N806
+    street_table = connection.ops.quote_name(Street._meta.db_table)
+    street_updates = [
+        query
+        for query in queries.captured_queries
+        if query["sql"].lstrip().upper().startswith("UPDATE")
+        and street_table in query["sql"]
+    ]
+    assert len(street_updates) == 1
+    assert list(Street.objects.order_by("pk").values_list("name_fi", flat=True)) == [
+        f"Test street {index}" for index in range(5)
+    ]
+
+
+@pytest.mark.django_db(transaction=True)
 def test_parler_data_migration_backward(migration_executor):
     executor, latest = migration_executor
 
@@ -157,6 +250,7 @@ def test_parler_data_migration_backward(migration_executor):
     executor.loader.build_graph()
     apps = state.apps
     load_fixture_with_historical_models(apps, FIXTURES_DIR / "parler_test_data.json")
+    add_edge_case_translations(apps)
     executor.migrate([latest])
     executor.loader.build_graph()
 
@@ -175,6 +269,19 @@ def test_parler_data_migration_backward(migration_executor):
 
         sv_trans = DivisionTranslation.objects.get(master_id=div.pk, language_code="sv")
         assert sv_trans.name == expected_sv
+
+    helsinki = Division.objects.get(origin_id="91")
+    en_trans = DivisionTranslation.objects.get(
+        master_id=helsinki.pk,
+        language_code="en",
+    )
+    assert en_trans.name == "Helsinki"
+
+    espoo = Division.objects.get(origin_id="49")
+    assert not DivisionTranslation.objects.filter(
+        master_id=espoo.pk,
+        language_code="de",
+    ).exists()
 
     MuniTranslation = apps.get_model("munigeo", "MunicipalityTranslation")  # noqa: N806
     for pk, (expected_fi, expected_sv) in EXPECTED_MUNICIPALITY_NAMES.items():
