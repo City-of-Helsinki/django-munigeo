@@ -1,3 +1,128 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django-munigeo"
+version = "0.3.12"
+authors = [{ name = "City of Helsinki", email = "dev@hel.fi" }]
+description = "A Django app for processing municipality-related geospatial data."
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["django", "gis", "geospatial", "municipality"]
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+dependencies = [
+    "django>=5.2",
+    "requests",
+    "requests_cache",
+    "django-mptt>=0.18.0",
+    "djangorestframework",
+    "pyyaml",
+    "unicodecsv",
+    "urllib3>=2",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-django",
+    "pytest-mock",
+    "pytest-randomly",
+    "requests-mock",
+    "coverage[toml]",
+    "coverage-enable-subprocess",
+    "django-environ",
+    "psycopg",
+    "factory_boy",
+]
+all = ["django-munigeo[test]"]
+
+[project.urls]
+Homepage = "https://github.com/City-of-Helsinki/django-munigeo"
+Issues = "https://github.com/City-of-Helsinki/django-munigeo/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["munigeo"]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "django~=5.2",
+    "pre-commit",
+]
+features = ["all"]
+python = "3.10"
+
+[tool.hatch.envs.default.scripts]
+lint = [
+    "pre-commit install",
+    "pre-commit run -a",
+]
+manage = "./test_app/manage.py {args}"
+makemigrations = "./test_app/manage.py makemigrations {args}"
+
+[tool.hatch.envs.hatch-test]
+default-args = []
+features = ["all"]
+matrix-name-format = "dj{value}"
+parallel = false
+randomize = true
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.10", "3.11"]
+django = ["5.2"]
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.12", "3.13", "3.14"]
+django = ["5.2", "6.0", "6.1"]
+
+[tool.hatch.envs.hatch-test.overrides]
+matrix.django.dependencies = [
+    { value = "django=={matrix:django}.*" },
+]
+
+[tool.hatch.envs.hatch-test.scripts]
+check-migrations = "./test_app/manage.py makemigrations --check"
+run = [
+    "check-migrations",
+    "pytest{env:HATCH_TEST_ARGS:} {args}",
+]
+run-cov = [
+    "check-migrations",
+    "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}",
+]
+cov-combine = "coverage combine"
+cov-report = "coverage report"
+
+[tool.pytest.ini_options]
+django_find_project = false
+testpaths = ["test_app"]
+DJANGO_SETTINGS_MODULE = "test_app.settings"
+pythonpath = "."
+
+[tool.coverage.run]
+source = ["munigeo"]
+omit = ["**/migrations/*", "**/tests/*"]
+
 [tool.ruff]
 target-version = "py310"
 
@@ -19,11 +144,8 @@ select = [
     # flake8-print
     "T20",
 ]
-extend-per-file-ignores = { "*/migrations/*" = ["E501"], "*/tests/*" = ["E501"] }
-
-[tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "helusers.tests.settings"
-
-[tool.coverage.run]
-source = ["helusers"]
-omit = ["helusers/migrations/*", "*/tests/*"]
+ignore = [
+    # Long lines are not auto-fixable and too noisy on legacy code; re-evaluate
+    # once branches are merged and the codebase is in a cleaner state.
+    "E501",
+]

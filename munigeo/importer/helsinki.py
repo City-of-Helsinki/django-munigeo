@@ -13,7 +13,8 @@ from django.conf import settings
 from django.contrib.gis import gdal
 from django.contrib.gis.gdal import CoordTransform, DataSource, SpatialReference
 from django.contrib.gis.gdal.srs import AxisOrder  # requires django 3.1
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
+from django.utils import timezone
 
 from munigeo import ocd
 from munigeo.importer.base import Importer, register_importer
@@ -28,6 +29,7 @@ from munigeo.models import (
     Municipality,
     Plan,
     POICategory,
+    PostalCodeArea,
     Street,
 )
 
@@ -68,16 +70,11 @@ def convert_from_gk25(north, east):
         g.transform(coord_transform)
     return g
 
-    pnt = Point(east, north, srid=GK25_SRID)
-    if PROJECTION_SRID == GK25_SRID:
-        return pnt
-    pnt.transform(coord_transform)
-    return pnt
-
 
 @register_importer
 class HelsinkiImporter(Importer):
     name = "helsinki"
+    wfs_output_format = "outputFormat=application/json"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -107,7 +104,7 @@ class HelsinkiImporter(Importer):
         # geom = geom.geos.intersection(parent.geometry.boundary)
         geom = geom.geos
         if geom.geom_type == "Polygon":
-            geom = MultiPolygon(geom, srid=geom.srid)
+            geom = MultiPolygon(geom.buffer(0), srid=geom.srid)
 
         #
         # Attributes
@@ -128,9 +125,66 @@ class HelsinkiImporter(Importer):
                 lang_dict[attr] = d
             else:
                 val = feat[field].as_string()
-                attr_dict[attr] = val.strip() if val else ""
+
+                if val:
+                    if (
+                        "fields_type_conversions" in div
+                        and attr in div["fields_type_conversions"]
+                    ):
+                        field_type = div["fields_type_conversions"][attr]
+                        # We only support csv to list conversions at this moment
+                        if field_type == "csv_to_list":
+                            attr_dict[attr] = val.strip().split(",")
+                    else:
+                        attr_dict[attr] = val.strip()
+                else:
+                    attr_dict[attr] = None
+
+        #
+        # Extra attributes
+        #
+        extra_attr_dict = {}
+        if "extra_fields" in div:
+            for attr, field in div["extra_fields"].items():
+                val = feat[field].as_string()
+                if val:
+                    extra_attr_dict[attr] = val.strip()
+                else:
+                    extra_attr_dict[attr] = None
+
+        #
+        # Extra attribute-mappings
+        #
+        if "extra_fields_mappings" in div:
+            for field_mapping in div["extra_fields_mappings"]:
+                mapping = field_mapping["mapping"]
+                attr, field = next(iter(mapping.items()))
+                val = str(feat[field].as_string())
+                mapped_val = field_mapping["values"][val]
+                if mapped_val:
+                    extra_attr_dict[attr] = mapped_val.strip()
+                else:
+                    extra_attr_dict[attr] = None
+
+        #
+        # import "Pysäköintikielto" (No Parking) as "class 7" for PARKING_CLASS_NAME_MAP to map it as specified.
+        #
+        if (
+            extra_attr_dict.get("class") == "0"
+            and extra_attr_dict.get("origin_name") is None
+        ):
+            if feat.get("tyyppi") == "Pysäköintikielto":
+                extra_attr_dict["class"] = "7"
+
+        attr_dict["extra"] = extra_attr_dict
 
         origin_id = attr_dict["origin_id"]
+        # if origin_id is not found, we skip the feature
+        if not origin_id:
+            self.logger.info("Division origin_id is None. Skipping division...")
+            return
+        if "id_suffix" in div:
+            origin_id = origin_id + div["id_suffix"]
         del attr_dict["origin_id"]
 
         if "parent" in div:
@@ -192,8 +246,7 @@ class HelsinkiImporter(Importer):
             setattr(obj, attr, attr_dict[attr])
         for attr in lang_dict.keys():
             for lang, val in lang_dict[attr].items():
-                obj.set_current_language(lang)
-                setattr(obj, attr, val)
+                setattr(obj, f"{attr}_{lang}", val)
 
         if "ocd_id" in div:
             assert (parent and parent.ocd_id) or "parent_ocd_id" in div
@@ -208,11 +261,13 @@ class HelsinkiImporter(Importer):
             if not val:
                 self.logger.warning("ocd_id is empty. Skipping division...")
                 return
+            if "id_suffix" in div:
+                val = val + div["id_suffix"]
             args[div["ocd_id"]] = val
             obj.ocd_id = ocd.make_id(**args)
             self.logger.debug("%s" % obj.ocd_id)
         obj.save()
-        syncher.mark(obj)
+        syncher.mark(obj, True)
 
         try:
             geom_obj = obj.geometry
@@ -278,9 +333,9 @@ class HelsinkiImporter(Importer):
                 + div["wfs_layer"]
                 + "&"
                 + "srsName=EPSG:%d" % PROJECTION_SRID
-                + "&"
-                + "outputFormat=application/json"
             )
+            if self.wfs_output_format:
+                url = url + "&" + self.wfs_output_format
             ds = DataSource(url)
         if len(ds) < 1:
             self.logger.info(f"{div['name']} has no layers, skipping.")
@@ -293,7 +348,7 @@ class HelsinkiImporter(Importer):
 
     def import_divisions(self):
         path = self.find_data_file(os.path.join(self.muni_data_path, "config.yml"))
-        config = yaml.safe_load(open(path))
+        config = yaml.safe_load(open(path, encoding="utf-8"))
         self.division_data_path = os.path.join(
             self.muni_data_path, config["paths"]["division"]
         )
@@ -301,7 +356,10 @@ class HelsinkiImporter(Importer):
         muni = Municipality.objects.get(division__origin_id=config["origin_id"])
         self.muni = muni
         for div in config["divisions"]:
-            self._import_one_division_type(muni, div)
+            try:
+                self._import_one_division_type(muni, div)
+            except Exception as e:
+                self.logger.warning(f"Skipping division {div} : {e}")
 
     def _import_plans(self, fname, in_effect):
         path = os.path.join(self.data_path, "kaavahakemisto", fname)
@@ -337,7 +395,7 @@ class HelsinkiImporter(Importer):
 
     def import_plans(self):
         self.plan_map = {}
-        self.muni = Municipality.objects.get(name="Helsinki")
+        self.muni = Municipality.objects.get(name_fi="Helsinki")
         for obj in Plan.objects.filter(municipality=self.muni):
             self.plan_map[obj.origin_id] = obj
             obj.found = False
@@ -353,10 +411,9 @@ class HelsinkiImporter(Importer):
     @db.transaction.atomic
     def import_addresses(self):
         wfs_url = (
-            "https://kartta.hel.fi/ws/geoserver/avoindata/wfs?"
-            "SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&"
+            "WFS:https://kartta.hel.fi/ws/geoserver/avoindata/wfs?"
+            "SERVICE=WFS&VERSION=1.2.0&REQUEST=GetFeature&"
             "TYPENAME=avoindata:PKS_osoiteluettelo&"
-            "SRSNAME=EPSG:3067&outputFormat=application/json"
         )
         self.logger.info("Loading master data from WFS datasource")
         ds = DataSource(wfs_url)
@@ -364,10 +421,9 @@ class HelsinkiImporter(Importer):
         assert len(ds) == 1
 
         muni_names = ("Helsinki", "Espoo", "Vantaa", "Kauniainen")
-        muni_list = Municipality.objects.filter(
-            translations__language_code="fi", translations__name__in=muni_names
-        )
+        muni_list = Municipality.objects.filter(name_fi__in=muni_names)
         muni_dict = {}
+        postal_code_areas = {}
 
         def make_addr_id(num, num_end, letter):
             if num_end is None:
@@ -376,8 +432,14 @@ class HelsinkiImporter(Importer):
                 letter = ""
             return f"{num}-{num_end}-{letter}"
 
+        def get_full_address_name(street_name, num, num_end, letter):
+            separator = "-" if num_end else ""
+            if letter:
+                letter = " " + letter
+            return f"{street_name} {num}{separator}{num_end}{letter}"
+
         for muni in muni_list:
-            muni_dict[muni.get_translation("fi").name] = muni
+            muni_dict[muni.name_fi] = muni
 
             self.logger.info(f"Loading existing data for {muni}")
 
@@ -385,7 +447,7 @@ class HelsinkiImporter(Importer):
             muni.streets_by_name = {}
             muni.streets_by_id = {}
             for s in streets:
-                muni.streets_by_name[s.get_translation("fi").name] = s
+                muni.streets_by_name[s.name_fi] = s
                 muni.streets_by_id[s.id] = s
                 s.addrs = {}
                 s._found = False
@@ -425,9 +487,11 @@ class HelsinkiImporter(Importer):
                     )
                     continue
 
-            num2 = feat.get("osoitenumero2") or ""
-            letter = (feat.get("osoitekirjain") or "").strip()
-
+            num2 = feat.get("osoitenumero2")
+            if num2 == 0 or num2 is None:
+                num2 = ""
+            letter_raw = feat.get("osoitekirjain")
+            letter = letter_raw.strip() if letter_raw else ""
             coord_n = int(feat.get("n"))
             coord_e = int(feat.get("e"))
             muni_name = feat.get("kaupunki")
@@ -436,49 +500,82 @@ class HelsinkiImporter(Importer):
             street = muni.streets_by_name.get(street_name, None)
             if not street:
                 self.logger.info(f"street {street_name} not found in DB, creating it")
-                street = Street(municipality=muni)
-                street.set_current_language("fi")
-                street.name = street_name
-                street.set_current_language("sv")
-                street.name = street_name_sv
+                street = Street(
+                    municipality=muni, name_fi=street_name, name_sv=street_name_sv
+                )
 
                 # bulk_street_list.append(street)
                 street.save()
                 muni.streets_by_name[street_name] = street
                 street.addrs = {}
             else:
-                street.set_current_language("sv")
-                if street.name != street_name_sv:
-                    self.logger.warning(f"{street}: {street.name} -> {street_name_sv}")
-                    street.name = street_name_sv
+                if street.name_sv != street_name_sv:
+                    self.logger.warning(
+                        f"{street}: {street.name_sv} -> {street_name_sv}"
+                    )
+                    street.name_sv = street_name_sv
                     street.save()
             street._found = True
 
             addr_id = make_addr_id(num, num2, letter)
             addr = street.addrs.get(addr_id, None)
             location = convert_from_gk25(coord_n, coord_e)
+
+            postal_code = feat.get("postinumero")
+            if postal_code and postal_code not in postal_code_areas:
+                postal_code_area, _ = PostalCodeArea.objects.get_or_create(
+                    postal_code=postal_code
+                )
+                postal_code_areas[postal_code] = postal_code_area
+
             if not addr:
                 self.logger.debug(
                     "Street {} did not have address {}. Creating".format(
-                        street.name, addr_id
+                        street.name_fi, addr_id
                     )
                 )
                 addr = Address(
                     street=street, number=num, number_end=num2, letter=letter
                 )
+                addr.full_name_fi = get_full_address_name(
+                    street_name, num, num2, letter
+                )
+                addr.full_name_sv = get_full_address_name(
+                    street_name_sv, num, num2, letter
+                )
+                addr.full_name_en = get_full_address_name(
+                    street_name, num, num2, letter
+                )
+                addr.municipality = muni
+                if postal_code:
+                    addr.postal_code_area = postal_code_areas[postal_code]
                 addr.location = location.wkb
+                addr.modified_at = timezone.now()
                 bulk_addr_list.append(addr)
                 street.addrs[addr_id] = addr
             else:
                 if addr._found:
                     self.logger.debug(f"{addr}: is duplicate, skipping")
                     continue
-                # if the location has changed for more than 10cm, save the new one.
+                # if the location has changed for more than 1m, save the new one.
                 assert addr.location.srid == location.srid, "SRID changed"
-                # if addr.location.distance(location) >= 0.10:
-                #    self.logger.info("%s: Location changed" % addr)
-                #    addr.location = location
-                #    addr.save()
+                location = GEOSGeometry(location.ewkt)
+                if addr.location.distance(location) >= 1:
+                    self.logger.info("%s: Location changed" % addr)
+                    addr.full_name_fi = get_full_address_name(
+                        street_name, num, num2, letter
+                    )
+                    addr.full_name_sv = get_full_address_name(
+                        street_name_sv, num, num2, letter
+                    )
+                    addr.full_name_en = get_full_address_name(
+                        street_name, num, num2, letter
+                    )
+                    addr.municipality = muni
+                    if postal_code:
+                        addr.postal_code_area = postal_code_areas[postal_code]
+                    addr.location = location
+                    addr.save()
             addr._found = True
 
             if len(bulk_addr_list) >= 10000:
@@ -513,7 +610,7 @@ class HelsinkiImporter(Importer):
 
         muni_dict = {}
         for muni in Municipality.objects.all():
-            muni_dict[muni.name] = muni
+            muni_dict[muni.name_fi] = muni
 
         for srv_id in list(SERVICE_CATEGORY_MAP.keys()):
             cat_type, cat_desc = SERVICE_CATEGORY_MAP[srv_id]
