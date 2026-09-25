@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gml:FeatureCollection xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:au="urn:x-inspire:specification:gmlas:AdministrativeUnits:3.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:base="urn:x-inspire:specification:gmlas:BaseTypes:3.2" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gn="urn:x-inspire:specification:gmlas:GeographicalNames:3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:x-inspire:specification:gmlas:AdministrativeUnits:3.0 http://xml.nls.fi/inspire/2010-04/AdministrativeUnits.xsd" gml:id="fi.nls.kuja1000.test">
+<gml:boundedBy>
+<gml:Envelope srsName="EPSG:3067">
+<gml:lowerCorner>360000.0 6670000.0</gml:lowerCorner>
+<gml:upperCorner>390000.0 6700000.0</gml:upperCorner>
+</gml:Envelope>
+</gml:boundedBy>
+<gml:featureMember>
+<au:AdministrativeUnit gml:id="au_test_hki">
+<gml:boundedBy>
+<gml:Envelope srsName="EPSG:3067">
+<gml:lowerCorner>382000.0 6672000.0</gml:lowerCorner>
+<gml:upperCorner>388000.0 6678000.0</gml:upperCorner>
+</gml:Envelope>
+</gml:boundedBy>
+<au:geometry>
+<gml:MultiSurface gml:id="ms_test_hki" srsName="EPSG:3067">
+<gml:surfaceMember>
+<gml:Surface gml:id="pg_test_hki">
+<gml:patches>
+<gml:PolygonPatch>
+<gml:exterior>
+<gml:LinearRing>
+<gml:posList>382000.0 6672000.0 388000.0 6672000.0 388000.0 6678000.0 382000.0 6678000.0 382000.0 6672000.0</gml:posList>
+</gml:LinearRing>
+</gml:exterior>
+</gml:PolygonPatch>
+</gml:patches>
+</gml:Surface>
+</gml:surfaceMember>
+</gml:MultiSurface>
+</au:geometry>
+<au:nationalCode>91</au:nationalCode>
+<au:nationalLevel>4thOrder</au:nationalLevel>
+<au:name>
+<gn:GeographicalName>
+<gn:language>fin</gn:language>
+<gn:spelling>
+<gn:SpellingOfName>
+<gn:text>Helsinki</gn:text>
+<gn:script>Latn</gn:script>
+</gn:SpellingOfName>
+</gn:spelling>
+</gn:GeographicalName>
+</au:name>
+<au:name>
+<gn:GeographicalName>
+<gn:language>swe</gn:language>
+<gn:spelling>
+<gn:SpellingOfName>
+<gn:text>Helsingfors</gn:text>
+<gn:script>Latn</gn:script>
+</gn:SpellingOfName>
+</gn:spelling>
+</gn:GeographicalName>
+</au:name>
+</au:AdministrativeUnit>
+</gml:featureMember>
+<gml:featureMember>
+<au:AdministrativeUnit gml:id="au_test_espoo">
+<gml:boundedBy>
+<gml:Envelope srsName="EPSG:3067">
+<gml:lowerCorner>368000.0 6680000.0</gml:lowerCorner>
+<gml:upperCorner>374000.0 6686000.0</gml:upperCorner>
+</gml:Envelope>
+</gml:boundedBy>
+<au:geometry>
+<gml:MultiSurface gml:id="ms_test_espoo" srsName="EPSG:3067">
+<gml:surfaceMember>
+<gml:Surface gml:id="pg_test_espoo">
+<gml:patches>
+<gml:PolygonPatch>
+<gml:exterior>
+<gml:LinearRing>
+<gml:posList>368000.0 6680000.0 374000.0 6680000.0 374000.0 6686000.0 368000.0 6686000.0 368000.0 6680000.0</gml:posList>
+</gml:LinearRing>
+</gml:exterior>
+</gml:PolygonPatch>
+</gml:patches>
+</gml:Surface>
+</gml:surfaceMember>
+</gml:MultiSurface>
+</au:geometry>
+<au:nationalCode>49</au:nationalCode>
+<au:nationalLevel>4thOrder</au:nationalLevel>
+<au:name>
+<gn:GeographicalName>
+<gn:language>fin</gn:language>
+<gn:spelling>
+<gn:SpellingOfName>
+<gn:text>Espoo</gn:text>
+<gn:script>Latn</gn:script>
+</gn:SpellingOfName>
+</gn:spelling>
+</gn:GeographicalName>
+</au:name>
+<au:name>
+<gn:GeographicalName>
+<gn:language>swe</gn:language>
+<gn:spelling>
+<gn:SpellingOfName>
+<gn:text>Esbo</gn:text>
+<gn:script>Latn</gn:script>
+</gn:SpellingOfName>
+</gn:spelling>
+</gn:GeographicalName>
+</au:name>
+</au:AdministrativeUnit>
+</gml:featureMember>
+<gml:featureMember>
+<au:AdministrativeUnit gml:id="au_test_country">
+<gml:boundedBy>
+<gml:Envelope srsName="EPSG:3067">
+<gml:lowerCorner>360000.0 6670000.0</gml:lowerCorner>
+<gml:upperCorner>390000.0 6700000.0</gml:upperCorner>
+</gml:Envelope>
+</gml:boundedBy>
+<au:geometry>
+<gml:MultiSurface gml:id="ms_test_country" srsName="EPSG:3067">
+<gml:surfaceMember>
+<gml:Surface gml:id="pg_test_country">
+<gml:patches>
+<gml:PolygonPatch>
+<gml:exterior>
+<gml:LinearRing>
+<gml:posList>360000.0 6670000.0 390000.0 6670000.0 390000.0 6700000.0 360000.0 6700000.0 360000.0 6670000.0</gml:posList>
+</gml:LinearRing>
+</gml:exterior>
+</gml:PolygonPatch>
+</gml:patches>
+</gml:Surface>
+</gml:surfaceMember>
+</gml:MultiSurface>
+</au:geometry>
+<au:nationalCode>FI</au:nationalCode>
+<au:nationalLevel>1stOrder</au:nationalLevel>
+<au:name>
+<gn:GeographicalName>
+<gn:language>fin</gn:language>
+<gn:spelling>
+<gn:SpellingOfName>
+<gn:text>Suomi</gn:text>
+<gn:script>Latn</gn:script>
+</gn:SpellingOfName>
+</gn:spelling>
+</gn:GeographicalName>
+</au:name>
+<au:name>
+<gn:GeographicalName>
+<gn:language>swe</gn:language>
+<gn:spelling>
+<gn:SpellingOfName>
+<gn:text>Finland</gn:text>
+<gn:script>Latn</gn:script>
+</gn:SpellingOfName>
+</gn:spelling>
+</gn:GeographicalName>
+</au:name>
+</au:AdministrativeUnit>
+</gml:featureMember>
+</gml:FeatureCollection>

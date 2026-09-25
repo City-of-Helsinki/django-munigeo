@@ -1,0 +1,75 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "posno": "00100",
+        "kunta_nro": "091",
+        "nimi": "00100"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.93,
+              60.16
+            ],
+            [
+              24.95,
+              60.16
+            ],
+            [
+              24.95,
+              60.17
+            ],
+            [
+              24.93,
+              60.17
+            ],
+            [
+              24.93,
+              60.16
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "posno": "02100",
+        "kunta_nro": "049",
+        "nimi": "02100"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.8,
+              60.17
+            ],
+            [
+              24.82,
+              60.17
+            ],
+            [
+              24.82,
+              60.18
+            ],
+            [
+              24.8,
+              60.18
+            ],
+            [
+              24.8,
+              60.17
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

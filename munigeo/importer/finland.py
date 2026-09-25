@@ -50,10 +50,8 @@ class FinlandImporter(Importer):
         munidiv = syncher.get(muni_id)
         if not munidiv:
             munidiv = AdministrativeDivision(origin_id=muni_id)
-        munidiv.set_current_language("fi")
-        munidiv.name = name_fi
-        munidiv.set_current_language("sv")
-        munidiv.name = name_sv
+        munidiv.name_fi = name_fi
+        munidiv.name_sv = name_sv
         munidiv.ocd_id = ocd.make_id(country="fi", kunta=name_fi)
         munidiv.type = self.muni_type
         munidiv.save()
@@ -77,10 +75,9 @@ class FinlandImporter(Importer):
             muni = Municipality.objects.get(division=munidiv)
         except Municipality.DoesNotExist:
             muni = Municipality(division=munidiv)
-        muni.set_current_language("fi")
-        muni.name = name_fi
-        muni.set_current_language("sv")
-        muni.name = name_sv
+        muni.name_fi = name_fi
+        muni.name_sv = name_sv
+        muni.code = muni_id
         muni.id = munidiv.ocd_id.split("/")[-1].split(":")[-1]
         muni.save()
 
@@ -105,7 +102,9 @@ class FinlandImporter(Importer):
                     break
             else:
                 raise Exception("XML file not found in %s" % MUNI_DATA_URL)
-            out_path = os.path.join(self.data_paths[0], "fi")
+            # https://github.com/City-of-Helsinki/django-munigeo/pull/89
+            # https://github.com/City-of-Helsinki/django-munigeo/pull/90
+            out_path = os.path.join(self.import_data_path, "fi")
             try:
                 os.makedirs(out_path)
             except OSError:

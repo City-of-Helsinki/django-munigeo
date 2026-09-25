@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "EC01",
+        "tunnus": "paiv01"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.93,
+              60.17
+            ],
+            [
+              24.95,
+              60.17
+            ],
+            [
+              24.95,
+              60.18
+            ],
+            [
+              24.93,
+              60.18
+            ],
+            [
+              24.93,
+              60.17
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

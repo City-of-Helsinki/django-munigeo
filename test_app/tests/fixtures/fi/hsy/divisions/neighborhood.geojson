@@ -1,0 +1,77 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "kauposanro": "091001",
+        "kunta": "091",
+        "nimi": "Kruununhaka",
+        "nimi_se": "Kronohagen"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.95,
+              60.17
+            ],
+            [
+              24.97,
+              60.17
+            ],
+            [
+              24.97,
+              60.18
+            ],
+            [
+              24.95,
+              60.18
+            ],
+            [
+              24.95,
+              60.17
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "kauposanro": "049002",
+        "kunta": "049",
+        "nimi": "Tapiola",
+        "nimi_se": "Hagalund"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.8,
+              60.17
+            ],
+            [
+              24.82,
+              60.17
+            ],
+            [
+              24.82,
+              60.18
+            ],
+            [
+              24.8,
+              60.18
+            ],
+            [
+              24.8,
+              60.17
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

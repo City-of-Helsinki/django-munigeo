@@ -1,10 +1,14 @@
 from django.contrib.gis.db import models
-from django.db.models.query import Q
+from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import (
+    GinIndex,  # add the Postgres recommended GIN index
+)
+from django.contrib.postgres.search import SearchVectorField
+from django.db.models.query import Q, QuerySet
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
-from parler.managers import TranslatableManager, TranslatableQuerySet
-from parler.models import TranslatableModel, TranslatedFields
 
 from munigeo.utils import get_default_srid
 
@@ -30,7 +34,7 @@ class AdministrativeDivisionType(models.Model):
         return f"{self.name} ({self.type})"
 
 
-class AdministrativeDivisionQuerySet(TranslatableQuerySet):
+class AdministrativeDivisionQuerySet(QuerySet):
     def by_ancestor(self, ancestor):
         manager = self.model.objects
         max_level = manager.determine_max_level()
@@ -42,7 +46,7 @@ class AdministrativeDivisionQuerySet(TranslatableQuerySet):
         return self.filter(qs)
 
 
-class AdministrativeDivisionManager(TreeManager, TranslatableManager):
+class AdministrativeDivisionManager(TreeManager):
     def get_queryset(self):
         return AdministrativeDivisionQuerySet(self.model, using=self._db)
 
@@ -50,7 +54,6 @@ class AdministrativeDivisionManager(TreeManager, TranslatableManager):
         if hasattr(self, "_max_level"):
             return self._max_level
         qs = self.all().order_by("-level")
-        # FIXME: Use signals to catch new level being added
         if False and qs.count():
             self._max_level = qs[0].level
         else:
@@ -59,10 +62,15 @@ class AdministrativeDivisionManager(TreeManager, TranslatableManager):
         return self._max_level
 
 
-class AdministrativeDivision(MPTTModel, TranslatableModel):
+class AdministrativeDivision(MPTTModel):
+    _translated_base_fields = ("name",)
+
     type = models.ForeignKey(
         AdministrativeDivisionType, db_index=True, on_delete=models.CASCADE
     )
+    name_fi = models.CharField(max_length=200, null=True, db_index=True)
+    name_sv = models.CharField(max_length=200, null=True, db_index=True)
+    name_en = models.CharField(max_length=200, null=True, db_index=True)
     parent = TreeForeignKey(
         "self",
         db_index=True,
@@ -71,7 +79,7 @@ class AdministrativeDivision(MPTTModel, TranslatableModel):
         on_delete=models.CASCADE,
     )
 
-    origin_id = models.CharField(max_length=50, db_index=True)
+    origin_id = models.CharField(max_length=64, db_index=True)
     ocd_id = models.CharField(
         max_length=200,
         unique=True,
@@ -88,6 +96,7 @@ class AdministrativeDivision(MPTTModel, TranslatableModel):
     service_point_id = models.CharField(
         max_length=50, db_index=True, null=True, blank=True
     )
+    units = ArrayField(models.IntegerField(), default=list)
 
     # Some divisions might be only valid during some time period.
     # (E.g. yearly school districts in Helsinki)
@@ -98,9 +107,10 @@ class AdministrativeDivision(MPTTModel, TranslatableModel):
         auto_now=True, help_text="Time when the information was last changed"
     )
 
-    translations = TranslatedFields(
-        name=models.CharField(_("Name"), max_length=100, null=True, db_index=True)
-    )
+    extra = models.JSONField(default=dict, null=True)
+    search_column_fi = SearchVectorField(null=True)
+    search_column_sv = SearchVectorField(null=True)
+    search_column_en = SearchVectorField(null=True)
 
     objects = AdministrativeDivisionManager()
 
@@ -108,13 +118,43 @@ class AdministrativeDivision(MPTTModel, TranslatableModel):
         ocd_id = ""
         if self.ocd_id:
             ocd_id = "%s / " % self.ocd_id
-        if self.name:
-            return f"{self.name} ({ocd_id}{self.type.type})"
+        name = self.name_fi or self.name_sv or self.name_en or ""
+        if name:
+            return f"{name} ({ocd_id}{self.type.type})"
         else:
             return f"({ocd_id}{self.type.type})"
 
     class Meta:
         unique_together = (("origin_id", "type", "parent"),)
+        indexes = (
+            GinIndex(fields=["search_column_fi"]),
+            GinIndex(fields=["search_column_sv"]),
+            GinIndex(fields=["search_column_en"]),
+        )
+
+    @classmethod
+    def get_search_column_indexing(cls, lang):
+        """
+        Defines the columns to be indexed to the search_column
+        ,config language and weight.
+        """
+        if lang == "fi":
+            return [
+                ("name_fi", "finnish", "A"),
+                ("extra", None, "B"),
+            ]
+        elif lang == "sv":
+            return [
+                ("name_sv", "swedish", "A"),
+                ("extra", None, "B"),
+            ]
+        elif lang == "en":
+            return [
+                ("name_en", "english", "A"),
+                ("extra", None, "B"),
+            ]
+        else:
+            return []
 
 
 class AdministrativeDivisionGeometry(models.Model):
@@ -124,8 +164,14 @@ class AdministrativeDivisionGeometry(models.Model):
     boundary = models.MultiPolygonField(srid=PROJECTION_SRID)
 
 
-class Municipality(TranslatableModel):
+class Municipality(models.Model):
+    _translated_base_fields = ("name",)
+
     id = models.CharField(max_length=100, primary_key=True)
+    code = models.CharField(max_length=3)
+    name_fi = models.CharField(max_length=100, null=True, db_index=True)
+    name_sv = models.CharField(max_length=100, null=True, db_index=True)
+    name_en = models.CharField(max_length=100, null=True, db_index=True)
     division = models.OneToOneField(
         AdministrativeDivision,
         null=True,
@@ -134,12 +180,8 @@ class Municipality(TranslatableModel):
         on_delete=models.CASCADE,
     )
 
-    translations = TranslatedFields(
-        name=models.CharField(_("Name"), max_length=100, null=True, db_index=True)
-    )
-
     def __str__(self):
-        return self.name
+        return self.name_fi or self.name_sv or self.name_en or ""
 
 
 class Plan(models.Model):
@@ -158,7 +200,12 @@ class Plan(models.Model):
         unique_together = (("municipality", "origin_id"),)
 
 
-class Street(TranslatableModel):
+class Street(models.Model):
+    _translated_base_fields = ("name",)
+
+    name_fi = models.CharField(max_length=100, null=True, db_index=True)
+    name_sv = models.CharField(max_length=100, null=True, db_index=True)
+    name_en = models.CharField(max_length=100, null=True, db_index=True)
     municipality = models.ForeignKey(
         Municipality, db_index=True, on_delete=models.CASCADE
     )
@@ -166,19 +213,40 @@ class Street(TranslatableModel):
         auto_now=True, help_text="Time when the information was last changed"
     )
 
-    translations = TranslatedFields(
-        name=models.CharField(_("Name"), max_length=100, db_index=True)
-    )
+    def __str__(self):
+        return self.name_fi or self.name_sv or self.name_en or ""
+
+    class Meta:
+        unique_together = (
+            (
+                "municipality",
+                "name_fi",
+            ),
+        )
+
+
+class PostalCodeArea(models.Model):
+    _translated_base_fields = ("name",)
+
+    postal_code = models.CharField(max_length=5, null=True, blank=True)
+    name_fi = models.CharField(max_length=100, null=True, blank=True)
+    name_sv = models.CharField(max_length=100, null=True, blank=True)
+    name_en = models.CharField(max_length=100, null=True, blank=True)
+    area = models.MultiPolygonField(srid=PROJECTION_SRID, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.postal_code or ""
 
-    # TODO: Find way to implement this, when one of the fields is translated
-    # class Meta:
-    #     unique_together = (('municipality', 'name'),)
+    class Meta:
+        ordering = ["postal_code"]
 
 
 class Address(models.Model):
+    _translated_base_fields = ("full_name",)
+
+    municipality = models.ForeignKey(
+        Municipality, db_index=True, related_name="addresses", on_delete=models.CASCADE
+    )
     street = models.ForeignKey(
         Street, db_index=True, related_name="addresses", on_delete=models.CASCADE
     )
@@ -192,10 +260,38 @@ class Address(models.Model):
     location = models.PointField(
         srid=PROJECTION_SRID, help_text="Coordinates of the address"
     )
-
     modified_at = models.DateTimeField(
-        auto_now=True, help_text="Time when the information was last changed"
+        help_text="Time when the information was last changed"
     )
+    postal_code_area = models.ForeignKey(
+        PostalCodeArea,
+        models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="addresses",
+    )
+    full_name_fi = models.CharField(
+        max_length=256,
+        db_index=True,
+        null=True,
+        help_text="Full address name. Used for generating search_column",
+    )
+    full_name_sv = models.CharField(
+        max_length=256,
+        db_index=True,
+        null=True,
+        help_text="Full address name. Used for generating search_column",
+    )
+    full_name_en = models.CharField(
+        max_length=256,
+        db_index=True,
+        null=True,
+        help_text="Full address name. Used for generating search_column",
+    )
+    search_column_fi = SearchVectorField(null=True)
+    search_column_sv = SearchVectorField(null=True)
+    search_column_en = SearchVectorField(null=True)
+    syllables_fi = ArrayField(models.CharField(max_length=16), default=list)
 
     def __str__(self):
         s = f"{self.street} {self.number}"
@@ -209,6 +305,48 @@ class Address(models.Model):
     class Meta:
         unique_together = (("street", "number", "number_end", "letter"),)
         ordering = ["street", "number"]
+        indexes = (
+            GinIndex(fields=["search_column_fi"]),
+            GinIndex(fields=["search_column_sv"]),
+            GinIndex(fields=["search_column_en"]),
+        )
+
+    def save(self, *args, **kwargs):
+        if not kwargs.pop("skip_modified_at", False):
+            self.modified_at = timezone.now()
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_syllable_fi_columns(cls):
+        """
+        Defines the columns that will be used when populating
+        finnish syllables to syllables_fi column. The content
+        will be tokenized to lexems(to_tsvector) and added to
+        the search_column.
+        """
+        return ["street__name_fi"]
+
+    @classmethod
+    def get_search_column_indexing(cls, lang):
+        """
+        Defines the columns to be indexed to the search_column
+        ,config language and weight.
+        """
+        if lang == "fi":
+            return [
+                ("full_name_fi", "finnish", "A"),
+                ("syllables_fi", "finnish", "A"),
+            ]
+        elif lang == "sv":
+            return [
+                ("full_name_sv", "swedish", "A"),
+            ]
+        elif lang == "en":
+            return [
+                ("full_name_en", "english", "A"),
+            ]
+        else:
+            return []
 
 
 class Building(models.Model):

@@ -1,0 +1,6 @@
+root = true
+
+# The Helsinki importer's file: branch hardcodes DataSource(path, encoding="iso8859-1"),
+# so test fixtures must be saved as latin1 to match.
+[test_app/tests/fixtures/**/*.geojson]
+charset = latin1

@@ -1,0 +1,40 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nimi": "Vanhankaupunginlahti",
+        "id": "NR01",
+        "tunnus": "LSA01"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.93,
+              60.17
+            ],
+            [
+              24.95,
+              60.17
+            ],
+            [
+              24.95,
+              60.18
+            ],
+            [
+              24.93,
+              60.18
+            ],
+            [
+              24.93,
+              60.17
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "tunnus": "10001",
+        "osaalue_tunnus": "1001"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.93,
+              60.17
+            ],
+            [
+              24.95,
+              60.17
+            ],
+            [
+              24.95,
+              60.18
+            ],
+            [
+              24.93,
+              60.18
+            ],
+            [
+              24.93,
+              60.17
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "tunnus": "20001",
+        "osaalue_tunnus": "2001"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              25.03,
+              60.22
+            ],
+            [
+              25.05,
+              60.22
+            ],
+            [
+              25.05,
+              60.23
+            ],
+            [
+              25.03,
+              60.23
+            ],
+            [
+              25.03,
+              60.22
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

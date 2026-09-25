@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from functools import cached_property
 
 import requests
 from django.conf import settings
@@ -17,6 +18,44 @@ def convert_from_wgs84(coords):
 
 
 class Importer:
+    def __init__(self, options):
+        self.logger = logging.getLogger("%s_importer" % self.name)
+        self.options = options
+
+    @cached_property
+    def data_paths(self):
+        # https://github.com/City-of-Helsinki/django-munigeo/pull/89
+        # https://github.com/City-of-Helsinki/django-munigeo/pull/90
+        data_paths = []
+        if getattr(settings, "IMPORT_DATA_PATH", None):
+            data_paths.append(settings.IMPORT_DATA_PATH)
+
+        if hasattr(settings, "PROJECT_ROOT"):
+            root_dir = settings.PROJECT_ROOT
+        else:
+            root_dir = settings.BASE_DIR
+        data_paths.append(os.path.join(root_dir, "data"))
+
+        module_path = os.path.dirname(__file__)
+        app_path = os.path.abspath(os.path.join(module_path, "..", "data"))
+        data_paths.append(app_path)
+
+        return data_paths
+
+    @property
+    def import_data_path(self):
+        # https://github.com/City-of-Helsinki/django-munigeo/pull/89
+        # https://github.com/City-of-Helsinki/django-munigeo/pull/90
+        """
+        Path for storing temporary data for imports.
+
+        If set, uses IMPORT_DATA_PATH. Otherwise, uses the first data path
+        set in data_paths (which should be either PROJECT_ROOT or BASE_DIR).
+        """
+        if getattr(settings, "IMPORT_DATA_PATH", None):
+            return settings.IMPORT_DATA_PATH
+        return self.data_paths[0]
+
     def _import_citadel(self, muni, info):
         muni_slug = slugify(muni.name)
 
@@ -60,20 +99,6 @@ class Importer:
             if os.path.exists(full_path):
                 return full_path
         raise FileNotFoundError("Data file '%s' not found" % data_file)
-
-    def __init__(self, options):
-        self.logger = logging.getLogger("%s_importer" % self.name)
-
-        if hasattr(settings, "PROJECT_ROOT"):
-            root_dir = settings.PROJECT_ROOT
-        else:
-            root_dir = settings.BASE_DIR
-        self.data_paths = [os.path.join(root_dir, "data")]
-        module_path = os.path.dirname(__file__)
-        app_path = os.path.abspath(os.path.join(module_path, "..", "data"))
-        self.data_paths.append(app_path)
-
-        self.options = options
 
 
 importers = {}

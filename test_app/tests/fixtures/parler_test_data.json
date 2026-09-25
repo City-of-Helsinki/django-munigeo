@@ -1,0 +1,1115 @@
+[
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 1,
+  "fields": {
+    "type": "muni",
+    "name": "Municipality"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 2,
+  "fields": {
+    "type": "major_district",
+    "name": "Suurpiiri"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 3,
+  "fields": {
+    "type": "district",
+    "name": "Peruspiiri"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 4,
+  "fields": {
+    "type": "sub_district",
+    "name": "Osa-alue"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 5,
+  "fields": {
+    "type": "small_district",
+    "name": "Pienalue"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 6,
+  "fields": {
+    "type": "voting_district",
+    "name": "Äänestysalue"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 7,
+  "fields": {
+    "type": "health_station_district",
+    "name": "Terveysasema-aluejako"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 8,
+  "fields": {
+    "type": "emergency_care_district",
+    "name": "Päivystysalue"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 9,
+  "fields": {
+    "type": "rescue_area",
+    "name": "Suojelupiiri"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 10,
+  "fields": {
+    "type": "rescue_district",
+    "name": "Suojelulohko"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 11,
+  "fields": {
+    "type": "rescue_sub_district",
+    "name": "Suojelulalaohko"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 12,
+  "fields": {
+    "type": "maternity_clinic_district",
+    "name": "Neuvola-alue"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 13,
+  "fields": {
+    "type": "statistical_district",
+    "name": "Tilastoalue"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 14,
+  "fields": {
+    "type": "nature_reserve",
+    "name": "Luonnonsuojelualue"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 15,
+  "fields": {
+    "type": "resident_parking_zone",
+    "name": "Asukaspysäköintivyöhyke"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 16,
+  "fields": {
+    "type": "parking_area",
+    "name": "Pysäköintipaikka-alue"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontype",
+  "pk": 17,
+  "fields": {
+    "type": "parking_payzone",
+    "name": "Pysäköintimaksuvyöhyke"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 1,
+  "fields": {
+    "language_code": "fi",
+    "name": "Helsinki",
+    "master": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 2,
+  "fields": {
+    "language_code": "sv",
+    "name": "Helsingfors",
+    "master": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 3,
+  "fields": {
+    "language_code": "fi",
+    "name": "Espoo",
+    "master": 2
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 4,
+  "fields": {
+    "language_code": "sv",
+    "name": "Esbo",
+    "master": 2
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 5,
+  "fields": {
+    "language_code": "fi",
+    "name": "Eteläinen",
+    "master": 3
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 6,
+  "fields": {
+    "language_code": "sv",
+    "name": "Södra",
+    "master": 3
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 7,
+  "fields": {
+    "language_code": "fi",
+    "name": "Pohjoinen",
+    "master": 4
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 8,
+  "fields": {
+    "language_code": "sv",
+    "name": "Norra",
+    "master": 4
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 9,
+  "fields": {
+    "language_code": "fi",
+    "name": "Kamppi",
+    "master": 5
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 10,
+  "fields": {
+    "language_code": "sv",
+    "name": "Kampen",
+    "master": 5
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 11,
+  "fields": {
+    "language_code": "fi",
+    "name": "Malmi",
+    "master": 6
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 12,
+  "fields": {
+    "language_code": "sv",
+    "name": "Malm",
+    "master": 6
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 13,
+  "fields": {
+    "language_code": "fi",
+    "name": "Kamppi 1",
+    "master": 7
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 14,
+  "fields": {
+    "language_code": "sv",
+    "name": "Kampen 1",
+    "master": 7
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 15,
+  "fields": {
+    "language_code": "fi",
+    "name": "Malmi 1",
+    "master": 8
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 16,
+  "fields": {
+    "language_code": "sv",
+    "name": "Malm 1",
+    "master": 8
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 17,
+  "fields": {
+    "language_code": "fi",
+    "name": "Äänestysalue 1",
+    "master": 11
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 18,
+  "fields": {
+    "language_code": "fi",
+    "name": "Äänestysalue 2",
+    "master": 12
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 19,
+  "fields": {
+    "language_code": "fi",
+    "name": "ta01",
+    "master": 13
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 20,
+  "fields": {
+    "language_code": "fi",
+    "name": "paiv01",
+    "master": 14
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 21,
+  "fields": {
+    "language_code": "fi",
+    "name": "Suojelupiiri 1",
+    "master": 15
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 22,
+  "fields": {
+    "language_code": "sv",
+    "name": "Skyddsdistrikt 1",
+    "master": 15
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 23,
+  "fields": {
+    "language_code": "fi",
+    "name": "Suojelulohko 1",
+    "master": 16
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 24,
+  "fields": {
+    "language_code": "sv",
+    "name": "Skyddssektion 1",
+    "master": 16
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 25,
+  "fields": {
+    "language_code": "fi",
+    "name": "Suojelualalohko 1",
+    "master": 17
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 26,
+  "fields": {
+    "language_code": "sv",
+    "name": "Skyddsundersektion 1",
+    "master": 17
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 27,
+  "fields": {
+    "language_code": "fi",
+    "name": "nv01",
+    "master": 18
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 28,
+  "fields": {
+    "language_code": "fi",
+    "name": "Tilastoalue 1",
+    "master": 19
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 29,
+  "fields": {
+    "language_code": "fi",
+    "name": "Vanhankaupunginlahti",
+    "master": 20
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 30,
+  "fields": {
+    "language_code": "fi",
+    "name": "Kamppi",
+    "master": 21
+  }
+},
+{
+  "model": "munigeo.administrativedivisiontranslation",
+  "pk": 31,
+  "fields": {
+    "language_code": "fi",
+    "name": "Vyöhyke 1",
+    "master": 24
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 1,
+  "fields": {
+    "type": 1,
+    "parent": null,
+    "origin_id": "91",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki",
+    "municipality": null,
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.171Z",
+    "lft": 1,
+    "rght": 44,
+    "tree_id": 1,
+    "level": 0
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 2,
+  "fields": {
+    "type": 1,
+    "parent": null,
+    "origin_id": "49",
+    "ocd_id": "ocd-division/country:fi/kunta:espoo",
+    "municipality": null,
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.186Z",
+    "lft": 1,
+    "rght": 2,
+    "tree_id": 2,
+    "level": 0
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 3,
+  "fields": {
+    "type": 2,
+    "parent": 1,
+    "origin_id": "001",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/suurpiiri:eteläinen",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.253Z",
+    "lft": 2,
+    "rght": 9,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 4,
+  "fields": {
+    "type": 2,
+    "parent": 1,
+    "origin_id": "002",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/suurpiiri:pohjoinen",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.260Z",
+    "lft": 10,
+    "rght": 17,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 5,
+  "fields": {
+    "type": 3,
+    "parent": 3,
+    "origin_id": "101",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/peruspiiri:kamppi",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.290Z",
+    "lft": 3,
+    "rght": 8,
+    "tree_id": 1,
+    "level": 2
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 6,
+  "fields": {
+    "type": 3,
+    "parent": 4,
+    "origin_id": "201",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/peruspiiri:malmi",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.296Z",
+    "lft": 11,
+    "rght": 16,
+    "tree_id": 1,
+    "level": 2
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 7,
+  "fields": {
+    "type": 4,
+    "parent": 5,
+    "origin_id": "1001",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/osa-alue:kamppi_1",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.320Z",
+    "lft": 4,
+    "rght": 7,
+    "tree_id": 1,
+    "level": 3
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 8,
+  "fields": {
+    "type": 4,
+    "parent": 6,
+    "origin_id": "2001",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/osa-alue:malmi_1",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.326Z",
+    "lft": 12,
+    "rght": 15,
+    "tree_id": 1,
+    "level": 3
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 9,
+  "fields": {
+    "type": 5,
+    "parent": 7,
+    "origin_id": "10001",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/osa-alue:kamppi_1/pienalue:10001",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.351Z",
+    "lft": 5,
+    "rght": 6,
+    "tree_id": 1,
+    "level": 4
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 10,
+  "fields": {
+    "type": 5,
+    "parent": 8,
+    "origin_id": "20001",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/osa-alue:malmi_1/pienalue:20001",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.355Z",
+    "lft": 13,
+    "rght": 14,
+    "tree_id": 1,
+    "level": 4
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 11,
+  "fields": {
+    "type": 6,
+    "parent": 1,
+    "origin_id": "001A",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/äänestysalue:001a",
+    "municipality": "helsinki",
+    "service_point_id": "12345,67890",
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.374Z",
+    "lft": 22,
+    "rght": 23,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 12,
+  "fields": {
+    "type": 6,
+    "parent": 1,
+    "origin_id": "002B",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/äänestysalue:002b",
+    "municipality": "helsinki",
+    "service_point_id": "55555",
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.379Z",
+    "lft": 24,
+    "rght": 25,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 13,
+  "fields": {
+    "type": 7,
+    "parent": 1,
+    "origin_id": "ta01",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/terveysasema-alue:ta01",
+    "municipality": "helsinki",
+    "service_point_id": "11111,22222",
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.400Z",
+    "lft": 18,
+    "rght": 19,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 14,
+  "fields": {
+    "type": 8,
+    "parent": 1,
+    "origin_id": "EC01",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/päivystysalue:paiv01",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.421Z",
+    "lft": 26,
+    "rght": 27,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 15,
+  "fields": {
+    "type": 9,
+    "parent": 1,
+    "origin_id": "SP01",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/suojelupiiri:suojelupiiri_1",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.442Z",
+    "lft": 20,
+    "rght": 21,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 16,
+  "fields": {
+    "type": 10,
+    "parent": 1,
+    "origin_id": "SL01",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/suojelulohko:suojelulohko_1",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.464Z",
+    "lft": 28,
+    "rght": 29,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 17,
+  "fields": {
+    "type": 11,
+    "parent": 1,
+    "origin_id": "SAL01",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/suojelualalohko:suojelualalohko_1",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.489Z",
+    "lft": 30,
+    "rght": 31,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 18,
+  "fields": {
+    "type": 12,
+    "parent": 1,
+    "origin_id": "nv01",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/neuvola-alue:nv01",
+    "municipality": "helsinki",
+    "service_point_id": "33333,44444",
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.512Z",
+    "lft": 32,
+    "rght": 33,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 19,
+  "fields": {
+    "type": 13,
+    "parent": null,
+    "origin_id": "091001",
+    "ocd_id": "ocd-division/country:fi/tilastoalue:091001",
+    "municipality": null,
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.533Z",
+    "lft": 1,
+    "rght": 2,
+    "tree_id": 3,
+    "level": 0
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 20,
+  "fields": {
+    "type": 14,
+    "parent": 1,
+    "origin_id": "NR01",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/luonnonsuojelualue:lsa01",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.544Z",
+    "lft": 34,
+    "rght": 35,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 21,
+  "fields": {
+    "type": 15,
+    "parent": 1,
+    "origin_id": "RPZ01",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/asukaspysakointivyohyke:rpz01",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.567Z",
+    "lft": 36,
+    "rght": 37,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 22,
+  "fields": {
+    "type": 16,
+    "parent": 1,
+    "origin_id": "PA01",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/pysakointipaikka-alue:pa01",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.591Z",
+    "lft": 38,
+    "rght": 39,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 23,
+  "fields": {
+    "type": 16,
+    "parent": 1,
+    "origin_id": "PA02",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/pysakointipaikka-alue:pa02",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.595Z",
+    "lft": 40,
+    "rght": 41,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivision",
+  "pk": 24,
+  "fields": {
+    "type": 17,
+    "parent": 1,
+    "origin_id": "PPZ01",
+    "ocd_id": "ocd-division/country:fi/kunta:helsinki/pysakointimaksuvyohyke:ppz01",
+    "municipality": "helsinki",
+    "service_point_id": null,
+    "start": null,
+    "end": null,
+    "modified_at": "2026-04-23T06:42:52.620Z",
+    "lft": 42,
+    "rght": 43,
+    "tree_id": 1,
+    "level": 1
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 1,
+  "fields": {
+    "division": 1,
+    "boundary": "SRID=3067;MULTIPOLYGON (((382000 6672000, 388000 6672000, 388000 6678000, 382000 6678000, 382000 6672000)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 2,
+  "fields": {
+    "division": 2,
+    "boundary": "SRID=3067;MULTIPOLYGON (((368000 6680000, 374000 6680000, 374000 6686000, 368000 6686000, 368000 6680000)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 3,
+  "fields": {
+    "division": 3,
+    "boundary": "SRID=3067;MULTIPOLYGON (((383410.6865604096 6669970.000108681, 387851.23746041517 6669831.466871266, 388021.57378382125 6675398.253275684, 383587.770319833 6675536.645228951, 383410.6865604096 6669970.000108681)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 4,
+  "fields": {
+    "division": 4,
+    "boundary": "SRID=3067;MULTIPOLYGON (((389130.0420876335 6675364.495214669, 393563.9829985548 6675232.822620071, 393725.9672819766 6680799.81547506, 389298.7770124691 6680931.353255751, 389130.0420876335 6675364.495214669)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 5,
+  "fields": {
+    "division": 5,
+    "boundary": "SRID=3067;MULTIPOLYGON (((384000.990155283 6671065.71885434, 387330.39147923735 6670961.840095352, 387433.09932768927 6674301.9015227035, 384106.7343499523 6674405.716703829, 384000.990155283 6671065.71885434)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 6,
+  "fields": {
+    "division": 6,
+    "boundary": "SRID=3067;MULTIPOLYGON (((389717.8502286785 6676461.114233882, 393042.293579877 6676362.379987617, 393139.9904449476 6679702.565771072, 389818.5848823952 6679801.239351083, 389717.8502286785 6676461.114233882)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 7,
+  "fields": {
+    "division": 7,
+    "boundary": "SRID=3067;MULTIPOLYGON (((384573.4234305013 6671604.862748785, 386792.68701245426 6671535.617302574, 386861.49628109543 6673762.317942639, 384643.58218634216 6673831.535132023, 384573.4234305013 6671604.862748785)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 8,
+  "fields": {
+    "division": 8,
+    "boundary": "SRID=3067;MULTIPOLYGON (((390288.6225290069 6677001.136886655, 392504.58063551015 6676935.320792295, 392570.0494089581 6679162.104660169, 390355.44143073424 6679227.893791754, 390288.6225290069 6677001.136886655)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 9,
+  "fields": {
+    "division": 9,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 10,
+  "fields": {
+    "division": 10,
+    "boundary": "SRID=3067;MULTIPOLYGON (((390859.2286179274 6677541.247280271, 391967.03892647737 6677508.342602174, 391999.94207863446 6678621.731191646, 390892.46930215316 6678654.629129049, 390859.2286179274 6677541.247280271)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 11,
+  "fields": {
+    "division": 11,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 12,
+  "fields": {
+    "division": 12,
+    "boundary": "SRID=3067;MULTIPOLYGON (((386255.1538277976 6672109.475436978, 387364.62395746127 6672075.192422879, 387398.8599072929 6673188.546232095, 386289.7271473789 6673222.822250716, 386255.1538277976 6672109.475436978)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 13,
+  "fields": {
+    "division": 13,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 14,
+  "fields": {
+    "division": 14,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 15,
+  "fields": {
+    "division": 15,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 16,
+  "fields": {
+    "division": 16,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 17,
+  "fields": {
+    "division": 17,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 18,
+  "fields": {
+    "division": 18,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 19,
+  "fields": {
+    "division": 19,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 20,
+  "fields": {
+    "division": 20,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 21,
+  "fields": {
+    "division": 21,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 22,
+  "fields": {
+    "division": 22,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 23,
+  "fields": {
+    "division": 23,
+    "boundary": "SRID=3067;MULTIPOLYGON (((386255.1538277976 6672109.475436978, 387364.62395746127 6672075.192422879, 387398.8599072929 6673188.546232095, 386289.7271473789 6673222.822250716, 386255.1538277976 6672109.475436978)))"
+  }
+},
+{
+  "model": "munigeo.administrativedivisiongeometry",
+  "pk": 24,
+  "fields": {
+    "division": 24,
+    "boundary": "SRID=3067;MULTIPOLYGON (((385145.6907013851 6672144.0946293045, 386255.1538277976 6672109.475436978, 386289.7271473789 6673222.822250716, 385180.601392765 6673257.434378839, 385145.6907013851 6672144.0946293045)))"
+  }
+},
+{
+  "model": "munigeo.municipalitytranslation",
+  "pk": 1,
+  "fields": {
+    "language_code": "fi",
+    "name": "Helsinki",
+    "master": "helsinki"
+  }
+},
+{
+  "model": "munigeo.municipalitytranslation",
+  "pk": 2,
+  "fields": {
+    "language_code": "sv",
+    "name": "Helsingfors",
+    "master": "helsinki"
+  }
+},
+{
+  "model": "munigeo.municipalitytranslation",
+  "pk": 3,
+  "fields": {
+    "language_code": "fi",
+    "name": "Espoo",
+    "master": "espoo"
+  }
+},
+{
+  "model": "munigeo.municipalitytranslation",
+  "pk": 4,
+  "fields": {
+    "language_code": "sv",
+    "name": "Esbo",
+    "master": "espoo"
+  }
+},
+{
+  "model": "munigeo.municipality",
+  "pk": "espoo",
+  "fields": {
+    "division": 2
+  }
+},
+{
+  "model": "munigeo.municipality",
+  "pk": "helsinki",
+  "fields": {
+    "division": 1
+  }
+}
+]

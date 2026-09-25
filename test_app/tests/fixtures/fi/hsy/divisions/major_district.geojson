@@ -1,0 +1,75 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "suur": "MD01",
+        "kunta": "091",
+        "nimi": "Keskinen"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.93,
+              60.16
+            ],
+            [
+              24.96,
+              60.16
+            ],
+            [
+              24.96,
+              60.19
+            ],
+            [
+              24.93,
+              60.19
+            ],
+            [
+              24.93,
+              60.16
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "suur": "MD02",
+        "kunta": "092",
+        "nimi": "Tikkurila"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              25.03,
+              60.28
+            ],
+            [
+              25.06,
+              60.28
+            ],
+            [
+              25.06,
+              60.31
+            ],
+            [
+              25.03,
+              60.31
+            ],
+            [
+              25.03,
+              60.28
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
