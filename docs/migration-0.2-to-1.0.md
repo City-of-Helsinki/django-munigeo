@@ -83,50 +83,7 @@ table is missing, do not run this bookkeeping procedure; a fresh database can
 run the normal 1.0 migration chain directly. Stop if the history is not a
 known 0.2 history.
 
-### 2. Rewrite migration history
-
-Run the following SQL directly against the target database. Do not use
-`manage.py migrate --fake`; Django checks migration consistency before handling
-the fake request.
-
-```sql
-BEGIN;
-
-DELETE FROM django_migrations
-WHERE app = 'munigeo';
-
-INSERT INTO django_migrations (app, name, applied)
-VALUES
-    ('munigeo', '0001_initial', CURRENT_TIMESTAMP),
-    ('munigeo', '0002_auto_20150608_1607', CURRENT_TIMESTAMP),
-    ('munigeo', '0003_add_modified_time_to_address_and_street', CURRENT_TIMESTAMP),
-    ('munigeo', '0004_building', CURRENT_TIMESTAMP),
-    ('munigeo', '0002_add_parler_translations', CURRENT_TIMESTAMP),
-    ('munigeo', '0003_migrate_translations_to_parler', CURRENT_TIMESTAMP),
-    ('munigeo', '0004_delete_old_translations', CURRENT_TIMESTAMP),
-    ('munigeo', '0005_update_translation_foreign_keys', CURRENT_TIMESTAMP),
-    ('munigeo', '0006_add_name_fields', CURRENT_TIMESTAMP),
-    ('munigeo', '0007_migrate_translation_data', CURRENT_TIMESTAMP),
-    ('munigeo', '0008_remove_translation_tables', CURRENT_TIMESTAMP),
-    ('munigeo', '0009_alter_administrativedivision_name_en_and_more', CURRENT_TIMESTAMP),
-    ('munigeo', '0010_postalcodearea_address_full_name_en_and_more', CURRENT_TIMESTAMP);
-
-COMMIT;
-```
-
-Verify the rewrite:
-
-```sql
-SELECT COUNT(*) AS munigeo_migrations
-FROM django_migrations
-WHERE app = 'munigeo';
-```
-
-The count must be 13 before running Django. Do not insert the squash migration
-name `0001_squashed_0004_building`; Django records it after the replacement
-rows are present.
-
-### 3. Add the consumer bridge migration
+### 2. Add the consumer bridge migration
 
 Generate an empty migration in the consuming application:
 
@@ -332,6 +289,49 @@ If the old street constraint has a different name, replace
 `munigeo_street_municipality_id_name_6e998d56_uniq` with the name in
 `pg_constraint`. The constraint definition must be
 `UNIQUE (municipality_id, name)`.
+
+### 3. Rewrite migration history
+
+Run the following SQL directly against the target database. Do not use
+`manage.py migrate --fake`; Django checks migration consistency before handling
+the fake request.
+
+```sql
+BEGIN;
+
+DELETE FROM django_migrations
+WHERE app = 'munigeo';
+
+INSERT INTO django_migrations (app, name, applied)
+VALUES
+    ('munigeo', '0001_initial', CURRENT_TIMESTAMP),
+    ('munigeo', '0002_auto_20150608_1607', CURRENT_TIMESTAMP),
+    ('munigeo', '0003_add_modified_time_to_address_and_street', CURRENT_TIMESTAMP),
+    ('munigeo', '0004_building', CURRENT_TIMESTAMP),
+    ('munigeo', '0002_add_parler_translations', CURRENT_TIMESTAMP),
+    ('munigeo', '0003_migrate_translations_to_parler', CURRENT_TIMESTAMP),
+    ('munigeo', '0004_delete_old_translations', CURRENT_TIMESTAMP),
+    ('munigeo', '0005_update_translation_foreign_keys', CURRENT_TIMESTAMP),
+    ('munigeo', '0006_add_name_fields', CURRENT_TIMESTAMP),
+    ('munigeo', '0007_migrate_translation_data', CURRENT_TIMESTAMP),
+    ('munigeo', '0008_remove_translation_tables', CURRENT_TIMESTAMP),
+    ('munigeo', '0009_alter_administrativedivision_name_en_and_more', CURRENT_TIMESTAMP),
+    ('munigeo', '0010_postalcodearea_address_full_name_en_and_more', CURRENT_TIMESTAMP);
+
+COMMIT;
+```
+
+Verify the rewrite:
+
+```sql
+SELECT COUNT(*) AS munigeo_migrations
+FROM django_migrations
+WHERE app = 'munigeo';
+```
+
+The count must be 13 before running Django. Do not insert the squash migration
+name `0001_squashed_0004_building`; Django records it after the replacement
+rows are present.
 
 ### 4. Apply migrations
 
