@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - main
-      - RATY-306/1.0  # TODO: remove after RATY-306/1.0 is merged to main
   pull_request:
     branches:
       - main
-      - RATY-306/1.0  # TODO: remove after RATY-306/1.0 is merged to main
   workflow_dispatch:
 
 concurrency:
