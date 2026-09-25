@@ -414,6 +414,7 @@ class HelsinkiImporter(Importer):
             "WFS:https://kartta.hel.fi/ws/geoserver/avoindata/wfs?"
             "SERVICE=WFS&VERSION=1.2.0&REQUEST=GetFeature&"
             "TYPENAME=avoindata:PKS_osoiteluettelo&"
+            "SRSNAME=EPSG:3067&outputFormat=application/json"
         )
         self.logger.info("Loading master data from WFS datasource")
         ds = DataSource(wfs_url)
