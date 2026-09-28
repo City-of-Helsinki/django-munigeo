@@ -1,6 +1,7 @@
 services:
   postgis:
     image: "postgis/postgis:17-3.5-alpine"
+    platform: linux/amd64
     environment:
       POSTGRES_USER: munigeo
       POSTGRES_PASSWORD: munigeo
