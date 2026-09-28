@@ -47,3 +47,12 @@ Basic `ruff` commands:
 [`pre-commit`](https://pre-commit.com/) can be used to install and
 run all the formatting tools as git hooks automatically before a
 commit.
+
+## Releases
+
+[Release Please](https://github.com/googleapis/release-please-action) creates
+release PRs from Conventional Commits. Merge a release PR to publish to PyPI
+through [publish.yml](.github/workflows/publish.yml).
+
+Setup requires allowing GitHub Actions to create pull requests and configuring
+PyPI trusted publishing for this repository's `publish.yml` and `pypi` environment.
