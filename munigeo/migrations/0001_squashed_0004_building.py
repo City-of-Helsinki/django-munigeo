@@ -299,7 +299,7 @@ class Migration(migrations.Migration):
                     models.DateTimeField(
                         auto_now=True,
                         default=datetime.datetime(
-                            1970, 1, 1, 2, 0, tzinfo=datetime.timezone.utc
+                            1970, 1, 1, 2, 0, tzinfo=datetime.UTC
                         ),
                         help_text="Time when the information was last changed",
                     ),
@@ -373,9 +373,7 @@ class Migration(migrations.Migration):
             name="modified_at",
             field=models.DateTimeField(
                 auto_now=True,
-                default=datetime.datetime(
-                    1970, 1, 1, 2, 0, tzinfo=datetime.timezone.utc
-                ),
+                default=datetime.datetime(1970, 1, 1, 2, 0, tzinfo=datetime.UTC),
                 help_text="Time when the information was last changed",
             ),
             preserve_default=False,
