@@ -14,10 +14,10 @@ repos:
   # Run pyupgrade and django-upgrade before ruff, as these two might alter
   # the code in a way that requires reformatting.
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.21.0
+    rev: v3.22.0
     hooks:
       - id: pyupgrade
-        args: ["--py310-plus"]
+        args: ["--py311-plus"]
   - repo: https://github.com/adamchainz/django-upgrade
     rev: "1.29.1"
     hooks:
