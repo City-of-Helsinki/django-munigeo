@@ -33,6 +33,11 @@ then
 python manage.py geo_import helsinki --divisions
 ```
 
+## Migration to 1.0
+
+See the guide for [migration from 0.2](docs/migration-0.2-to-1.0.md) or
+[migration from 0.3.12](docs/migration-0.3-to-1.0.md).
+
 ## Code format
 
 This project uses [Ruff](https://docs.astral.sh/ruff/) for code formatting and quality checking.
